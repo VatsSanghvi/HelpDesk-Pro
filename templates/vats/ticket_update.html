@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ update_type }} Ticket{% endblock %}
+{% block topbar_title %}{{ update_type }} Ticket{% endblock %}
+{% block topbar_sub %}Make changes and save{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <div class="page-header">
+      <h2>
+        {% if update_type == "Assign" %}✔ Approve & Assign Ticket
+        {% else %}✏ Update Ticket{% endif %}
+      </h2>
+      <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-title">
+          {% if update_type == "Assign" %}Set Priority & Assignee{% else %}Update Fields{% endif %}
+        </div>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label>{{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div style="color:var(--danger);font-size:12px;margin-top:3px;">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+            <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+              {% if update_type == "Assign" %}Approve & Assign{% else %}Save Changes{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

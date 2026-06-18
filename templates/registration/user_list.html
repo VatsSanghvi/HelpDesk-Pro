@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Users{% endblock %}
+{% block topbar_title %}Users{% endblock %}
+{% block topbar_sub %}{% if role %}Showing {{ role }}s{% else %}All system users{% endif %}{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <h2>👥 Users{% if role %} — {{ role }}s{% endif %}</h2>
+  <a href="{% url 'user_create' %}" class="btn btn-primary">➕ Add User</a>
+</div>
+
+<!-- Role filter tabs -->
+<div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+  <a href="{% url 'user_list' %}" class="btn btn-sm {% if not role %}btn-primary{% else %}btn-outline-secondary{% endif %}">All</a>
+  <a href="{% url 'user_list_role' 'Admin' %}"   class="btn btn-sm {% if role == 'Admin'   %}btn-primary{% else %}btn-outline-secondary{% endif %}">Admins</a>
+  <a href="{% url 'user_list_role' 'Manager' %}" class="btn btn-sm {% if role == 'Manager' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Managers</a>
+  <a href="{% url 'user_list_role' 'Viewer' %}"  class="btn btn-sm {% if role == 'Viewer'  %}btn-primary{% else %}btn-outline-secondary{% endif %}">Viewers</a>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0 !important;">
+    {% if user_list %}
+    <div style="overflow-x:auto;">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in user_list %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:32px;height:32px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--primary);flex-shrink:0;">
+                  {{ u.first_name|first|upper }}{{ u.last_name|first|upper }}
+                </div>
+                <a href="{% url 'user_detail' u.id %}" style="font-weight:600;color:var(--text);text-decoration:none;">
+                  {{ u.first_name|capfirst }} {{ u.last_name|capfirst }}
+                </a>
+              </div>
+            </td>
+            <td style="color:var(--text-muted);">{{ u.email }}</td>
+            <td style="color:var(--text-muted);">{{ u.phone_number|default:"—" }}</td>
+            <td>
+              <span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;
+                {% if u.role == 'Admin' %}background:#FEE2E2;color:#991B1B;
+                {% elif u.role == 'Manager' %}background:#DBEAFE;color:#1E40AF;
+                {% else %}background:#DCFCE7;color:#166534;{% endif %}">
+                {{ u.role }}
+              </span>
+            </td>
+            <td>
+              {% if u.is_active %}
+              <span style="color:var(--success);font-size:12px;font-weight:600;">● Active</span>
+              {% else %}
+              <span style="color:var(--text-muted);font-size:12px;">○ Inactive</span>
+              {% endif %}
+            </td>
+            <td style="font-size:12px;color:var(--text-muted);">{{ u.date_joined|date:"d M Y" }}</td>
+            <td>
+              <a href="{% url 'user_detail' u.id %}" class="btn btn-outline-primary btn-sm">View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="padding:48px;text-align:center;color:var(--text-muted);font-size:13px;">
+      <div style="font-size:36px;margin-bottom:12px;">👥</div>
+      No users found.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

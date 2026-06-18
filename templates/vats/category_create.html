@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}New Category{% endblock %}
+{% block topbar_title %}Add Category{% endblock %}
+{% block topbar_sub %}Create a new ticket category{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="page-header">
+      <h2>🏷 New Category</h2>
+      <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Create Category</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

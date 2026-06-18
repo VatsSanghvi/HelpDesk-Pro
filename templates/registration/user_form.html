@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}User{% endblock %}
+{% block topbar_title %}User{% endblock %}
+{% block topbar_sub %}Create or update a system user{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <div class="page-header">
+      <h2>👤 {% if object %}Edit User{% else %}Add New User{% endif %}</h2>
+      <a href="{% url 'user_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-header-title">User Details</div></div>
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="form-group">
+            <label>{{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}</label>
+            {{ field }}
+            {% if field.help_text %}<small style="color:var(--text-muted);font-size:11px;">{{ field.help_text }}</small>{% endif %}
+            {% if field.errors %}<div style="color:var(--danger);font-size:12px;margin-top:3px;">{{ field.errors.0 }}</div>{% endif %}
+          </div>
+          {% endfor %}
+          <div style="display:flex;justify-content:flex-end;gap:10px;">
+            <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Create User{% endif %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

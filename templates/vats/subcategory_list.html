@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Subcategories — {{ category.name }}{% endblock %}
+{% block topbar_title %}{{ category.name }}{% endblock %}
+{% block topbar_sub %}Subcategories{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <div>
+    <h2>🏷 {{ category.name }}</h2>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Subcategories</div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-sm">← Categories</a>
+    <a href="{% url 'subcategory_create' category.id %}" class="btn btn-primary btn-sm">➕ Add Subcategory</a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0 !important;">
+    {% if subcategories %}
+    <table class="table table-hover">
+      <thead>
+        <tr><th>Subcategory Name</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for sub in subcategories %}
+        <tr>
+          <td style="font-weight:500;">{{ sub.name }}</td>
+          <td style="text-align:right;">
+            <a href="{% url 'subcategory_delete' sub.id %}" class="btn btn-outline-danger btn-sm"
+               onclick="return confirm('Delete subcategory {{ sub.name }}?')">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">
+      No subcategories yet. <a href="{% url 'subcategory_create' category.id %}">Add one</a>.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

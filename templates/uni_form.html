@@ -1,0 +1,6 @@
+<!-- F:\Git\TickitGenerator-main\templates\bootstrap4\uni_form.html -->
+<form method="post" novalidate>
+    {% csrf_token %}
+    {{ form|crispy }}
+    <button type="submit">Submit</button>
+</form>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}HelpDesk Pro{% endblock %} — HelpDesk Pro</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block css %}{% endblock %}
+</head>
+<body>
+
+{% if request.user.is_authenticated %}
+
+<!-- ══════════════════  SIDEBAR  ══════════════════ -->
+<nav class="sidebar">
+
+  <a href="{% url 'home' %}" class="sidebar-brand" style="text-decoration:none;">
+    <div class="brand-icon">🎫</div>
+    <div>
+      <span class="brand-name">HelpDesk Pro</span>
+      <span class="brand-sub">IT Support Portal</span>
+    </div>
+  </a>
+
+  <ul class="nav flex-column" style="padding: 0; margin: 0; list-style: none;">
+
+    <!-- Dashboard — all roles -->
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+        <span class="ni">⊞</span> Dashboard
+      </a>
+    </li>
+
+    {% if request.user.role == "Admin" %}
+    <!-- ── Admin section ── -->
+    <div class="sidebar-section">Tickets</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
+        <span class="ni">🎫</span> All Tickets
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if 'ticket_list_status' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'ticket_list_status' 'Pending' %}">
+        <span class="ni">⏳</span> Pending
+      </a>
+    </li>
+
+    <div class="sidebar-section">Manage</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}">
+        <span class="ni">👥</span> Users
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" href="{% url 'category_list' %}">
+        <span class="ni">🏷</span> Categories
+      </a>
+    </li>
+
+    {% elif request.user.role == "Viewer" %}
+    <!-- ── Viewer section ── -->
+    <div class="sidebar-section">My Tickets</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
+        <span class="ni">🎫</span> All My Tickets
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'ticket_create' %}">
+        <span class="ni">➕</span> Raise New Ticket
+      </a>
+    </li>
+
+    {% elif request.user.role == "Manager" %}
+    <!-- ── Manager section ── -->
+    <div class="sidebar-section">Assigned Work</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
+        <span class="ni">🎫</span> All Assigned
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'ticket_list_status' 'Assigned' %}">
+        <span class="ni">📋</span> Assigned
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'ticket_list_status' 'In Progress' %}">
+        <span class="ni">🔄</span> In Progress
+      </a>
+    </li>
+    {% endif %}
+
+    <!-- ── Common bottom links ── -->
+    <div class="sidebar-section">Account</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' request.user.id %}">
+        <span class="ni">👤</span> My Profile
+      </a>
+    </li>
+
+  </ul>
+
+  <div class="sidebar-footer">
+    <form method="POST" action="{% url 'logout' %}" style="margin:0;">
+  {% csrf_token %}
+  <button type="submit" class="nav-link" style="background:none;border:none;color:rgba(255,255,255,0.55);font-size:13px;display:flex;align-items:center;gap:8px;padding:8px 11px;width:100%;cursor:pointer;">
+    <span>🚪</span> Logout
+  </button>
+</form>
+  </div>
+</nav>
+
+<!-- ══════════════════  MAIN  ══════════════════ -->
+<div class="main-wrapper">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">{% block topbar_title %}{% endblock %}</div>
+      <div class="topbar-sub">{% block topbar_sub %}{% endblock %}</div>
+    </div>
+    <div class="topbar-right">
+      <div class="avatar-circle">
+        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+      </div>
+      <div style="font-size:13px; color: var(--text);">
+        <div style="font-weight:600; line-height:1.2;">{{ request.user.first_name|capfirst }} {{ request.user.last_name|capfirst }}</div>
+        <div style="font-size:11px; color: var(--text-muted);">{{ request.user.role }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  {% if messages %}
+  <div style="padding: 12px 24px 0;">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert">
+        <span>&times;</span>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Page content -->
+  <div class="page-content">
+    {% block body %}{% endblock %}
+  </div>
+
+</div><!-- /main-wrapper -->
+
+  
+{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% block js %}{% endblock %}
+</body>
+</html>

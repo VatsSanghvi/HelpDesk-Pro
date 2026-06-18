@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}{{ ticket.number }}{% endblock %}
+{% block topbar_title %}{{ ticket.number }}{% endblock %}
+{% block topbar_sub %}{{ ticket.title }}{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <div>
+    <h2>{{ ticket.title }}</h2>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
+      <span style="font-size:12px;color:var(--text-muted);">{{ ticket.number }}</span>
+      {% if ticket.status %}
+      <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
+        {{ ticket.status }}
+      </span>
+      {% endif %}
+      {% if ticket.priority %}
+      <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+      {% endif %}
+      {% if ticket.is_sla_breached %}
+      <span class="sla-badge">⚠ SLA Breached</span>
+      {% endif %}
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+
+    {% if request.user.role == "Admin" and ticket.status == "Pending" %}
+      <a href="{% url 'ticket_approve' ticket.id %}" class="btn btn-success btn-sm">✔ Approve</a>
+      <a href="{% url 'ticket_reject' ticket.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
+    {% endif %}
+
+    {% if request.user.role == "Manager" %}
+      {% if ticket.status == "Assigned" %}
+        <a href="{% url 'ticket_scoping' ticket.id %}" class="btn btn-primary btn-sm">→ Scoping</a>
+        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+      {% elif ticket.status == "Scoping" %}
+        <a href="{% url 'ticket_inprogress' ticket.id %}" class="btn btn-primary btn-sm">→ In Progress</a>
+        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+      {% elif ticket.status == "In Progress" %}
+        <a href="{% url 'ticket_completed' ticket.id %}" class="btn btn-success btn-sm">✔ Complete</a>
+        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
+        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+      {% endif %}
+    {% endif %}
+
+    {% if request.user.role == "Viewer" and ticket.created_by == request.user %}
+      {% if ticket.status != "Completed" and ticket.status != "Cancelled" and ticket.status != "Rejected" %}
+        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel Ticket</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<div class="row">
+
+  <!-- Left: ticket details -->
+  <div class="col-md-7 mb-3">
+    <div class="card mb-3">
+      <div class="card-header"><div class="card-header-title">Ticket Details</div></div>
+      <div class="card-body" style="padding: 0 18px !important;">
+        <div class="detail-row">
+          <span class="detail-label">Category</span>
+          <span class="detail-value">{{ ticket.category }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Subcategory</span>
+          <span class="detail-value">{{ ticket.subcategory }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Description</span>
+          <span class="detail-value" style="white-space:pre-wrap;">{{ ticket.problem_descp }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Priority</span>
+          <span class="detail-value">
+            {% if ticket.priority %}
+            <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+            {% else %}Not set{% endif %}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">
+            <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
+              {{ ticket.status }}
+            </span>
+          </span>
+        </div>
+        {% if request.user.role != "Viewer" %}
+        <div class="detail-row">
+          <span class="detail-label">Created By</span>
+          <span class="detail-value">
+            {{ ticket.created_by.first_name|capfirst }} {{ ticket.created_by.last_name|capfirst }}
+            <span style="color:var(--text-muted);font-size:12px;">({{ ticket.created_by.email }})</span>
+          </span>
+        </div>
+        {% endif %}
+        <div class="detail-row">
+          <span class="detail-label">Assigned To</span>
+          <span class="detail-value">
+            {% if ticket.assigned_to %}
+              {{ ticket.assigned_to.first_name|capfirst }} {{ ticket.assigned_to.last_name|capfirst }}
+            {% else %}
+              <span style="color:var(--text-muted);">Unassigned</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Created</span>
+          <span class="detail-value" style="color:var(--text-muted);">{{ ticket.get_created_at|date:"d M Y, H:i" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Last Updated</span>
+          <span class="detail-value" style="color:var(--text-muted);">{{ ticket.get_updated_at|date:"d M Y, H:i" }}</span>
+        </div>
+        {% if ticket.due_by %}
+        <div class="detail-row">
+          <span class="detail-label">SLA Due By</span>
+          <span class="detail-value {% if ticket.is_sla_breached %}sla-breach{% endif %}">
+            {{ ticket.due_by|date:"d M Y, H:i" }}
+            {% if ticket.is_sla_breached %}<span class="sla-badge ml-1">Breached</span>{% endif %}
+          </span>
+        </div>
+        {% endif %}
+        {% if ticket.resolution_time_hours %}
+        <div class="detail-row">
+          <span class="detail-label">Resolution Time</span>
+          <span class="detail-value" style="color:var(--success);font-weight:600;">{{ ticket.resolution_time_hours }}h</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Work note input -->
+    <div class="card">
+      <div class="card-header"><div class="card-header-title">Add Work Note</div></div>
+      <div class="card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="form-group mb-3">
+            <textarea name="work_note" class="form-control worknote-box" rows="3"
+              placeholder="Add a note, comment, or update about this ticket..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Post Note</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: activity feed -->
+  <div class="col-md-5 mb-3">
+    <div class="card">
+      <div class="card-header"><div class="card-header-title">Activity</div></div>
+      <div class="card-body" style="padding: 12px !important;">
+        {% for work_note in ticket.work_note_list %}
+          {% if work_note.type == "Comment" %}
+          <div class="activity-item activity-comment">
+            <div class="activity-meta">
+              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }} {{ work_note.commented_by.last_name|capfirst }}</span>
+              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+            </div>
+            <div style="color:var(--text);">{{ work_note.comment }}</div>
+          </div>
+
+          {% elif work_note.type == "Field" %}
+          <div class="activity-item activity-field">
+            <div class="activity-meta">
+              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }}</span>
+              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+            </div>
+            <div style="color:var(--text-muted);font-size:12px;">
+              <strong style="color:var(--text);">{{ work_note.field_name }}</strong>
+              changed from
+              <span style="text-decoration:line-through;">{{ work_note.old_value|default:"None" }}</span>
+              → <strong style="color:var(--primary);">{{ work_note.new_value }}</strong>
+            </div>
+          </div>
+
+          {% else %}
+          <div class="activity-item activity-create">
+            <div class="activity-meta">
+              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }}</span>
+              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+            </div>
+            <div style="color:var(--text-muted);font-size:12px;">Ticket created</div>
+          </div>
+          {% endif %}
+        {% empty %}
+          <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No activity yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /row -->
+
+<!-- WhatsApp float (manager only) -->
+{% if request.user.role == "Manager" %}
+<div class="whatsapp_float">
+  <a href="{{ my_string }}" target="_blank">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp">
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{% comment %}
+This partial is returned by the AJAX call in ticket_create.html.
+It replaces the subcategory dropdown options when a category is selected.
+UNCHANGED from original — do not modify.
+{% endcomment %}
+<option value="">— Select Subcategory —</option>
+{% for subcategory in subcategories %}
+<option value="{{ subcategory.pk }}">{{ subcategory.name }}</option>
+{% endfor %}

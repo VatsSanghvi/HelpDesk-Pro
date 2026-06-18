@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Raise Ticket{% endblock %}
+{% block topbar_title %}Raise New Ticket{% endblock %}
+{% block topbar_sub %}Submit a new IT support request{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+
+    <div class="page-header">
+      <h2>➕ New Support Ticket</h2>
+      <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-header-title">Ticket Information</div></div>
+      <div class="card-body">
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_category">Category <span style="color:red;">*</span></label>
+                {{ form.category }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="id_subcategory">Subcategory <span style="color:red;">*</span></label>
+                {{ form.subcategory }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="id_title">Title <span style="color:red;">*</span></label>
+            {{ form.title }}
+            <small style="color:var(--text-muted);font-size:12px;">Brief one-line description of the issue</small>
+          </div>
+
+          <div class="form-group">
+            <label for="id_problem_descp">Problem Description <span style="color:red;">*</span></label>
+            {{ form.problem_descp }}
+            <small style="color:var(--text-muted);font-size:12px;">Describe the issue in detail (what happened, when, steps to reproduce)</small>
+          </div>
+
+          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+            <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Submit Ticket</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+
+    <div class="card mt-3" style="background: #EFF6FF !important; border-color: #BFDBFE !important;">
+      <div class="card-body" style="padding: 14px 18px !important;">
+        <div style="font-size:13px; color: #1E40AF;">
+          <strong>ℹ What happens next?</strong><br>
+          Your ticket will be reviewed by an admin and assigned to a manager. You'll receive an email confirmation and WhatsApp notification. Track your ticket status from the "My Tickets" page.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+// Dynamic subcategory loading — keeps your existing AJAX logic
+$('#id_category').change(function() {
+  const categoryId = $(this).val();
+  if (categoryId) {
+    $.ajax({
+      url: '{% url "ajax_load_subcategories" %}',
+      data: { category: categoryId },
+      success: function(data) {
+        $('#id_subcategory').html(data);
+      }
+    });
+  } else {
+    $('#id_subcategory').html('<option value="">— Select category first —</option>');
+  }
+});
+</script>
+{% endblock %}

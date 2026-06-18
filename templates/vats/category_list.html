@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Categories{% endblock %}
+{% block topbar_title %}Categories{% endblock %}
+{% block topbar_sub %}Manage ticket categories and subcategories{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <h2>🏷 Categories</h2>
+  <a href="{% url 'category_create' %}" class="btn btn-primary">➕ Add Category</a>
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0 !important;">
+    {% if categories %}
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Category Name</th>
+          <th>Subcategories</th>
+          <th>Total Tickets</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for category in categories %}
+        <tr>
+          <td style="font-weight:600;">{{ category.name }}</td>
+          <td>
+            <a href="{% url 'subcategory_list' category.id %}" style="color:var(--primary);font-size:13px;">
+              View subcategories →
+            </a>
+          </td>
+          <td style="color:var(--text-muted);">{{ category.ticket_set.count }} tickets</td>
+          <td style="text-align:right;">
+            <a href="{% url 'subcategory_create' category.id %}" class="btn btn-outline-primary btn-sm">+ Sub</a>
+            <a href="{% url 'category_delete' category.id %}" class="btn btn-outline-danger btn-sm"
+               onclick="return confirm('Delete category {{ category.name }}?')">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="padding:48px;text-align:center;color:var(--text-muted);font-size:13px;">
+      <div style="font-size:36px;margin-bottom:12px;">🏷</div>
+      No categories yet. <a href="{% url 'category_create' %}">Create one</a>.
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

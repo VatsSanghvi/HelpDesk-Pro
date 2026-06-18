@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}Tickets{% endblock %}
+{% block topbar_title %}Tickets{% endblock %}
+{% block topbar_sub %}
+  {% if status %}Filtered by status: {{ status }}{% else %}All tickets{% endif %}
+{% endblock %}
+
+{% block body %}
+
+<div class="page-header">
+  <h2>
+    🎫 Tickets
+    {% if status %}<span style="font-size:14px;font-weight:400;color:var(--text-muted);"> / {{ status }}</span>{% endif %}
+  </h2>
+  <div style="display:flex;gap:8px;">
+    {% if request.user.role == "Viewer" %}
+      <a href="{% url 'ticket_create' %}" class="btn btn-primary">➕ New Ticket</a>
+    {% endif %}
+    {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+      <a href="/api/v1/tickets/export/csv/" class="btn btn-outline-primary">⬇ Export CSV</a>
+      <a href="/api/v1/tickets/export/excel/" class="btn btn-outline-primary">⬇ Export Excel</a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Status filter pills -->
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+  <a href="{% url 'ticket_list_status' 'Pending' %}"     class="btn btn-sm {% if status == 'Pending' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Pending</a>
+  <a href="{% url 'ticket_list_status' 'Assigned' %}"    class="btn btn-sm {% if status == 'Assigned' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Assigned</a>
+  <a href="{% url 'ticket_list_status' 'Scoping' %}"     class="btn btn-sm {% if status == 'Scoping' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Scoping</a>
+  <a href="{% url 'ticket_list_status' 'In Progress' %}" class="btn btn-sm {% if status == 'In Progress' %}btn-primary{% else %}btn-outline-secondary{% endif %}">In Progress</a>
+  <a href="{% url 'ticket_list_status' 'Completed' %}"   class="btn btn-sm {% if status == 'Completed' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Completed</a>
+  <a href="{% url 'ticket_list_status' 'Cancelled' %}"   class="btn btn-sm {% if status == 'Cancelled' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Cancelled</a>
+  <a href="{% url 'ticket_list_status' 'Rejected' %}"    class="btn btn-sm {% if status == 'Rejected' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Rejected</a>
+
+</div>
+
+<div class="card">
+  <div class="card-body" style="padding: 0 !important;">
+    {% if tickets %}
+    <div style="overflow-x:auto;">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Ticket #</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            {% if request.user.role != "Viewer" %}<th>Created By</th>{% endif %}
+            <th>Assigned To</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+          <tr>
+            <td>
+              <a href="{% url 'ticket_detail' ticket.id %}" class="ticket-link">{{ ticket.number }}</a>
+            </td>
+            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              {{ ticket.title }}
+            </td>
+            <td style="color:var(--text-muted);">{{ ticket.category }}</td>
+            <td>
+              {% if ticket.priority %}
+              <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+              {% else %}<span style="color:var(--text-muted);">—</span>{% endif %}
+            </td>
+            <td>
+              {% if ticket.status %}
+              <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
+                {{ ticket.status }}
+              </span>
+              {% else %}—{% endif %}
+              {% if ticket.is_sla_breached %}
+              <span class="sla-badge ml-1">SLA ⚠</span>
+              {% endif %}
+            </td>
+            {% if request.user.role != "Viewer" %}
+            <td>{{ ticket.created_by.first_name|capfirst }} {{ ticket.created_by.last_name|capfirst }}</td>
+            {% endif %}
+            <td>
+              {% if ticket.assigned_to %}
+                {{ ticket.assigned_to.first_name|capfirst }} {{ ticket.assigned_to.last_name|capfirst }}
+              {% else %}
+                <span style="color:var(--text-muted);">Unassigned</span>
+              {% endif %}
+            </td>
+            <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">
+              {{ ticket.get_updated_at|date:"d M Y, H:i" }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding:48px 24px;text-align:center;color:var(--text-muted);">
+      <div style="font-size:40px;margin-bottom:12px;">🎫</div>
+      <p style="font-size:14px;margin:0;">No tickets found{% if status %} with status "{{ status }}"{% endif %}.</p>
+      {% if request.user.role == "Viewer" %}
+      <a href="{% url 'ticket_create' %}" class="btn btn-primary mt-3">Raise your first ticket</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+// Simple filter tag helper — Django doesn't have a split filter built-in
+// The filter pills above use a workaround via hardcoded values
+</script>
+{% endblock %}
