@@ -33,6 +33,8 @@ TWILIO_AUTH_TOKEN  = env('TWILIO_AUTH_TOKEN',  default='')
 TWILIO_FROM_NUMBER = env('TWILIO_FROM_NUMBER', default='')
 TWILIO_TO_NUMBER   = env('TWILIO_TO_NUMBER',   default='')
 
+POWERBI_API_KEY = env('POWERBI_API_KEY', default='')
+
 # ── Apps ───────────────────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',

@@ -1,7 +1,13 @@
 """
 vats/management/commands/seed_data.py
 
-Populates the database with realistic Manulife IT Helpdesk data.
+Populates the database with realistic IT Helpdesk data for a fictional
+financial services company: Vats Financial Services (VFS).
+
+This is a generic, industry-representative dataset — not tied to any
+single real employer — while still reflecting realistic financial
+services IT scenarios (trading terminals, compliance systems, actuarial
+data, etc.).
 
 Run with:
     python manage.py seed_data
@@ -23,10 +29,10 @@ from vats.models import Category, Subcategory, Ticket, Worknote
 
 
 class Command(BaseCommand):
-    help = 'Seeds the database with Manulife IT Helpdesk sample data'
+    help = 'Seeds the database with Vats Financial Services IT Helpdesk sample data'
 
     def handle(self, *args, **kwargs):
-        self.stdout.write('\n🏢  Manulife IT HelpDesk — Seeding sample data...\n')
+        self.stdout.write('\n🏢  Vats Financial Services — IT HelpDesk — Seeding sample data...\n')
 
         self.create_categories()
         self.create_users()
@@ -34,9 +40,9 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS('\n✅  Done! Database seeded successfully.\n'))
         self.stdout.write('Login credentials:\n')
-        self.stdout.write('  Admin   → admin@manulife.com       / Manulife@123\n')
-        self.stdout.write('  Manager → sarah.chen@manulife.com  / Manulife@123\n')
-        self.stdout.write('  Viewer  → james.wilson@manulife.com/ Manulife@123\n')
+        self.stdout.write('  Admin   → admin@vatsfinancial.com        / VFS@2026Secure\n')
+        self.stdout.write('  Manager → sarah.chen@vatsfinancial.com   / VFS@2026Secure\n')
+        self.stdout.write('  Viewer  → james.wilson@vatsfinancial.com / VFS@2026Secure\n')
 
     # ── Categories ────────────────────────────────────────────────
 
@@ -99,39 +105,38 @@ class Command(BaseCommand):
         self.stdout.write('👥  Creating users...')
 
         managers_data = [
-            {'email': 'sarah.chen@manulife.com',    'first_name': 'Sarah',   'last_name': 'Chen',     'phone_number': '4161234567'},
-            {'email': 'michael.ross@manulife.com',  'first_name': 'Michael', 'last_name': 'Ross',     'phone_number': '4162345678'},
-            {'email': 'priya.nair@manulife.com',    'first_name': 'Priya',   'last_name': 'Nair',     'phone_number': '4163456789'},
+            {'email': 'sarah.chen@vatsfinancial.com',    'first_name': 'Sarah',   'last_name': 'Chen',     'phone_number': '4161234567'},
+            {'email': 'michael.ross@vatsfinancial.com',  'first_name': 'Michael', 'last_name': 'Ross',     'phone_number': '4162345678'},
+            {'email': 'priya.nair@vatsfinancial.com',    'first_name': 'Priya',   'last_name': 'Nair',     'phone_number': '4163456789'},
         ]
 
         viewers_data = [
-            {'email': 'james.wilson@manulife.com',  'first_name': 'James',   'last_name': 'Wilson',   'phone_number': '4164567890'},
-            {'email': 'emily.zhang@manulife.com',   'first_name': 'Emily',   'last_name': 'Zhang',    'phone_number': '4165678901'},
-            {'email': 'robert.patel@manulife.com',  'first_name': 'Robert',  'last_name': 'Patel',    'phone_number': '4166789012'},
-            {'email': 'jessica.kim@manulife.com',   'first_name': 'Jessica', 'last_name': 'Kim',      'phone_number': '4167890123'},
-            {'email': 'david.nguyen@manulife.com',  'first_name': 'David',   'last_name': 'Nguyen',   'phone_number': '4168901234'},
+            {'email': 'james.wilson@vatsfinancial.com',  'first_name': 'James',   'last_name': 'Wilson',   'phone_number': '4164567890'},
+            {'email': 'emily.zhang@vatsfinancial.com',   'first_name': 'Emily',   'last_name': 'Zhang',    'phone_number': '4165678901'},
+            {'email': 'robert.patel@vatsfinancial.com',  'first_name': 'Robert',  'last_name': 'Patel',    'phone_number': '4166789012'},
+            {'email': 'jessica.kim@vatsfinancial.com',   'first_name': 'Jessica', 'last_name': 'Kim',      'phone_number': '4167890123'},
+            {'email': 'david.nguyen@vatsfinancial.com',  'first_name': 'David',   'last_name': 'Nguyen',   'phone_number': '4168901234'},
         ]
 
         # Admin
-        if not User.objects.filter(email='admin@manulife.com').exists():
+        if not User.objects.filter(email='admin@vatsfinancial.com').exists():
             User.objects.create_superuser(
-                email='admin@manulife.com',
-                password='Manulife@123',
+                email='admin@vatsfinancial.com',
+                password='VFS@2026Secure',
                 first_name='Alex',
                 last_name='Thompson',
             )
-            # Set role to Admin
-            u = User.objects.get(email='admin@manulife.com')
+            u = User.objects.get(email='admin@vatsfinancial.com')
             u.role = 'Admin'
             u.save()
-            self.stdout.write('   ✓ Admin: admin@manulife.com')
+            self.stdout.write('   ✓ Admin: admin@vatsfinancial.com')
 
         self.managers = []
         for m in managers_data:
             if not User.objects.filter(email=m['email']).exists():
                 u = User.objects.create_user(
                     email=m['email'],
-                    password='Manulife@123',
+                    password='VFS@2026Secure',
                     first_name=m['first_name'],
                     last_name=m['last_name'],
                     phone_number=m['phone_number'],
@@ -147,7 +152,7 @@ class Command(BaseCommand):
             if not User.objects.filter(email=v['email']).exists():
                 u = User.objects.create_user(
                     email=v['email'],
-                    password='Manulife@123',
+                    password='VFS@2026Secure',
                     first_name=v['first_name'],
                     last_name=v['last_name'],
                     phone_number=v['phone_number'],
@@ -163,7 +168,7 @@ class Command(BaseCommand):
     def create_tickets(self):
         self.stdout.write('🎫  Creating tickets...')
 
-        admin = User.objects.get(email='admin@manulife.com')
+        admin = User.objects.get(email='admin@vatsfinancial.com')
 
         tickets_data = [
 
@@ -171,7 +176,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Hardware', 'sub': 'Laptop & Desktop',
                 'title': 'Laptop not turning on after Windows update',
-                'problem_descp': 'My Dell laptop (Asset #MNL-4821) stopped booting after the automatic Windows update last night. Screen stays black after pressing power button. I have a client presentation in 2 hours and urgently need this resolved.',
+                'problem_descp': 'My Dell laptop (Asset #VFS-4821) stopped booting after the automatic Windows update last night. Screen stays black after pressing power button. I have a client presentation in 2 hours and urgently need this resolved.',
                 'priority': 'High', 'status': 'Completed',
                 'viewer': 0, 'manager': 0,
                 'notes': [
@@ -193,7 +198,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Hardware', 'sub': 'Mobile Devices',
                 'title': 'Company iPhone not receiving MFA codes',
-                'problem_descp': 'My company-issued iPhone 14 (Asset #MNL-MB-0392) is not receiving SMS verification codes for MFA login. I cannot access my email or any internal systems. This started this morning.',
+                'problem_descp': 'My company-issued iPhone 14 (Asset #VFS-MB-0392) is not receiving SMS verification codes for MFA login. I cannot access my email or any internal systems. This started this morning.',
                 'priority': 'High', 'status': 'Assigned',
                 'viewer': 2, 'manager': 2,
                 'notes': [
@@ -257,7 +262,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Software & Applications', 'sub': 'Internal Portals',
                 'title': 'HR Self-Service portal not loading — white screen',
-                'problem_descp': 'The Manulife HR Self-Service portal (hrss.manulife.internal) shows a blank white screen after login. I need to submit my timesheet by end of day today. This is happening on both Chrome and Edge browsers.',
+                'problem_descp': 'The HR Self-Service portal (hrss.vatsfinancial.internal) shows a blank white screen after login. I need to submit my timesheet by end of day today. This is happening on both Chrome and Edge browsers.',
                 'priority': 'Moderate', 'status': 'Completed',
                 'viewer': 3, 'manager': 2,
                 'notes': [
@@ -329,7 +334,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Security & Access', 'sub': 'Account Lockout',
                 'title': 'Account locked out — cannot access any systems',
-                'problem_descp': 'My Active Directory account has been locked out. I cannot log into my computer, email, or any Manulife systems. I believe this happened because I entered my password incorrectly too many times after the forced password change yesterday.',
+                'problem_descp': 'My Active Directory account has been locked out. I cannot log into my computer, email, or any company systems. I believe this happened because I entered my password incorrectly too many times after the forced password change yesterday.',
                 'priority': 'High', 'status': 'Completed',
                 'viewer': 0, 'manager': 2,
                 'notes': [
@@ -339,7 +344,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Security & Access', 'sub': 'New User Provisioning',
                 'title': 'New hire Aisha Malik needs system access by Monday',
-                'problem_descp': 'We have a new analyst joining our Investment Analytics team on Monday, January 15. Employee ID: MNL-2024-0891. She needs access to: Active Directory, Outlook, Bloomberg Terminal, SharePoint (Investment Analytics site), Power BI, and the shared L: drive.',
+                'problem_descp': 'We have a new analyst joining our Investment Analytics team on Monday, January 15. Employee ID: VFS-2026-0891. She needs access to: Active Directory, Outlook, Bloomberg Terminal, SharePoint (Investment Analytics site), Power BI, and the shared L: drive.',
                 'priority': 'Moderate', 'status': 'In Progress',
                 'viewer': 1, 'manager': 0,
                 'notes': [
@@ -350,7 +355,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Security & Access', 'sub': 'MFA & Token Setup',
                 'title': 'MFA authenticator app lost — phone replaced',
-                'problem_descp': 'I got a new phone and I no longer have access to my Microsoft Authenticator app with my Manulife account set up. I cannot log in to any systems that require MFA. I have my employee ID MNL-1847 and can verify my identity.',
+                'problem_descp': 'I got a new phone and I no longer have access to my Microsoft Authenticator app with my company account set up. I cannot log in to any systems that require MFA. I have my employee ID VFS-1847 and can verify my identity.',
                 'priority': 'High', 'status': 'Completed',
                 'viewer': 2, 'manager': 1,
                 'notes': [
@@ -360,7 +365,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Security & Access', 'sub': 'Data Access Permissions',
                 'title': 'Need read access to Actuarial pricing models folder',
-                'problem_descp': 'As part of my new project assignment on the Pricing Optimization team, I need read-only access to the Actuarial pricing models on SharePoint (site: sp.manulife.internal/actuarial/pricing). My manager David Park has approved this request.',
+                'problem_descp': 'As part of my new project assignment on the Pricing Optimization team, I need read-only access to the Actuarial pricing models on SharePoint (site: sp.vatsfinancial.internal/actuarial/pricing). My manager David Park has approved this request.',
                 'priority': 'Low', 'status': 'Assigned',
                 'viewer': 3, 'manager': 2,
                 'notes': [
@@ -382,7 +387,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Data & Reporting', 'sub': 'Power BI & Reports',
                 'title': 'Power BI dashboard not refreshing — stale data',
-                'problem_descp': 'The "Manulife Sales Performance Dashboard" in Power BI has not refreshed since yesterday at 6 PM. It should refresh every 4 hours automatically. The sales leadership team uses this daily for meetings and the data is now 16 hours stale.',
+                'problem_descp': 'The "Sales Performance Dashboard" in Power BI has not refreshed since yesterday at 6 PM. It should refresh every 4 hours automatically. The sales leadership team uses this daily for meetings and the data is now 16 hours stale.',
                 'priority': 'High', 'status': 'Completed',
                 'viewer': 0, 'manager': 1,
                 'notes': [
@@ -403,7 +408,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Data & Reporting', 'sub': 'Database Access',
                 'title': 'Request for read access to Policy Admin database',
-                'problem_descp': 'I am an analyst on the Customer Analytics team and require read-only access to the Policy Administration database (POLDB01) for a 3-month analytics project approved by VP Analytics, Jennifer Cho. Project code: CUST-ANLX-2024-Q1.',
+                'problem_descp': 'I am an analyst on the Customer Analytics team and require read-only access to the Policy Administration database (POLDB01) for a 3-month analytics project approved by VP Analytics, Jennifer Cho. Project code: CUST-ANLX-2026-Q1.',
                 'priority': 'Moderate', 'status': 'Pending',
                 'viewer': 2, 'manager': None,
                 'notes': []
@@ -411,7 +416,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Data & Reporting', 'sub': 'Data Export Requests',
                 'title': 'Need 5-year historical claims data export for actuarial review',
-                'problem_descp': 'The actuarial team requires a full export of 5 years of Group Benefits claims data (2019-2023) in CSV format for our annual reserve review. This has been approved by the Chief Actuary. Expected file size is approximately 2GB.',
+                'problem_descp': 'The actuarial team requires a full export of 5 years of Group Benefits claims data (2021-2025) in CSV format for our annual reserve review. This has been approved by the Chief Actuary. Expected file size is approximately 2GB.',
                 'priority': 'Moderate', 'status': 'In Progress',
                 'viewer': 3, 'manager': 0,
                 'notes': [
@@ -433,7 +438,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Hardware', 'sub': 'Laptop & Desktop',
                 'title': 'Laptop fan making loud noise — overheating warnings',
-                'problem_descp': 'My laptop fan has been making a loud grinding noise for the past 2 days and I am getting thermal warnings saying the CPU is overheating. The laptop shuts down automatically during heavy tasks. Asset tag: MNL-LT-7723.',
+                'problem_descp': 'My laptop fan has been making a loud grinding noise for the past 2 days and I am getting thermal warnings saying the CPU is overheating. The laptop shuts down automatically during heavy tasks. Asset tag: VFS-LT-7723.',
                 'priority': 'Moderate', 'status': 'Completed',
                 'viewer': 1, 'manager': 2,
                 'notes': [
@@ -443,7 +448,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Network & Connectivity', 'sub': 'VPN & Remote Access',
                 'title': 'New employee cannot connect to VPN — certificate error',
-                'problem_descp': 'Our new team member, Carlos Rivera (started Monday), cannot connect to the Manulife VPN. He gets a certificate error: "The server certificate received is not trusted." His laptop was set up by IT but VPN was not configured.',
+                'problem_descp': 'Our new team member, Carlos Rivera (started Monday), cannot connect to the company VPN. He gets a certificate error: "The server certificate received is not trusted." His laptop was set up by IT but VPN was not configured.',
                 'priority': 'Moderate', 'status': 'Pending',
                 'viewer': 0, 'manager': None,
                 'notes': []
@@ -461,7 +466,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Security & Access', 'sub': 'Account Lockout',
                 'title': 'Service account for automated reports locked out',
-                'problem_descp': 'The service account "svc_reports@manulife.com" used to run our automated daily reports has been locked out. 15 scheduled reports failed to run overnight including the daily risk report sent to executive leadership.',
+                'problem_descp': 'The service account "svc_reports@vatsfinancial.com" used to run our automated daily reports has been locked out. 15 scheduled reports failed to run overnight including the daily risk report sent to executive leadership.',
                 'priority': 'High', 'status': 'Cancelled',
                 'viewer': 3, 'manager': 1,
                 'notes': [
@@ -481,7 +486,7 @@ class Command(BaseCommand):
             {
                 'cat': 'Hardware', 'sub': 'Mobile Devices',
                 'title': 'Company tablet battery draining in 2 hours',
-                'problem_descp': 'My company iPad (Asset #MNL-TAB-0156) battery drains from 100% to 0% in under 2 hours. It used to last all day. This is a problem as I use it for client meetings and field visits. It is constantly showing low battery warnings.',
+                'problem_descp': 'My company iPad (Asset #VFS-TAB-0156) battery drains from 100% to 0% in under 2 hours. It used to last all day. This is a problem as I use it for client meetings and field visits. It is constantly showing low battery warnings.',
                 'priority': 'Low', 'status': 'Rejected',
                 'viewer': 0, 'manager': None,
                 'notes': []
@@ -494,13 +499,12 @@ class Command(BaseCommand):
             sub    = next(s for s in self.subcategories[t['cat']] if s.name == t['sub'])
             viewer = self.viewers[t['viewer']]
             manager = self.managers[t['manager']] if t['manager'] is not None else None
-            admin  = User.objects.get(email='admin@manulife.com')
+            admin  = User.objects.get(email='admin@vatsfinancial.com')
 
             # Check if ticket already exists
             if Ticket.objects.filter(title=t['title']).exists():
                 continue
 
-            # Create ticket — bypass save() signals by using update() after
             ticket = Ticket(
                 category=cat,
                 subcategory=sub,
@@ -511,29 +515,24 @@ class Command(BaseCommand):
                 status=t['status'],
                 assigned_to=manager,
             )
-            # Override save to skip Twilio in seeding
             Ticket.save = _silent_save
             ticket.save()
             Ticket.save = _original_save
 
-            # Set realistic timestamps
             days_ago = random.randint(1, 30)
             created = timezone.now() - timedelta(days=days_ago)
             Ticket.objects.filter(pk=ticket.pk).update(created_at=created)
 
-            # Set due_by if priority set
             if ticket.priority:
                 sla_map = {'High': 4, 'Moderate': 24, 'Low': 72}
                 hours = sla_map.get(ticket.priority, 24)
                 due = created + timedelta(hours=hours)
                 Ticket.objects.filter(pk=ticket.pk).update(due_by=due)
 
-            # Set resolved_at for closed tickets
             if t['status'] in ('Completed', 'Cancelled', 'Rejected'):
                 resolved = created + timedelta(hours=random.randint(2, 48))
                 Ticket.objects.filter(pk=ticket.pk).update(resolved_at=resolved)
 
-            # Create opening worknote
             Worknote.objects.create(
                 ticket=ticket,
                 type='Create',
@@ -541,7 +540,6 @@ class Command(BaseCommand):
                 commented_by=viewer,
             )
 
-            # Create assignment worknote if assigned
             if manager and t['status'] != 'Pending':
                 Worknote.objects.create(
                     ticket=ticket,
@@ -562,7 +560,6 @@ class Command(BaseCommand):
                     commented_by=admin,
                 )
 
-            # Add worknotes from data
             for note_type, note_text in t['notes']:
                 author = manager if manager else admin
                 Worknote.objects.create(
@@ -603,6 +600,5 @@ def _silent_save(self, *args, **kwargs):
     if self.status in ('Completed', 'Cancelled', 'Rejected') and not self.resolved_at:
         self.resolved_at = timezone.now()
 
-    # Call the base Model save directly — skips our custom save()
     from django.db.models import Model
     Model.save(self, *args, **kwargs)
