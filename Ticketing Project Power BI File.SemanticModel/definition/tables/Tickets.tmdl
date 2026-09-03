@@ -1,0 +1,272 @@
+table Tickets
+	lineageTag: d3b9fb74-ce70-49ed-860d-a0834ca90459
+
+	measure 'Total Tickets' = COUNTROWS(Tickets)
+		formatString: 0
+		lineageTag: c30ac746-22ce-4616-aaac-4e765468cbf9
+
+	measure 'Open Tickets' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[is_open] = TRUE
+			)
+		formatString: 0
+		lineageTag: 3e26d04e-6d04-4682-a3ff-3b10ac02c65a
+
+	measure 'Resolved Tickets' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[is_open] = FALSE
+			)
+		formatString: 0
+		lineageTag: 1c3d9db8-89f6-4cb5-a585-944c71b4b0c2
+
+	measure 'SLA Compliance %' =
+			
+			DIVIDE(
+			    CALCULATE(COUNTROWS(Tickets), Tickets[is_sla_breached] = FALSE),
+			    COUNTROWS(Tickets),
+			    0
+			)
+		lineageTag: 3f289433-5667-41e8-ad8f-f36f73dc4d93
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'SLA Breaches' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[is_sla_breached] = TRUE
+			)
+		formatString: 0
+		lineageTag: db1ee058-e929-4880-9660-4aa74154d267
+
+	measure 'Avg Resolution Time (Hrs)' =
+			
+			AVERAGE(Tickets[resolution_time_hours])
+		lineageTag: 0de0d534-aeee-4bb8-9056-2bff19b99734
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Tickets This Week' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[created_at] >= TODAY() - 7
+			)
+		formatString: 0
+		lineageTag: 4f877cb9-e0a3-4601-b837-6f59249205e4
+
+	measure 'WoW Change %' =
+			
+			VAR ThisWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 7)
+			VAR LastWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 14 && Tickets[created_at] < TODAY() - 7)
+			RETURN
+			    DIVIDE(ThisWeek - LastWeek, LastWeek, 0)
+		lineageTag: 86521c4c-e962-42e1-9f33-ed39926b86e3
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'High Priority Open' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[priority] = "High",
+			    Tickets[is_open] = TRUE
+			)
+		formatString: 0
+		lineageTag: 37ab4fca-2892-4b89-acdd-4967fc3bf7ef
+
+	measure 'Unassigned Tickets' =
+			
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    Tickets[assigned_to] = "Unassigned"
+			)
+		formatString: 0
+		lineageTag: 2921bf4e-f314-4041-9ed0-ac8dc9a9c025
+
+	column ticket_number
+		dataType: string
+		lineageTag: be67a2d2-c6bc-4cd9-8ee7-7ff3592ded01
+		summarizeBy: none
+		sourceColumn: ticket_number
+
+		annotation SummarizationSetBy = Automatic
+
+	column title
+		dataType: string
+		lineageTag: 256f3a56-c98f-47fb-9a7c-a7c4c028cec1
+		summarizeBy: none
+		sourceColumn: title
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 109fc816-0115-45f3-b9cf-8bec76366788
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column subcategory
+		dataType: string
+		lineageTag: 779149eb-30db-4fd5-9d47-aad4bf284101
+		summarizeBy: none
+		sourceColumn: subcategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column priority
+		dataType: string
+		lineageTag: 851d89a5-10c2-42b1-a66c-6b5f38e6ad72
+		summarizeBy: none
+		sourceColumn: priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: 1f0a5dd5-cdea-4651-8fb7-8e1e1c9f5043
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_by
+		dataType: string
+		lineageTag: f07e47bd-337c-416e-802e-f538ba2f1051
+		summarizeBy: none
+		sourceColumn: created_by
+
+		annotation SummarizationSetBy = Automatic
+
+	column assigned_to
+		dataType: string
+		lineageTag: 17d111a5-5006-41b7-9cff-7589c070f6a0
+		summarizeBy: none
+		sourceColumn: assigned_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column assigned_to_role
+		dataType: string
+		lineageTag: 92497f68-5bbc-42f8-8c55-776fd87c3daf
+		summarizeBy: none
+		sourceColumn: assigned_to_role
+
+		annotation SummarizationSetBy = Automatic
+
+	column created_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4e292790-52d0-4b17-9d27-642def0e4c31
+		summarizeBy: none
+		sourceColumn: created_at
+
+		variation Variation
+			isDefault
+			relationship: d668998d-2ca0-4576-b671-b3f8acb0fe77
+			defaultHierarchy: LocalDateTable_54fe434d-704d-46e2-8408-292c1e107175.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column updated_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 70438a89-f05f-44f4-98c9-f9a58ba83b9e
+		summarizeBy: none
+		sourceColumn: updated_at
+
+		variation Variation
+			isDefault
+			relationship: cea80cdd-8104-424c-bfe5-c3fe967c06cf
+			defaultHierarchy: LocalDateTable_283c3a2d-c61f-4327-a967-44ba226953c0.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column due_by
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 80aea910-f8bd-4c86-b5c0-ce8d00a58088
+		summarizeBy: none
+		sourceColumn: due_by
+
+		variation Variation
+			isDefault
+			relationship: aa062b3b-ca43-4526-ab5c-648c742b96d2
+			defaultHierarchy: LocalDateTable_1e3c2d7d-8bd1-4047-829e-1a4a46b5e70b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column resolved_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ffc95d9e-95a9-4747-8eb1-f942fcc53b33
+		summarizeBy: none
+		sourceColumn: resolved_at
+
+		variation Variation
+			isDefault
+			relationship: a135e545-babf-46e1-9092-1e582b365f3c
+			defaultHierarchy: LocalDateTable_d64714a0-cb5a-4743-bfad-cb65b8367ba6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column resolution_time_hours
+		dataType: double
+		formatString: 0
+		lineageTag: d05cb506-22dc-4906-8cea-92aa81477f40
+		summarizeBy: sum
+		sourceColumn: resolution_time_hours
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column age_hours
+		dataType: double
+		lineageTag: 20b699da-958c-4417-b019-d89173a12b14
+		summarizeBy: sum
+		sourceColumn: age_hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_sla_breached
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e29ddd02-646e-4dbc-bbc8-0854ede9df44
+		summarizeBy: none
+		sourceColumn: is_sla_breached
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_open
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 77578732-2500-48df-96a7-11d617908d0a
+		summarizeBy: none
+		sourceColumn: is_open
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Tickets = m
+		mode: import
+		source =
+				let
+				    Source = Json.Document(Web.Contents("http://127.0.0.1:8000/api/v1/powerbi/tickets/?key=vfs-powerbi-2026-a8f3k9")),
+				    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
+				    #"Expanded Column1" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "resolution_time_hours", "age_hours", "is_sla_breached", "is_open"}, {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "resolution_time_hours", "age_hours", "is_sla_breached", "is_open"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Column1",{{"ticket_number", type text}, {"title", type text}, {"category", type text}, {"subcategory", type text}, {"priority", type text}, {"status", type text}, {"created_by", type text}, {"assigned_to", type text}, {"assigned_to_role", type text}, {"created_at", type datetime}, {"updated_at", type datetime}, {"due_by", type datetime}, {"resolved_at", type datetime}, {"resolution_time_hours", Int64.Type}, {"age_hours", type number}, {"is_sla_breached", type logical}, {"is_open", type logical}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

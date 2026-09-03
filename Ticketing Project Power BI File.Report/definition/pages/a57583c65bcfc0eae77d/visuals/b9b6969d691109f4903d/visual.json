@@ -1,0 +1,125 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "b9b6969d691109f4903d",
+  "position": {
+    "x": 50.478199981327606,
+    "y": 448.18523013724212,
+    "z": 8000,
+    "height": 261.56885444869761,
+    "width": 822.94762393800761,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "ticket_number"
+                }
+              },
+              "queryRef": "Tickets.ticket_number",
+              "nativeQueryRef": "ticket_number"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "title"
+                }
+              },
+              "queryRef": "Tickets.title",
+              "nativeQueryRef": "title"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "priority"
+                }
+              },
+              "queryRef": "Tickets.priority",
+              "nativeQueryRef": "priority"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "Tickets.status",
+              "nativeQueryRef": "status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "assigned_to"
+                }
+              },
+              "queryRef": "Tickets.assigned_to",
+              "nativeQueryRef": "assigned_to"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "is_sla_breached"
+                }
+              },
+              "queryRef": "Tickets.is_sla_breached",
+              "nativeQueryRef": "is_sla_breached"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Tickets"
+                  }
+                },
+                "Property": "status"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

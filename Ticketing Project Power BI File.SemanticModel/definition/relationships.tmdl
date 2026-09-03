@@ -1,0 +1,20 @@
+relationship d668998d-2ca0-4576-b671-b3f8acb0fe77
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Tickets.created_at
+	toColumn: LocalDateTable_54fe434d-704d-46e2-8408-292c1e107175.Date
+
+relationship cea80cdd-8104-424c-bfe5-c3fe967c06cf
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Tickets.updated_at
+	toColumn: LocalDateTable_283c3a2d-c61f-4327-a967-44ba226953c0.Date
+
+relationship aa062b3b-ca43-4526-ab5c-648c742b96d2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Tickets.due_by
+	toColumn: LocalDateTable_1e3c2d7d-8bd1-4047-829e-1a4a46b5e70b.Date
+
+relationship a135e545-babf-46e1-9092-1e582b365f3c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Tickets.resolved_at
+	toColumn: LocalDateTable_d64714a0-cb5a-4743-bfad-cb65b8367ba6.Date
+

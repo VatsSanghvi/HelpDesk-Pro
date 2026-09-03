@@ -1,0 +1,23 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-IN
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Tickets"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Tickets
+ref table DateTableTemplate_36e5b1c4-0b58-44e9-bf2b-16156cb425bb
+ref table LocalDateTable_54fe434d-704d-46e2-8408-292c1e107175
+ref table LocalDateTable_283c3a2d-c61f-4327-a967-44ba226953c0
+ref table LocalDateTable_1e3c2d7d-8bd1-4047-829e-1a4a46b5e70b
+ref table LocalDateTable_d64714a0-cb5a-4743-bfad-cb65b8367ba6
+
+ref cultureInfo en-US
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Ticketing Project Power BI File"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "43a4570d-69ad-4d23-ae68-54adff0d785f"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "a57583c65bcfc0eae77d",
+  "displayName": "Page 1",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "f740e258f7db4c96da28",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Tickets"
+              }
+            },
+            "Property": "Total Tickets"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "Drillthrough"
+      }
+    ]
+  },
+  "pageBinding": {
+    "name": "63c985eadf6f257ab87d",
+    "type": "Drillthrough",
+    "parameters": [
+      {
+        "name": "872acbbe977ffa17887c",
+        "boundFilter": "f740e258f7db4c96da28",
+        "fieldExpr": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "Tickets"
+              }
+            },
+            "Property": "Total Tickets"
+          }
+        }
+      }
+    ]
+  }
+}

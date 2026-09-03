@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "5e51f764318d9b35183b",
+  "position": {
+    "x": 831.56367778354752,
+    "y": 172.89937854905443,
+    "z": 7000,
+    "height": 261.56885444869761,
+    "width": 445.12594528988888,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "category"
+                }
+              },
+              "queryRef": "Tickets.category",
+              "nativeQueryRef": "category",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets"
+                    }
+                  },
+                  "Property": "Avg Resolution Time (Hrs)"
+                }
+              },
+              "queryRef": "Tickets.Avg Resolution Time (Hrs)",
+              "nativeQueryRef": "Avg Resolution Time (Hrs)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "Tickets"
+                  }
+                },
+                "Property": "Avg Resolution Time (Hrs)"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
