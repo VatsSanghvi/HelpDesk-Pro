@@ -80,13 +80,35 @@ table Tickets
 		lineageTag: 37ab4fca-2892-4b89-acdd-4967fc3bf7ef
 
 	measure 'Unassigned Tickets' =
-			
+
 			CALCULATE(
 			    COUNTROWS(Tickets),
 			    Tickets[assigned_to] = "Unassigned"
 			)
 		formatString: 0
 		lineageTag: 2921bf4e-f314-4041-9ed0-ac8dc9a9c025
+
+	measure 'Avg First Response Time (Hrs)' =
+
+			AVERAGE(Tickets[first_response_time_hours])
+		lineageTag: 21cb84cf-8ade-488a-b46e-e5d47bca81db
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg CSAT Rating' =
+
+			AVERAGE(Tickets[csat_rating])
+		formatString: 0.0
+		lineageTag: b57f4bdf-dc39-4041-8fb6-edc867b5c2e1
+
+	measure 'CSAT Responses' =
+
+			CALCULATE(
+			    COUNTROWS(Tickets),
+			    NOT ISBLANK(Tickets[csat_rating])
+			)
+		formatString: 0
+		lineageTag: b954925e-468c-4046-aaea-3e0909a220e7
 
 	column ticket_number
 		dataType: string
@@ -216,12 +238,32 @@ table Tickets
 
 		annotation SummarizationSetBy = Automatic
 
+	column first_response_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b4be634f-db60-487f-83d8-004a8a1ee2e6
+		summarizeBy: none
+		sourceColumn: first_response_at
+
+		annotation SummarizationSetBy = Automatic
+
 	column resolution_time_hours
 		dataType: double
 		formatString: 0
 		lineageTag: d05cb506-22dc-4906-8cea-92aa81477f40
 		summarizeBy: sum
 		sourceColumn: resolution_time_hours
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_response_time_hours
+		dataType: double
+		formatString: 0
+		lineageTag: 564f84b6-d5c8-4fb5-8289-c202cb40b61c
+		summarizeBy: sum
+		sourceColumn: first_response_time_hours
 
 		changedProperty = DataType
 
@@ -255,14 +297,31 @@ table Tickets
 
 		annotation SummarizationSetBy = Automatic
 
+	column csat_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: b061fa04-ead0-4404-b7e6-4af7de087da0
+		summarizeBy: average
+		sourceColumn: csat_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column csat_feedback
+		dataType: string
+		lineageTag: b60dcc0c-bb9f-4368-91b1-fe0bba14c3db
+		summarizeBy: none
+		sourceColumn: csat_feedback
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Tickets = m
 		mode: import
 		source =
 				let
 				    Source = Json.Document(Web.Contents("http://127.0.0.1:8000/api/v1/powerbi/tickets/?key=vfs-powerbi-2026-a8f3k9")),
 				    #"Converted to Table" = Table.FromList(Source, Splitter.SplitByNothing(), null, null, ExtraValues.Error),
-				    #"Expanded Column1" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "resolution_time_hours", "age_hours", "is_sla_breached", "is_open"}, {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "resolution_time_hours", "age_hours", "is_sla_breached", "is_open"}),
-				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Column1",{{"ticket_number", type text}, {"title", type text}, {"category", type text}, {"subcategory", type text}, {"priority", type text}, {"status", type text}, {"created_by", type text}, {"assigned_to", type text}, {"assigned_to_role", type text}, {"created_at", type datetime}, {"updated_at", type datetime}, {"due_by", type datetime}, {"resolved_at", type datetime}, {"resolution_time_hours", Int64.Type}, {"age_hours", type number}, {"is_sla_breached", type logical}, {"is_open", type logical}})
+				    #"Expanded Column1" = Table.ExpandRecordColumn(#"Converted to Table", "Column1", {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "first_response_at", "resolution_time_hours", "first_response_time_hours", "age_hours", "is_sla_breached", "is_open", "csat_rating", "csat_feedback"}, {"ticket_number", "title", "category", "subcategory", "priority", "status", "created_by", "assigned_to", "assigned_to_role", "created_at", "updated_at", "due_by", "resolved_at", "first_response_at", "resolution_time_hours", "first_response_time_hours", "age_hours", "is_sla_breached", "is_open", "csat_rating", "csat_feedback"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded Column1",{{"ticket_number", type text}, {"title", type text}, {"category", type text}, {"subcategory", type text}, {"priority", type text}, {"status", type text}, {"created_by", type text}, {"assigned_to", type text}, {"assigned_to_role", type text}, {"created_at", type datetime}, {"updated_at", type datetime}, {"due_by", type datetime}, {"resolved_at", type datetime}, {"first_response_at", type datetime}, {"resolution_time_hours", Int64.Type}, {"first_response_time_hours", Int64.Type}, {"age_hours", type number}, {"is_sla_breached", type logical}, {"is_open", type logical}, {"csat_rating", Int64.Type}, {"csat_feedback", type text}})
 				in
 				    #"Changed Type"
 
