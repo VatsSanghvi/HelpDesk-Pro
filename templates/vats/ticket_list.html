@@ -9,7 +9,7 @@
 
 <div class="page-header">
   <h2>
-    🎫 Tickets
+    🎫 {{ page_title|default:"Tickets" }}
     {% if status %}<span style="font-size:14px;font-weight:400;color:var(--text-muted);"> / {{ status }}</span>{% endif %}
   </h2>
   <div style="display:flex;gap:8px;">
@@ -38,10 +38,30 @@
 <div class="card">
   <div class="card-body" style="padding: 0 !important;">
     {% if tickets %}
+    {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+    <form method="POST" action="{% url 'ticket_bulk_action' %}" id="bulk-action-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% if my_view %}my_tickets{% else %}ticket_list{% endif %}">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+        <select name="bulk_action" class="form-control form-control-sm" style="width:auto;">
+          {% if request.user.role == "Admin" %}
+          <option value="reject">Reject selected (Pending only)</option>
+          <option value="delete">Delete selected</option>
+          {% else %}
+          <option value="complete">Mark selected Completed (In Progress only)</option>
+          {% endif %}
+        </select>
+        <button type="submit" class="btn btn-sm btn-outline-primary" onclick="return confirm('Apply this bulk action to all checked tickets?');">Apply to Selected</button>
+        <span style="font-size:12px;color:var(--text-muted);">Check tickets below, then choose an action.</span>
+      </div>
+    {% endif %}
     <div style="overflow-x:auto;">
       <table class="table table-hover">
         <thead>
           <tr>
+            {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+            <th style="width:32px;"><input type="checkbox" id="select-all-tickets"></th>
+            {% endif %}
             <th>Ticket #</th>
             <th>Title</th>
             <th>Category</th>
@@ -55,6 +75,9 @@
         <tbody>
           {% for ticket in tickets %}
           <tr>
+            {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+            <td><input type="checkbox" name="ticket_ids" value="{{ ticket.id }}" class="ticket-row-checkbox"></td>
+            {% endif %}
             <td>
               <a href="{% url 'ticket_detail' ticket.id %}" class="ticket-link">{{ ticket.number }}</a>
             </td>
@@ -95,6 +118,9 @@
         </tbody>
       </table>
     </div>
+    {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+    </form>
+    {% endif %}
     {% else %}
     <div class="empty-state" style="padding:48px 24px;text-align:center;color:var(--text-muted);">
       <div style="font-size:40px;margin-bottom:12px;">🎫</div>
@@ -113,5 +139,14 @@
 <script>
 // Simple filter tag helper — Django doesn't have a split filter built-in
 // The filter pills above use a workaround via hardcoded values
+
+var selectAll = document.getElementById('select-all-tickets');
+if (selectAll) {
+  selectAll.addEventListener('change', function () {
+    document.querySelectorAll('.ticket-row-checkbox').forEach(function (cb) {
+      cb.checked = selectAll.checked;
+    });
+  });
+}
 </script>
 {% endblock %}

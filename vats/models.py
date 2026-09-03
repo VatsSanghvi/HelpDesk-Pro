@@ -100,6 +100,21 @@ class Ticket(models.Model):
         help_text="Auto-set when status changes to Completed or Cancelled."
     )
 
+    # ── NEW fields added in v2.2 ──────────────────────────────────────────────
+    first_response_at = models.DateTimeField(
+        _("First Response At"), null=True, blank=True,
+        help_text="Auto-set the first time a Manager moves the ticket past 'Assigned' (Scoping/In Progress/Completed/Cancelled/Rejected)."
+    )
+    csat_rating  = models.PositiveSmallIntegerField(
+        _("CSAT Rating"), null=True, blank=True,
+        choices=[(i, str(i)) for i in range(1, 6)],
+        help_text="1-5 satisfaction rating, submitted by the ticket creator once the ticket is Completed."
+    )
+    csat_feedback = models.TextField(
+        _("CSAT Feedback"), max_length=500, null=True, blank=True,
+        help_text="Optional free-text feedback submitted alongside the CSAT rating."
+    )
+
     class Meta:
         verbose_name = _("Ticket")
         verbose_name_plural = _("Tickets")
@@ -130,6 +145,11 @@ class Ticket(models.Model):
         # ── NEW: stamp resolved_at when ticket is first completed/cancelled ───
         if self.status in ('Completed', 'Cancelled', 'Rejected') and not self.resolved_at:
             self.resolved_at = timezone.now()
+
+        # ── NEW: stamp first_response_at the first time a Manager actually
+        #    engages with the ticket (i.e. it leaves Pending/Assigned) ────────
+        if self.status not in (None, 'Pending', 'Assigned') and not self.first_response_at:
+            self.first_response_at = timezone.now()
 
         # ── Twilio WhatsApp notification (FIXED: credentials from settings) ───
         account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '')
@@ -191,6 +211,14 @@ class Ticket(models.Model):
     def age_hours(self):
         """How old this ticket is in hours — useful for 'aging' report."""
         delta = timezone.now() - self.created_at
+        return round(delta.total_seconds() / 3600, 2)
+
+    @property
+    def first_response_time_hours(self):
+        """Hours from creation to first real Manager engagement. Support teams call this FRT."""
+        if not self.first_response_at:
+            return None
+        delta = self.first_response_at - self.created_at
         return round(delta.total_seconds() / 3600, 2)
 
 

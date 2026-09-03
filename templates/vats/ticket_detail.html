@@ -126,14 +126,60 @@
           </span>
         </div>
         {% endif %}
+        {% if ticket.first_response_time_hours %}
+        <div class="detail-row">
+          <span class="detail-label">First Response Time</span>
+          <span class="detail-value" style="font-weight:600;">{{ ticket.first_response_time_hours }}h</span>
+        </div>
+        {% endif %}
         {% if ticket.resolution_time_hours %}
         <div class="detail-row">
           <span class="detail-label">Resolution Time</span>
           <span class="detail-value" style="color:var(--success);font-weight:600;">{{ ticket.resolution_time_hours }}h</span>
         </div>
         {% endif %}
+        {% if ticket.csat_rating and request.user.role != "Viewer" %}
+        <div class="detail-row">
+          <span class="detail-label">CSAT Rating</span>
+          <span class="detail-value">{% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}⭐{% else %}☆{% endif %}{% endfor %}</span>
+        </div>
+        {% endif %}
       </div>
     </div>
+
+    {% if request.user.role == "Viewer" and ticket.created_by == request.user and ticket.status == "Completed" %}
+    <div class="card mb-3">
+      <div class="card-header"><div class="card-header-title">Rate Your Support Experience</div></div>
+      <div class="card-body">
+        {% if ticket.csat_rating %}
+          <div style="font-size:20px;letter-spacing:2px;">
+            {% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}⭐{% else %}☆{% endif %}{% endfor %}
+          </div>
+          {% if ticket.csat_feedback %}
+          <p style="color:var(--text-muted);font-size:13px;margin-top:8px;">"{{ ticket.csat_feedback }}"</p>
+          {% endif %}
+          <p style="color:var(--text-muted);font-size:12px;margin-top:4px;">Thanks for your feedback!</p>
+        {% else %}
+          <form method="POST" action="{% url 'ticket_rate' ticket.id %}">
+            {% csrf_token %}
+            <label style="font-size:13px;color:var(--text-muted);">How satisfied were you with how this ticket was handled?</label>
+            <div style="display:flex;gap:16px;margin:10px 0;">
+              {% for i in "12345" %}
+              <label style="cursor:pointer;text-align:center;font-size:12px;">
+                <input type="radio" name="csat_rating" value="{{ forloop.counter }}" required style="display:block;margin:0 auto 4px;">
+                {{ forloop.counter }}★
+              </label>
+              {% endfor %}
+            </div>
+            <div class="form-group mb-2">
+              <textarea name="csat_feedback" class="form-control" rows="2" placeholder="Anything you'd like to add? (optional)"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Submit Rating</button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
 
     <!-- Work note input -->
     <div class="card">
