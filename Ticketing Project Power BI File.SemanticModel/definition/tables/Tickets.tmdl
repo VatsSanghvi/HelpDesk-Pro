@@ -24,15 +24,14 @@ table Tickets
 		lineageTag: 1c3d9db8-89f6-4cb5-a585-944c71b4b0c2
 
 	measure 'SLA Compliance %' =
-			
+
 			DIVIDE(
 			    CALCULATE(COUNTROWS(Tickets), Tickets[is_sla_breached] = FALSE),
 			    COUNTROWS(Tickets),
 			    0
 			)
+		formatString: 0.0%
 		lineageTag: 3f289433-5667-41e8-ad8f-f36f73dc4d93
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'SLA Breaches' =
 			
@@ -44,11 +43,10 @@ table Tickets
 		lineageTag: db1ee058-e929-4880-9660-4aa74154d267
 
 	measure 'Avg Resolution Time (Hrs)' =
-			
-			AVERAGE(Tickets[resolution_time_hours])
-		lineageTag: 0de0d534-aeee-4bb8-9056-2bff19b99734
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+			AVERAGE(Tickets[resolution_time_hours])
+		formatString: 0.0" hrs"
+		lineageTag: 0de0d534-aeee-4bb8-9056-2bff19b99734
 
 	measure 'Tickets This Week' =
 			
@@ -60,14 +58,13 @@ table Tickets
 		lineageTag: 4f877cb9-e0a3-4601-b837-6f59249205e4
 
 	measure 'WoW Change %' =
-			
+
 			VAR ThisWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 7)
 			VAR LastWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 14 && Tickets[created_at] < TODAY() - 7)
 			RETURN
 			    DIVIDE(ThisWeek - LastWeek, LastWeek, 0)
+		formatString: +0.0%;-0.0%;0.0%
 		lineageTag: 86521c4c-e962-42e1-9f33-ed39926b86e3
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'High Priority Open' =
 			
@@ -91,14 +88,13 @@ table Tickets
 	measure 'Avg First Response Time (Hrs)' =
 
 			AVERAGE(Tickets[first_response_time_hours])
+		formatString: 0.0" hrs"
 		lineageTag: 21cb84cf-8ade-488a-b46e-e5d47bca81db
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Avg CSAT Rating' =
 
 			AVERAGE(Tickets[csat_rating])
-		formatString: 0.0
+		formatString: 0.0" / 5"
 		lineageTag: b57f4bdf-dc39-4041-8fb6-edc867b5c2e1
 
 	measure 'CSAT Responses' =

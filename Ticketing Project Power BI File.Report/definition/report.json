@@ -9,6 +9,10 @@
         "page": "2.3.1"
       },
       "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "HelpDeskProTheme",
+      "type": "RegisteredResources"
     }
   },
   "objects": {
@@ -48,6 +52,17 @@
           "name": "CY26SU05",
           "path": "BaseThemes/CY26SU05.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "HelpDeskProTheme.json",
+          "path": "HelpDeskProTheme.json",
+          "type": "CustomTheme"
         }
       ]
     }
