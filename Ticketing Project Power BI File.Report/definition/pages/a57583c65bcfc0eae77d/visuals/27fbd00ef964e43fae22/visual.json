@@ -102,6 +102,13 @@
       "title": [
         {
           "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ticket Volume Over Time'"
+                }
+              }
+            },
             "alignment": {
               "expr": {
                 "Literal": {

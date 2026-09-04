@@ -89,6 +89,13 @@
       "title": [
         {
           "properties": {
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ticket Volume by Subcategory'"
+                }
+              }
+            },
             "alignment": {
               "expr": {
                 "Literal": {
