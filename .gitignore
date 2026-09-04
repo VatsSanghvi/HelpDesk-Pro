@@ -35,6 +35,11 @@ env/
 .venv/
 ENV/
 
+# ── Power BI (.pbip project) ───────────────────────────────────────
+# Local cache Power BI Desktop regenerates on every open - not source,
+# just repo bloat if tracked.
+*.abf
+
 # ── IDE / OS ──────────────────────────────────────────────────────
 .vscode/
 .idea/
