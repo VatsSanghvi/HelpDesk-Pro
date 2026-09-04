@@ -75,6 +75,74 @@ def ticket_list(request):
     return render(request, 'vats/ticket_list.html', context)
     
 @login_required
+def my_tickets(request):
+    """
+    Personal actionable queue — distinct from the full role-wide table above.
+    Admin   -> tickets waiting on their own approval decision
+    Manager -> tickets assigned to them that are still open
+    Viewer  -> tickets they raised that are still open
+    """
+    context = {}
+    closed_statuses = ('Completed', 'Cancelled', 'Rejected')
+
+    if request.user.role == "Admin":
+        context['tickets'] = Ticket.objects.filter(status='Pending')
+        context['page_title'] = 'My Tickets — Pending My Approval'
+    elif request.user.role == "Viewer":
+        context['tickets'] = Ticket.objects.filter(
+            created_by=request.user
+        ).exclude(status__in=closed_statuses)
+        context['page_title'] = 'My Tickets — Still Open'
+    else:
+        context['tickets'] = Ticket.objects.filter(
+            assigned_to=request.user
+        ).exclude(status__in=closed_statuses)
+        context['page_title'] = 'My Tickets — Open & Assigned to Me'
+
+    context['my_view'] = True
+    return render(request, 'vats/ticket_list.html', context)
+
+@login_required
+def ticket_bulk_action(request):
+    """
+    Shared bulk-action endpoint. Each role can only perform the bulk actions
+    it already has permission to do one-at-a-time elsewhere in this file.
+    """
+    if request.method != 'POST':
+        return redirect('ticket_list')
+
+    ticket_ids  = request.POST.getlist('ticket_ids')
+    bulk_action = request.POST.get('bulk_action')
+    next_view   = request.POST.get('next')
+    if next_view not in ('ticket_list', 'my_tickets'):
+        next_view = 'ticket_list'
+
+    tickets = Ticket.objects.filter(id__in=ticket_ids)
+
+    if request.user.role == 'Admin' and bulk_action == 'reject':
+        count = tickets.filter(status='Pending').update(status='Rejected')
+        messages.success(request, f'{count} ticket(s) rejected.')
+
+    elif request.user.role == 'Admin' and bulk_action == 'delete':
+        count = tickets.count()
+        tickets.delete()
+        messages.success(request, f'{count} ticket(s) deleted.')
+
+    elif request.user.role == 'Manager' and bulk_action == 'complete':
+        count = 0
+        for ticket in tickets.filter(assigned_to=request.user, status='In Progress'):
+            ticket.status = 'Completed'
+            ticket.save()
+            work_note_update(request, ticket.id, "Status", "In Progress", "Completed")
+            count += 1
+        messages.success(request, f'{count} ticket(s) marked Completed.')
+
+    else:
+        messages.warning(request, 'No valid bulk action was performed.')
+
+    return redirect(next_view)
+
+@login_required
 def ticket_list_status(request, status):
     context = {}
     context['status'] = status
@@ -228,6 +296,34 @@ def ticket_update(request, id):
     context['form'] = form
     context['update_type'] = 'Update'
     return render(request, "vats/ticket_update.html", context)
+
+@login_required
+def ticket_rate(request, id):
+    ticket = Ticket.objects.get(id=id)
+
+    if ticket.created_by != request.user:
+        messages.warning(request, 'You are not allowed to rate this ticket.')
+        return redirect('ticket_detail', id)
+
+    if ticket.status != 'Completed':
+        messages.warning(request, 'You can only rate a ticket once it is Completed.')
+        return redirect('ticket_detail', id)
+
+    if request.method == 'POST':
+        try:
+            rating = int(request.POST.get('csat_rating'))
+        except (TypeError, ValueError):
+            rating = None
+
+        if rating in (1, 2, 3, 4, 5):
+            ticket.csat_rating = rating
+            ticket.csat_feedback = request.POST.get('csat_feedback', '').strip()
+            ticket.save()
+            messages.success(request, 'Thanks for rating your support experience!')
+        else:
+            messages.warning(request, 'Please select a rating between 1 and 5.')
+
+    return redirect('ticket_detail', id)
 
 @login_required
 @admin_required

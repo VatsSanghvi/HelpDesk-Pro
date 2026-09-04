@@ -41,6 +41,25 @@
   </div>
 </div>
 
+<div class="row mb-4">
+  <div class="col-md-6 mb-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-blue" style="float:right;">⏱</div>
+      <div class="kpi-label">Avg First Response Time</div>
+      <div class="kpi-value" id="kpi-frt">—</div>
+      <div class="kpi-sub">hours until a Manager first engages</div>
+    </div>
+  </div>
+  <div class="col-md-6 mb-3">
+    <div class="kpi-card">
+      <div class="kpi-icon kpi-green" style="float:right;">⭐</div>
+      <div class="kpi-label">Avg CSAT Rating</div>
+      <div class="kpi-value" id="kpi-csat">—</div>
+      <div class="kpi-sub">out of 5, from resolved tickets rated so far</div>
+    </div>
+  </div>
+</div>
+
 <!-- Charts row -->
 <div class="row mb-4">
   <!-- Volume chart -->
@@ -164,6 +183,10 @@ fetch('/api/v1/analytics/dashboard/', {
   document.getElementById('kpi-resolved').textContent = kpis.resolved ?? '—';
   document.getElementById('kpi-avg').textContent      = kpis.avg_resolution_hours != null
     ? kpis.avg_resolution_hours + 'h' : 'N/A';
+  document.getElementById('kpi-frt').textContent      = kpis.avg_first_response_hours != null
+    ? kpis.avg_first_response_hours + 'h' : 'N/A';
+  document.getElementById('kpi-csat').textContent     = kpis.avg_csat_rating != null
+    ? kpis.avg_csat_rating + ' / 5' : 'N/A';
 
   // ── Volume bar chart ───────────────────────────────────────────
   const vCtx = document.getElementById('volumeChart').getContext('2d');

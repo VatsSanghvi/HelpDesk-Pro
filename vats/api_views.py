@@ -247,6 +247,22 @@ class DashboardAnalyticsView(APIView):
         # SLA breaches
         sla_breached_cnt = sum(1 for t in qs if t.is_sla_breached)
 
+        # Avg first response time in hours
+        responded_tickets = [t for t in qs if t.first_response_time_hours is not None]
+        avg_first_response = None
+        if responded_tickets:
+            avg_first_response = round(
+                sum(t.first_response_time_hours for t in responded_tickets) / len(responded_tickets), 1
+            )
+
+        # Avg CSAT rating (1-5)
+        rated_tickets = [t for t in qs if t.csat_rating is not None]
+        avg_csat = None
+        if rated_tickets:
+            avg_csat = round(
+                sum(t.csat_rating for t in rated_tickets) / len(rated_tickets), 2
+            )
+
         # ── Daily Volume — last 7 days ────────────────────────────────────────
         daily_data = []
         for i in range(6, -1, -1):
@@ -302,6 +318,8 @@ class DashboardAnalyticsView(APIView):
                 'pending':               pending,
                 'sla_breached':          sla_breached_cnt,
                 'avg_resolution_hours':  avg_resolution,
+                'avg_first_response_hours': avg_first_response,
+                'avg_csat_rating':       avg_csat,
             },
             'charts': {
                 'daily_volume':      daily_data,

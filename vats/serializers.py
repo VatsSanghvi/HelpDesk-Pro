@@ -74,6 +74,7 @@ class TicketListSerializer(serializers.ModelSerializer):
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
     is_sla_breached  = serializers.BooleanField(read_only=True)
     resolution_time_hours = serializers.FloatField(read_only=True)
+    first_response_time_hours = serializers.FloatField(read_only=True)
 
     class Meta:
         model  = Ticket
@@ -84,8 +85,9 @@ class TicketListSerializer(serializers.ModelSerializer):
             'subcategory', 'subcategory_name',
             'created_by', 'assigned_to',
             'created_at', 'updated_at',
-            'due_by', 'resolved_at',
-            'is_sla_breached', 'resolution_time_hours',
+            'due_by', 'resolved_at', 'first_response_at',
+            'is_sla_breached', 'resolution_time_hours', 'first_response_time_hours',
+            'csat_rating', 'csat_feedback',
         ]
 
 
@@ -97,6 +99,7 @@ class TicketDetailSerializer(serializers.ModelSerializer):
     subcategory_name = serializers.CharField(source='subcategory.name', read_only=True)
     is_sla_breached  = serializers.BooleanField(read_only=True)
     resolution_time_hours = serializers.FloatField(read_only=True)
+    first_response_time_hours = serializers.FloatField(read_only=True)
     age_hours        = serializers.FloatField(read_only=True)
     worknotes        = WorknoteSerializer(source='Worknotes', many=True, read_only=True)
 
@@ -109,8 +112,9 @@ class TicketDetailSerializer(serializers.ModelSerializer):
             'subcategory', 'subcategory_name',
             'created_by', 'assigned_to',
             'created_at', 'updated_at',
-            'due_by', 'resolved_at',
-            'is_sla_breached', 'resolution_time_hours', 'age_hours',
+            'due_by', 'resolved_at', 'first_response_at',
+            'is_sla_breached', 'resolution_time_hours', 'first_response_time_hours', 'age_hours',
+            'csat_rating', 'csat_feedback',
             'worknotes',
         ]
         read_only_fields = ['number', 'created_by', 'created_at', 'updated_at']

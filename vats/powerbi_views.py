@@ -64,10 +64,14 @@ def powerbi_tickets_feed(request):
             'updated_at':           t.updated_at.isoformat() if t.updated_at else None,
             'due_by':               t.due_by.isoformat() if t.due_by else None,
             'resolved_at':          t.resolved_at.isoformat() if t.resolved_at else None,
+            'first_response_at':    t.first_response_at.isoformat() if t.first_response_at else None,
             'resolution_time_hours': t.resolution_time_hours,
+            'first_response_time_hours': t.first_response_time_hours,
             'age_hours':            t.age_hours,
             'is_sla_breached':      t.is_sla_breached,
             'is_open':              t.is_open(),
+            'csat_rating':          t.csat_rating,
+            'csat_feedback':        t.csat_feedback,
         })
 
     return JsonResponse(data, safe=False)

@@ -38,6 +38,11 @@
     <!-- ── Admin section ── -->
     <div class="sidebar-section">Tickets</div>
     <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
+        <span class="ni">📌</span> My Tickets
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
         <span class="ni">🎫</span> All Tickets
       </a>
@@ -69,6 +74,11 @@
       </a>
     </li>
     <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
+        <span class="ni">📌</span> Open Tickets
+      </a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" href="{% url 'ticket_create' %}">
         <span class="ni">➕</span> Raise New Ticket
       </a>
@@ -77,6 +87,11 @@
     {% elif request.user.role == "Manager" %}
     <!-- ── Manager section ── -->
     <div class="sidebar-section">Assigned Work</div>
+    <li class="nav-item">
+      <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
+        <span class="ni">📌</span> My Open Tickets
+      </a>
+    </li>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
         <span class="ni">🎫</span> All Assigned
