@@ -59,17 +59,6 @@
           "type": "BaseTheme"
         }
       ]
-    },
-    {
-      "name": "RegisteredResources",
-      "type": "RegisteredResources",
-      "items": [
-        {
-          "name": "HelpDeskProTheme.json",
-          "path": "HelpDeskProTheme.json",
-          "type": "CustomTheme"
-        }
-      ]
     }
   ],
   "settings": {

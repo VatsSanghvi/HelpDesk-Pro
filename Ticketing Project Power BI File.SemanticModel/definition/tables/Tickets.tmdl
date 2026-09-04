@@ -24,7 +24,7 @@ table Tickets
 		lineageTag: 1c3d9db8-89f6-4cb5-a585-944c71b4b0c2
 
 	measure 'SLA Compliance %' =
-
+			
 			DIVIDE(
 			    CALCULATE(COUNTROWS(Tickets), Tickets[is_sla_breached] = FALSE),
 			    COUNTROWS(Tickets),
@@ -43,7 +43,7 @@ table Tickets
 		lineageTag: db1ee058-e929-4880-9660-4aa74154d267
 
 	measure 'Avg Resolution Time (Hrs)' =
-
+			
 			AVERAGE(Tickets[resolution_time_hours])
 		formatString: 0.0" hrs"
 		lineageTag: 0de0d534-aeee-4bb8-9056-2bff19b99734
@@ -58,7 +58,7 @@ table Tickets
 		lineageTag: 4f877cb9-e0a3-4601-b837-6f59249205e4
 
 	measure 'WoW Change %' =
-
+			
 			VAR ThisWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 7)
 			VAR LastWeek = CALCULATE(COUNTROWS(Tickets), Tickets[created_at] >= TODAY() - 14 && Tickets[created_at] < TODAY() - 7)
 			RETURN
@@ -77,7 +77,7 @@ table Tickets
 		lineageTag: 37ab4fca-2892-4b89-acdd-4967fc3bf7ef
 
 	measure 'Unassigned Tickets' =
-
+			
 			CALCULATE(
 			    COUNTROWS(Tickets),
 			    Tickets[assigned_to] = "Unassigned"
@@ -86,19 +86,19 @@ table Tickets
 		lineageTag: 2921bf4e-f314-4041-9ed0-ac8dc9a9c025
 
 	measure 'Avg First Response Time (Hrs)' =
-
+			
 			AVERAGE(Tickets[first_response_time_hours])
 		formatString: 0.0" hrs"
 		lineageTag: 21cb84cf-8ade-488a-b46e-e5d47bca81db
 
 	measure 'Avg CSAT Rating' =
-
+			
 			AVERAGE(Tickets[csat_rating])
 		formatString: 0.0" / 5"
 		lineageTag: b57f4bdf-dc39-4041-8fb6-edc867b5c2e1
 
 	measure 'CSAT Responses' =
-
+			
 			CALCULATE(
 			    COUNTROWS(Tickets),
 			    NOT ISBLANK(Tickets[csat_rating])
@@ -234,32 +234,12 @@ table Tickets
 
 		annotation SummarizationSetBy = Automatic
 
-	column first_response_at
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: b4be634f-db60-487f-83d8-004a8a1ee2e6
-		summarizeBy: none
-		sourceColumn: first_response_at
-
-		annotation SummarizationSetBy = Automatic
-
 	column resolution_time_hours
 		dataType: double
 		formatString: 0
 		lineageTag: d05cb506-22dc-4906-8cea-92aa81477f40
 		summarizeBy: sum
 		sourceColumn: resolution_time_hours
-
-		changedProperty = DataType
-
-		annotation SummarizationSetBy = Automatic
-
-	column first_response_time_hours
-		dataType: double
-		formatString: 0
-		lineageTag: 564f84b6-d5c8-4fb5-8289-c202cb40b61c
-		summarizeBy: sum
-		sourceColumn: first_response_time_hours
 
 		changedProperty = DataType
 
@@ -290,6 +270,26 @@ table Tickets
 		lineageTag: 77578732-2500-48df-96a7-11d617908d0a
 		summarizeBy: none
 		sourceColumn: is_open
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_response_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b4be634f-db60-487f-83d8-004a8a1ee2e6
+		summarizeBy: none
+		sourceColumn: first_response_at
+
+		annotation SummarizationSetBy = Automatic
+
+	column first_response_time_hours
+		dataType: double
+		formatString: 0
+		lineageTag: 564f84b6-d5c8-4fb5-8289-c202cb40b61c
+		summarizeBy: sum
+		sourceColumn: first_response_time_hours
+
+		changedProperty = DataType
 
 		annotation SummarizationSetBy = Automatic
 
