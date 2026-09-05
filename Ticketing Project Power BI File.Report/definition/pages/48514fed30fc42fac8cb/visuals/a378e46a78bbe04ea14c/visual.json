@@ -17,17 +17,28 @@
           "projections": [
             {
               "field": {
-                "Column": {
+                "HierarchyLevel": {
                   "Expression": {
-                    "SourceRef": {
-                      "Entity": "Tickets"
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "Tickets"
+                            }
+                          },
+                          "Name": "Variation",
+                          "Property": "created_at"
+                        }
+                      },
+                      "Hierarchy": "Date Hierarchy"
                     }
                   },
-                  "Property": "created_at"
+                  "Level": "Month"
                 }
               },
-              "queryRef": "Tickets.created_at",
-              "nativeQueryRef": "created_at",
+              "queryRef": "Tickets.created_at.Variation.Date Hierarchy.Month",
+              "nativeQueryRef": "created_at Month",
               "active": true
             }
           ]
@@ -50,24 +61,6 @@
             }
           ]
         }
-      },
-      "sortDefinition": {
-        "sort": [
-          {
-            "field": {
-              "Column": {
-                "Expression": {
-                  "SourceRef": {
-                    "Entity": "Tickets"
-                  }
-                },
-                "Property": "created_at"
-              }
-            },
-            "direction": "Ascending"
-          }
-        ],
-        "isDefaultSort": true
       }
     },
     "objects": {
@@ -102,17 +95,17 @@
       "title": [
         {
           "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'SLA Breaches Over Time'"
-                }
-              }
-            },
             "alignment": {
               "expr": {
                 "Literal": {
                   "Value": "'center'"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'SLA Breaches Over Time'"
                 }
               }
             }

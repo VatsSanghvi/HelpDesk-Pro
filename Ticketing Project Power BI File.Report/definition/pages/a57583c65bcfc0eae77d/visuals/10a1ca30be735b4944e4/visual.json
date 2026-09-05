@@ -23,11 +23,11 @@
                       "Entity": "Tickets"
                     }
                   },
-                  "Property": "priority"
+                  "Property": "priority_display"
                 }
               },
-              "queryRef": "Tickets.priority",
-              "nativeQueryRef": "priority",
+              "queryRef": "Tickets.priority_display",
+              "nativeQueryRef": "priority_display",
               "active": true
             }
           ]
@@ -69,28 +69,6 @@
         ],
         "isDefaultSort": true
       }
-    },
-    "visualContainerObjects": {
-      "title": [
-        {
-          "properties": {
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Tickets by Priority'"
-                }
-              }
-            },
-            "alignment": {
-              "expr": {
-                "Literal": {
-                  "Value": "'center'"
-                }
-              }
-            }
-          }
-        }
-      ]
     },
     "drillFilterOtherVisuals": true
   }

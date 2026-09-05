@@ -11,10 +11,10 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "HelpDeskProTheme",
+      "name": "HelpDeskProTheme8642529225154054.json",
       "reportVersionAtImport": {
-        "visual": "2.9.0",
-        "report": "3.3.0",
+        "visual": "2.12.0",
+        "report": "3.4.0",
         "page": "2.3.1"
       },
       "type": "RegisteredResources"
@@ -57,6 +57,17 @@
           "name": "CY26SU05",
           "path": "BaseThemes/CY26SU05.json",
           "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "HelpDeskProTheme8642529225154054.json",
+          "path": "HelpDeskProTheme8642529225154054.json",
+          "type": "CustomTheme"
         }
       ]
     }

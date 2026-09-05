@@ -310,6 +310,24 @@ table Tickets
 
 		annotation SummarizationSetBy = Automatic
 
+	column priority_display = ```
+			IF(ISBLANK(Tickets[priority]), "Not Yet Triaged", Tickets[priority])
+			
+			```
+		lineageTag: f698efe4-3403-43b1-b2b2-8e969aa60f6e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column sla_breach_color = ```
+			IF(Tickets[is_sla_breached], "#DC2626", "#16A34A")
+			
+			```
+		lineageTag: 3ad0ea43-72f7-4406-8e8e-5eb465f21be7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
 	partition Tickets = m
 		mode: import
 		source =

@@ -2,11 +2,11 @@
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
   "name": "b9b6969d691109f4903d",
   "position": {
-    "x": 50.478199981327606,
-    "y": 448.18523013724212,
+    "x": 50.670506610812929,
+    "y": 447.5894750621809,
     "z": 8000,
-    "height": 261.56885444869761,
-    "width": 822.94762393800761,
+    "height": 261.79761748920015,
+    "width": 819.17319020814239,
     "tabOrder": 8000
   },
   "visual": {
@@ -120,24 +120,41 @@
         ]
       }
     },
-    "visualContainerObjects": {
-      "title": [
+    "objects": {
+      "values": [
         {
           "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'All Tickets'"
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Aggregation": {
+                      "Expression": {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "Tickets"
+                            }
+                          },
+                          "Property": "sla_breach_color"
+                        }
+                      },
+                      "Function": 3
+                    }
+                  }
                 }
               }
             }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "Tickets.is_sla_breached"
           }
         }
       ]

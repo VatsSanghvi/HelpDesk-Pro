@@ -134,24 +134,41 @@
         ]
       }
     },
-    "visualContainerObjects": {
-      "title": [
+    "objects": {
+      "values": [
         {
           "properties": {
-            "show": {
-              "expr": {
-                "Literal": {
-                  "Value": "true"
-                }
-              }
-            },
-            "text": {
-              "expr": {
-                "Literal": {
-                  "Value": "'Response & Satisfaction Detail'"
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "Aggregation": {
+                      "Expression": {
+                        "Column": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "Tickets"
+                            }
+                          },
+                          "Property": "sla_breach_color"
+                        }
+                      },
+                      "Function": 3
+                    }
+                  }
                 }
               }
             }
+          },
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "Tickets.is_sla_breached"
           }
         }
       ]
