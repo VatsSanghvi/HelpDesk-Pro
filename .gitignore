@@ -40,6 +40,9 @@ ENV/
 # just repo bloat if tracked.
 *.abf
 
+# ── Claude Code local MCP config (machine-specific paths) ──────────
+.mcp.json
+
 # ── IDE / OS ──────────────────────────────────────────────────────
 .vscode/
 .idea/
