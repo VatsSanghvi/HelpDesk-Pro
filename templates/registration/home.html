@@ -9,7 +9,7 @@
 <div class="row mb-4" id="kpi-row">
   <div class="col-md-3 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-blue" style="float:right;">🎫</div>
+      <div class="kpi-icon kpi-blue" style="float:right;">confirmation_number</div>
       <div class="kpi-label">Total Tickets</div>
       <div class="kpi-value" id="kpi-total">—</div>
       <div class="kpi-sub">All time</div>
@@ -17,7 +17,7 @@
   </div>
   <div class="col-md-3 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-orange" style="float:right;">⏳</div>
+      <div class="kpi-icon kpi-orange" style="float:right;">hourglass_empty</div>
       <div class="kpi-label">Open</div>
       <div class="kpi-value" id="kpi-open">—</div>
       <div class="kpi-sub">Needs attention</div>
@@ -25,7 +25,7 @@
   </div>
   <div class="col-md-3 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-green" style="float:right;">✅</div>
+      <div class="kpi-icon kpi-green" style="float:right;">task_alt</div>
       <div class="kpi-label">Resolved</div>
       <div class="kpi-value" id="kpi-resolved">—</div>
       <div class="kpi-sub">Completed + Cancelled</div>
@@ -33,7 +33,7 @@
   </div>
   <div class="col-md-3 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-purple" style="float:right;">⚡</div>
+      <div class="kpi-icon kpi-purple" style="float:right;">bolt</div>
       <div class="kpi-label">Avg Resolution</div>
       <div class="kpi-value" id="kpi-avg">—</div>
       <div class="kpi-sub">hours per ticket</div>
@@ -44,7 +44,7 @@
 <div class="row mb-4">
   <div class="col-md-6 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-blue" style="float:right;">⏱</div>
+      <div class="kpi-icon kpi-blue" style="float:right;">timer</div>
       <div class="kpi-label">Avg First Response Time</div>
       <div class="kpi-value" id="kpi-frt">—</div>
       <div class="kpi-sub">hours until a Manager first engages</div>
@@ -52,7 +52,7 @@
   </div>
   <div class="col-md-6 mb-3">
     <div class="kpi-card">
-      <div class="kpi-icon kpi-green" style="float:right;">⭐</div>
+      <div class="kpi-icon kpi-green" style="float:right;">star</div>
       <div class="kpi-label">Avg CSAT Rating</div>
       <div class="kpi-value" id="kpi-csat">—</div>
       <div class="kpi-sub">out of 5, from resolved tickets rated so far</div>
@@ -132,11 +132,11 @@
       </div>
       <div class="card-body">
         {% if request.user.role == "Viewer" %}
-        <a href="{% url 'ticket_create' %}" class="btn btn-primary btn-block mb-2">➕ Raise New Ticket</a>
-        <a href="{% url 'ticket_list' %}" class="btn btn-outline-primary btn-block">📋 View My Tickets</a>
+        <a href="{% url 'ticket_create' %}" class="btn btn-primary btn-block mb-2"><span class="ni">add_circle</span> Raise New Ticket</a>
+        <a href="{% url 'ticket_list' %}" class="btn btn-outline-primary btn-block"><span class="ni">assignment</span> View My Tickets</a>
         {% else %}
-        <a href="{% url 'ticket_list' %}" class="btn btn-primary btn-block mb-2">📋 View Assigned Tickets</a>
-        <a href="{% url 'ticket_list_status' 'In Progress' %}" class="btn btn-outline-primary btn-block">🔄 In Progress</a>
+        <a href="{% url 'ticket_list' %}" class="btn btn-primary btn-block mb-2"><span class="ni">assignment</span> View Assigned Tickets</a>
+        <a href="{% url 'ticket_list_status' 'In Progress' %}" class="btn btn-outline-primary btn-block"><span class="ni">autorenew</span> In Progress</a>
         {% endif %}
       </div>
     </div>
@@ -164,8 +164,10 @@
 
 {% block js %}
 <script>
-const PRIORITY_COLORS = { High: '#DC2626', Moderate: '#D97706', Low: '#16A34A', None: '#CBD5E1' };
-const STATUS_COLORS   = { Open: '#3B82F6', Resolved: '#16A34A', Pending: '#D97706' };
+// Kept in sync with the badge matrix in main.css — a donut slice and its
+// table badge must be the same colour or the palette reads as accidental.
+const PRIORITY_COLORS = { High: '#E11D48', Moderate: '#D97706', Low: '#2563EB', None: '#94A3B8' };
+const STATUS_COLORS   = { Open: '#0EA5E9', Resolved: '#059669', Pending: '#64748B' };
 
 // Fetch analytics from the API endpoint we built
 fetch('/api/v1/analytics/dashboard/', {
@@ -195,9 +197,9 @@ fetch('/api/v1/analytics/dashboard/', {
     data: {
       labels: charts.daily_volume.map(d => d.date),
       datasets: [
-        { label: 'Open',     data: charts.daily_volume.map(d => d.open),     backgroundColor: '#3B82F6' },
-        { label: 'Resolved', data: charts.daily_volume.map(d => d.resolved), backgroundColor: '#16A34A' },
-        { label: 'Pending',  data: charts.daily_volume.map(d => d.pending),  backgroundColor: '#D97706' },
+        { label: 'Open',     data: charts.daily_volume.map(d => d.open),     backgroundColor: STATUS_COLORS.Open,     borderRadius: 4 },
+        { label: 'Resolved', data: charts.daily_volume.map(d => d.resolved), backgroundColor: STATUS_COLORS.Resolved, borderRadius: 4 },
+        { label: 'Pending',  data: charts.daily_volume.map(d => d.pending),  backgroundColor: STATUS_COLORS.Pending,  borderRadius: 4 },
       ]
     },
     options: {
@@ -316,7 +318,7 @@ function loadRecentTickets() {
         <td><a href="/ticket_detail/${t.id}" class="ticket-link">${t.number}</a></td>
         <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</td>
         <td>${t.category_name || '—'}</td>
-        <td>${t.priority ? `<span class="sbadge ${prioClass[t.priority]||''}">${t.priority}</span>` : '—'}</td>
+        <td>${t.priority ? `<span class="sbadge ${prioClass[t.priority]||''}">${t.priority}</span>` : `<span class="sbadge pbadge-None">Untriaged</span>`}</td>
         <td>${t.assigned_to ? t.assigned_to.full_name : '<span style="color:var(--text-muted)">Unassigned</span>'}</td>
         <td><span class="sbadge ${statusClass[t.status]||''}">${t.status||'—'}</span></td>
         <td style="color:var(--text-muted);font-size:12px;">${updated}</td>

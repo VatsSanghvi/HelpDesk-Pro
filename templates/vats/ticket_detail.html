@@ -17,6 +17,8 @@
       {% endif %}
       {% if ticket.priority %}
       <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+      {% else %}
+      <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
       {% endif %}
       {% if ticket.is_sla_breached %}
       <span class="sla-badge">⚠ SLA Breached</span>
@@ -79,7 +81,9 @@
           <span class="detail-value">
             {% if ticket.priority %}
             <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-            {% else %}Not set{% endif %}
+            {% else %}
+            <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
+            {% endif %}
           </span>
         </div>
         <div class="detail-row">

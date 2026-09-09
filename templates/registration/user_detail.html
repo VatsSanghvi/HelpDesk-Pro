@@ -6,7 +6,7 @@
 {% block body %}
 
 <div class="page-header">
-  <h2>👤 {{ user_details.first_name|capfirst }} {{ user_details.last_name|capfirst }}</h2>
+  <h2><span class="ni">person</span> {{ user_details.first_name|capfirst }} {{ user_details.last_name|capfirst }}</h2>
   <div style="display:flex;gap:8px;">
     <a href="{% url 'user_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
     <a href="{% url 'profile_update' user_details.id %}" class="btn btn-primary btn-sm">Edit</a>

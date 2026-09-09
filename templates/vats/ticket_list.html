@@ -9,7 +9,7 @@
 
 <div class="page-header">
   <h2>
-    🎫 {{ page_title|default:"Tickets" }}
+    <span class="ni">confirmation_number</span> {{ page_title|default:"Tickets" }}
     {% if status %}<span style="font-size:14px;font-weight:400;color:var(--text-muted);"> / {{ status }}</span>{% endif %}
   </h2>
   <div style="display:flex;gap:8px;">
@@ -88,7 +88,9 @@
             <td>
               {% if ticket.priority %}
               <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-              {% else %}<span style="color:var(--text-muted);">—</span>{% endif %}
+              {% else %}
+              <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
+              {% endif %}
             </td>
             <td>
               {% if ticket.status %}
