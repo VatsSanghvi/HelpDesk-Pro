@@ -96,9 +96,9 @@ more completely than the code does.
 Give Stitch the brief. Treat whatever it returns as a **visual reference**, and
 let Claude Code do the porting into the real templates.
 
-## Security note before you link a public repo anywhere
+## Note on the credentials file
 
-`VatsSanghvi/HelpDesk-Pro` is a **public** repository and it currently tracks a
-file called `ID_passwords.txt` at the repo root. Anyone who opens the repo can
-read it — Stitch is the least of the concern here. Worth removing from the repo
-and purging from history before you point more tools at it.
+`ID_passwords.txt` at the repo root is **intentional** — it holds fake seed
+accounts so anyone cloning the project can log in as Admin / Manager / Viewer
+without creating users first. Not real credentials, nothing sensitive, safe to
+leave in a public repo.
