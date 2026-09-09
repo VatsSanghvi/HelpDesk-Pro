@@ -24,9 +24,9 @@ looked at it here first and agreed it's worth porting.
 
 Not "is it pretty". Specifically:
 
-- Do the **7 status badges** and **4 priority badges** stay tellable apart in a
+- Do the **7 status badges** and **4 priority states** stay tellable apart in a
   dense table? (Pending / Assigned / Scoping / In Progress / Completed /
-  Cancelled / Rejected — and Critical / High / Medium / Low.)
+  Cancelled / Rejected — and High / Moderate / Low / untriaged-no-priority.)
 - Does the **data table** read well with ~15 rows on screen?
 - Is the **type hierarchy** actually better than the current flat 14px?
 - Are the colours portable into CSS custom properties, or does the look depend

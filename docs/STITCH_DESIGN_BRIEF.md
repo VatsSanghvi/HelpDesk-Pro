@@ -36,9 +36,14 @@ The navigation and the dashboard change per role. Design all three.
 `Pending` → `Assigned` → `Scoping` → `In Progress` → `Completed`
 Plus two terminal off-ramps: `Cancelled`, `Rejected`.
 
-**Priorities:** `Critical`, `High`, `Medium`, `Low`.
+**Priorities:** `High`, `Moderate`, `Low` — and a fourth visual state: **no
+priority yet**. Priority is unset until an Admin triages the ticket, so a
+freshly-raised `Pending` ticket has no priority badge at all. That untriaged
+state is real, common, and needs its own treatment in the badge matrix (today
+it renders as a bare em-dash, which is weak). Do not invent `Critical` or
+`Medium` — those do not exist in this system.
 
-**Other domain objects:** Ticket number (e.g. `TKT-000142`), Category →
+**Other domain objects:** Ticket number (e.g. `TKT000142`, no hyphen), Category →
 Subcategory (two-level taxonomy), Work Notes (an append-only comment/audit
 timeline on each ticket), SLA deadline (auto-calculated from priority) and
 **SLA breach** (a hard warning state), CSAT rating (1–5 stars, given by the
@@ -116,8 +121,9 @@ Give me a **new visual language** for it:
 
 - A more considered color system than the current flat corporate blue. It should
   still read as trustworthy enterprise software.
-- **Status and priority badges are the heart of this UI.** Seven statuses and four
-  priorities need to be instantly distinguishable at a glance in a dense table,
+- **Status and priority badges are the heart of this UI.** Seven statuses and
+  four priority states (`High`, `Moderate`, `Low`, and untriaged/none)
+  need to be instantly distinguishable at a glance in a dense table,
   and must stay distinguishable for a colour-blind user — so lean on shape,
   weight, border and icon, not hue alone.
 - Better **typographic hierarchy and rhythm**. The current UI is uniformly 14px

@@ -74,9 +74,12 @@ badge, category, assignee (avatar + name), created date, SLA state. Two rows
 must show an SLA-breached warning state. Show a bulk-action bar in the selected
 state above the table. Numbered pagination at the bottom.
 
-All seven status badges and all four priority badges must appear across the
+All seven status badges (Pending, Assigned, Scoping, In Progress, Completed,
+Cancelled, Rejected) and all four priority states (High, Moderate, Low, and
+untriaged tickets that have no priority assigned yet) must appear across the
 rows, and each must be tellable apart at a glance without relying on colour
-alone.
+alone. There is no "Critical" or "Medium" priority in this system — do not
+invent them.
 ```
 
 Then, in order: **ticket detail** → **dashboard** → **app shell for Viewer and
