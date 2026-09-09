@@ -68,11 +68,71 @@ feature, so re-skim it before each interview even if you've read it before.
 
 ---
 
+## The UI redesign — how to talk about it
+
+If they ask about the redesign, **do not say "I made it look nicer."** That
+invites "so, a colour change?" Lead with a problem you found and fixed.
+Screenshots to pull up: `docs/ui-before/03-ticket-list.png` next to
+`docs/ui-after/03-ticket-list.png`.
+
+**Your strongest answer — the badge collision:**
+> "Status and priority badges shared one visual language — both were tinted
+> pills. In a dense table they sit in adjacent columns, so a red 'Rejected'
+> status and a red 'High' priority read as the same kind of object. I split
+> them by shape rather than by adding more colours: statuses became outlined
+> pills with a dot, priorities became solid chips with a directional rank
+> glyph. Now they can't be confused even where they share a hue — and because
+> the glyph carries the rank, it still works for a colour-blind user."
+
+Why this lands: it's a *systems* answer. You identified an ambiguity, and
+solved it with structure instead of reaching for another colour.
+
+**Your second answer — untriaged as a real state:**
+> "Priority is null until an Admin triages a ticket, so a freshly-raised
+> ticket genuinely has no priority. The old UI rendered that as a bare
+> em-dash, which reads as 'no data' rather than 'not decided yet' — you
+> couldn't tell an untriaged ticket from a rendering glitch while scanning.
+> I gave it its own treatment: an 'Untriaged' chip with a dashed border,
+> because dashed signals provisional. It's a real state in the data model
+> that had no visual representation."
+
+Why this lands: you found a gap between the **data model** and its **visual
+representation**. That's analyst thinking, not decoration. Point at
+TKT000010 and TKT000015 in the before screenshot — they show the bare dash.
+
+**If they ask how you produced the design:**
+> "I used Google Stitch to generate a design system from a written brief, then
+> hand-ported the *tokens* — colour, type scale, spacing, elevation — into the
+> stylesheet rather than its markup. Stitch emits standalone Tailwind; my app
+> is Django templates with Bootstrap, so the markup wouldn't transfer. Porting
+> tokens meant the change was one stylesheet rewrite plus four small template
+> edits instead of a rebuild."
+
+**If they push on trade-offs** (good sign — they're testing honesty):
+> "Rows got slightly taller. Priority chips carry more padding and long
+> category names wrap, so the table shows about 19 rows a screen instead of
+> 25. For a tool someone scans for eight hours that's a real cost, and I'd
+> revisit it if density mattered more than badge clarity."
+
+Never claim it was free. Naming the trade-off you accepted is what separates
+someone who designed a thing from someone who decorated one.
+
+---
+
 ## Recently added (most recent first)
 
 Keep this section updated every time a feature ships — it's your "what's new"
 answer if an interviewer has seen this project before or asks what you've
 been working on lately.
+
+- **2026-09-09** — Full UI redesign. Rebuilt the badge matrix so status and
+  priority can't be confused (outlined pills vs solid chips with rank
+  glyphs), gave untriaged priority a real visual state instead of a bare
+  em-dash, replaced the flat 14px type scale with a proper hierarchy, moved
+  from corporate blue to slate + teal, and swapped 20 emoji for Material
+  Symbols. Design system generated with Google Stitch, tokens hand-ported
+  into `main.css`. Before/after in `docs/ui-before/` and `docs/ui-after/`;
+  full write-up in `docs/UI_REDESIGN.md`.
 
 - **2026-09-03** — Added CSAT rating (1-5 + feedback) captured from the
   ticket creator once a ticket is Completed, and First Response Time
