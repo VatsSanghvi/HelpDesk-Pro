@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load ui_extras %}
 {% block title %}Tickets{% endblock %}
 {% block topbar_title %}Tickets{% endblock %}
 {% block topbar_sub %}
@@ -71,14 +72,14 @@
             {% if request.user.role == "Admin" or request.user.role == "Manager" %}
             <th style="width:32px;"><input type="checkbox" id="select-all-tickets"></th>
             {% endif %}
-            <th>Ticket #</th>
-            <th>Subject</th>
-            <th>Category</th>
-            <th>Priority</th>
+            <th>Ticket ID</th>
+            <th>Subject &amp; Summary</th>
             <th>Status</th>
-            <th>Assigned To</th>
+            <th>Priority</th>
+            <th>Category</th>
+            <th>Assignee</th>
             <th>Updated</th>
-            <th>SLA</th>
+            <th>SLA State</th>
           </tr>
         </thead>
         <tbody>
@@ -96,14 +97,6 @@
               </a>
               <span class="subject-summary">{{ ticket.problem_descp|truncatechars:70 }}</span>
             </td>
-            <td class="cell-category">{{ ticket.category }}</td>
-            <td>
-              {% if ticket.priority %}
-              <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-              {% else %}
-              <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
-              {% endif %}
-            </td>
             <td>
               {% if ticket.status %}
               <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
@@ -112,9 +105,17 @@
               {% else %}—{% endif %}
             </td>
             <td>
+              {% if ticket.priority %}
+              <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
+              {% else %}
+              <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
+              {% endif %}
+            </td>
+            <td class="cell-category">{{ ticket.category }}</td>
+            <td>
               {% if ticket.assigned_to %}
                 <span class="assignee">
-                  <span class="assignee-avatar">{{ ticket.assigned_to.first_name|first|upper }}{{ ticket.assigned_to.last_name|first|upper }}</span>
+                  <span class="assignee-avatar {{ ticket.assigned_to|avatar_class }}">{{ ticket.assigned_to.first_name|first|upper }}{{ ticket.assigned_to.last_name|first|upper }}</span>
                   {{ ticket.assigned_to.first_name|capfirst }} {{ ticket.assigned_to.last_name|capfirst }}
                 </span>
               {% else %}
@@ -127,15 +128,8 @@
             <td>
               {% if ticket.sla_state %}
               <span class="sla sla-{{ ticket.sla_state }}"
-                    title="SLA deadline: {{ ticket.due_by|date:'d M Y, H:i' }}">
-                <span class="ni">
-                  {% if ticket.sla_state == 'breached' %}error
-                  {% elif ticket.sla_state == 'critical' %}bolt
-                  {% elif ticket.sla_state == 'warning' %}schedule
-                  {% elif ticket.sla_state == 'met' %}check_circle
-                  {% elif ticket.sla_state == 'missed' %}cancel
-                  {% else %}schedule{% endif %}
-                </span>{{ ticket.sla_label }}
+                    title="{% if ticket.due_by %}SLA deadline: {{ ticket.due_by|date:'d M Y, H:i' }}{% else %}No SLA applies{% endif %}">
+                <span class="ni">{{ ticket.sla_icon }}</span>{{ ticket.sla_label }}
               </span>
               {% else %}
               <span style="color:var(--text-subtle);">—</span>

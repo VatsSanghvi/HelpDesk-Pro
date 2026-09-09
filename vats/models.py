@@ -213,55 +213,84 @@ class Ticket(models.Model):
         delta = timezone.now() - self.created_at
         return round(delta.total_seconds() / 3600, 2)
 
+    @staticmethod
+    def _duration_text(seconds):
+        """Format a span as '2h 15m', or '18m' when under an hour."""
+        seconds = int(abs(seconds))
+        hours, minutes = divmod(seconds // 60, 60)
+        if hours >= 24:
+            # Hour precision is noise at this scale — nobody triages on
+            # "92d 11h" differently than on "92d".
+            return f"{hours // 24}d"
+        if hours:
+            return f"{hours}h {minutes}m" if minutes else f"{hours}h"
+        return f"{minutes}m"
+
     @property
     def sla_state(self):
         """
-        One of: 'breached', 'critical', 'warning', 'ok', 'met', 'missed', None.
+        Drives the SLA column. One of:
+          breached | critical | remaining | met | missed | suspended | no_sla | None
 
-        Drives the SLA column. Open tickets get an urgency level that rises as
-        the deadline approaches; closed tickets get a verdict instead, because
-        "3h left" is meaningless on a ticket that is already done.
+        Open tickets get a live countdown that sharpens as the deadline nears.
+        Closed tickets get a verdict instead, because a countdown is
+        meaningless on a ticket that is already finished — and Cancelled and
+        Rejected are distinguished from "Completed late", since neither is a
+        service failure.
         """
-        closed = self.status in ('Completed', 'Cancelled', 'Rejected')
-
+        if self.status == 'Rejected':
+            return 'no_sla'          # never entered the queue, so never had an SLA
+        if self.status == 'Cancelled':
+            return 'suspended'       # the clock stopped, nobody failed
         if not self.due_by:
             return None
-
-        if closed:
+        if self.status == 'Completed':
             if not self.resolved_at:
                 return None
             return 'met' if self.resolved_at <= self.due_by else 'missed'
 
-        if timezone.now() > self.due_by:
+        seconds_left = (self.due_by - timezone.now()).total_seconds()
+        if seconds_left < 0:
             return 'breached'
-
-        hours_left = (self.due_by - timezone.now()).total_seconds() / 3600
-        if hours_left <= 4:
-            return 'critical'
-        if hours_left <= 24:
-            return 'warning'
-        return 'ok'
+        return 'critical' if seconds_left <= 3600 else 'remaining'
 
     @property
     def sla_label(self):
-        """Short human text for the SLA column."""
+        """Human text for the SLA column, matching the state."""
         state = self.sla_state
         if state is None:
             return ''
-        if state == 'breached':
-            return 'Breached'
+        # The column header already says "SLA State", so the cells drop the
+        # redundant "SLA" prefix — that word cost ~40px on every row and said
+        # nothing the header hadn't. The duration is the part that matters.
+        if state == 'no_sla':
+            return 'No SLA'
+        if state == 'suspended':
+            return 'Suspended'
         if state == 'met':
-            return 'Met'
+            return 'On time'
         if state == 'missed':
-            return 'Missed'
+            over = (self.resolved_at - self.due_by).total_seconds()
+            return f"Late (+{self._duration_text(over)})"
 
-        seconds = (self.due_by - timezone.now()).total_seconds()
-        hours = seconds / 3600
-        if hours < 1:
-            return f"{int(seconds // 60)}m left"
-        if hours < 48:
-            return f"{hours:.0f}h left"
-        return f"{hours / 24:.0f}d left"
+        seconds_left = (self.due_by - timezone.now()).total_seconds()
+        if state == 'breached':
+            return f"Breached (+{self._duration_text(seconds_left)})"
+        if state == 'critical':
+            return f"{self._duration_text(seconds_left)} left"
+        return f"{self._duration_text(seconds_left)} remaining"
+
+    @property
+    def sla_icon(self):
+        return {
+            'breached':  'warning',
+            'critical':  'alarm',
+            'remaining': 'schedule',
+            'met':       'check_circle',
+            'missed':    'running_with_errors',
+            'suspended': 'pause_circle',
+            'no_sla':    'block',
+        }.get(self.sla_state, 'schedule')
 
     @property
     def first_response_time_hours(self):

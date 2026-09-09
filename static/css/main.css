@@ -412,7 +412,7 @@ h2 > .ni { font-size: 22px; color: var(--accent); vertical-align: -5px; }
    carries enough context to triage without opening the ticket. */
 /* Capped so the row still fits nine columns at 1440px without the Updated
    column falling off the right edge. */
-.cell-subject { max-width: 265px; }
+.cell-subject { max-width: 240px; }
 
 /* Category on one line with an ellipsis — wrapping it cost two rows of
    height and pushed the SLA column off the right edge. */
@@ -798,23 +798,43 @@ a:focus-visible, button:focus-visible,
 }
 .sla .ni { font-size: 14px; }
 
-/* Past deadline — the loudest state, and the only one that is filled */
+/* Past deadline — carries how far overdue, e.g. "SLA Breached (+2h 15m)" */
 .sla-breached {
-  background: #E11D48; color: #fff; font-weight: 700;
-  animation: hd-sla-pulse-strong 2.4s var(--ease) infinite;
+  background: #FEE2E2; color: #991B1B; border-color: #FCA5A5;
+  font-weight: 700;
 }
-/* Under 4 hours — urgent, but not yet a failure */
+/* Under an hour — the only state that moves, because it is the only one
+   where minutes actually matter. */
 .sla-critical {
-  background: #FFF1F2; color: #BE123C; border-color: #FDA4AF;
-  animation: hd-sla-pulse 3s var(--ease) infinite;
+  background: #FEF3C7; color: #78350F; border-color: #FBBF24;
+  font-weight: 700;
+  animation: hd-sla-pulse-amber 2.2s var(--ease) infinite;
 }
-/* Same day */
-.sla-warning { background: #FFFBEB; color: #92400E; border-color: #FCD34D; }
-/* Comfortably ahead — deliberately quiet so it doesn't compete */
-.sla-ok      { background: transparent; color: var(--text-muted); border-color: var(--border); font-weight: 500; }
+/* Live countdown, deliberately quiet so it doesn't compete with breaches */
+.sla-remaining { background: transparent; color: var(--text-muted); border-color: var(--border); font-weight: 500; }
 /* Closed tickets get a verdict rather than a countdown */
-.sla-met     { background: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
-.sla-missed  { background: #F1F5F9; color: #64748B; border-color: var(--border-strong); }
+.sla-met       { background: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
+.sla-missed    { background: #FFF1F2; color: #BE123C; border-color: #FDA4AF; }
+/* Cancelled: the clock stopped, nobody failed */
+.sla-suspended { background: #F1F5F9; color: #475569; border-color: var(--border-strong); }
+/* Rejected: never entered the queue, so an SLA never applied */
+.sla-no_sla    { background: transparent; color: var(--text-subtle); border-color: var(--border); font-weight: 500; }
+
+@keyframes hd-sla-pulse-amber {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5); }
+  60%      { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0); }
+}
+
+/* Per-user avatar colours. A given person is always the same colour, so the
+   column becomes scannable — you learn "teal is Priya" and stop reading names. */
+.av-0 { background: #E0F2FE; color: #075985; }
+.av-1 { background: #F0FDFA; color: #115E59; }
+.av-2 { background: #FAF5FF; color: #6B21A8; }
+.av-3 { background: #FFF1F2; color: #BE123C; }
+.av-4 { background: #FFFBEB; color: #92400E; }
+.av-5 { background: #ECFDF5; color: #065F46; }
+.av-6 { background: #EEF2FF; color: #3730A3; }
+.av-7 { background: #F1F5F9; color: #334155; }
 
 @keyframes hd-sla-pulse-strong {
   0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
