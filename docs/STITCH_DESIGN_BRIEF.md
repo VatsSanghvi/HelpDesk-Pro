@@ -133,6 +133,39 @@ Give me a **new visual language** for it:
   (Material Symbols preferred).
 - A genuinely well-designed **data table** — this app lives or dies on its table.
 
+### 5.1 Level of ambition — do not play it safe
+
+I do not want a generic Bootstrap admin template with the colours swapped. I
+want a visual system with a genuine point of view — something that looks
+deliberately designed, not assembled. Push it.
+
+Specifically, I want you to use:
+
+- **A distinctive, confident colour system.** Not default corporate blue. A real
+  palette with a signature accent, a considered neutral ramp, and semantic
+  colours that feel part of the same family. It should still read as serious
+  enterprise software an IT director would trust — ambitious, not toy-like.
+- **Dramatic typographic contrast.** Big, confident numbers on KPI cards. Tight,
+  small, high-weight labels. Real scale jumps between levels — nothing like the
+  current uniform 14px.
+- **Layered surfaces and depth.** A considered elevation system: subtle
+  gradients, translucent/frosted panel surfaces where appropriate, refined
+  borders, and shadows with actual craft (multi-layer, not one flat blur).
+- **A dark, rich sidebar** as an anchor against the light content area, treated
+  as a designed surface rather than a grey rectangle.
+- **Motion that carries meaning**, not decoration. I want all of these designed:
+  - row and card hover states with real feedback
+  - skeleton/shimmer loading states for the KPI row and table
+  - a status-change transition that makes the change feel confirmed
+  - an **SLA countdown that visibly intensifies as it nears breach**, and a
+    breach state that draws the eye without being a flashing distraction
+  - focus states good enough for keyboard-only use
+  - toast/inline confirmation after an action
+
+Treat the **badge matrix as the showcase piece**. Seven statuses and four
+priority states, dense, instantly separable, colour-blind safe, and beautiful.
+If the badges are excellent, the redesign is worth shipping.
+
 ---
 
 ## 6. Hard constraints — the output has to survive porting
@@ -150,6 +183,20 @@ plus a custom CSS layer**. So:
   actually produce (colors, grid lines, legends, rounded bars) — no exotic
   custom-canvas visuals.
 - Keep dependencies to CSS. No component library that requires a JS framework.
+
+**The portability rule — this is the one that matters most:**
+
+Be as visually ambitious as you like, but every effect must be expressible in
+**plain CSS**: custom properties, gradients, `backdrop-filter`, `box-shadow`,
+`transform`, `transition`, and `@keyframes`. All of that ports into my
+stylesheet and ships.
+
+Do **not** use WebGL, Three.js, canvas-drawn effects, 3D scenes, physics,
+scroll-driven cinematic sequences, or anything needing a JS animation library.
+Not because they aren't impressive — because they cannot be hand-ported into
+Django templates, so anything built that way is work I have to throw away.
+
+Ambition: high. Technique: CSS only.
 
 ## 7. Deliverable I need back
 
