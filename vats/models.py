@@ -214,6 +214,56 @@ class Ticket(models.Model):
         return round(delta.total_seconds() / 3600, 2)
 
     @property
+    def sla_state(self):
+        """
+        One of: 'breached', 'critical', 'warning', 'ok', 'met', 'missed', None.
+
+        Drives the SLA column. Open tickets get an urgency level that rises as
+        the deadline approaches; closed tickets get a verdict instead, because
+        "3h left" is meaningless on a ticket that is already done.
+        """
+        closed = self.status in ('Completed', 'Cancelled', 'Rejected')
+
+        if not self.due_by:
+            return None
+
+        if closed:
+            if not self.resolved_at:
+                return None
+            return 'met' if self.resolved_at <= self.due_by else 'missed'
+
+        if timezone.now() > self.due_by:
+            return 'breached'
+
+        hours_left = (self.due_by - timezone.now()).total_seconds() / 3600
+        if hours_left <= 4:
+            return 'critical'
+        if hours_left <= 24:
+            return 'warning'
+        return 'ok'
+
+    @property
+    def sla_label(self):
+        """Short human text for the SLA column."""
+        state = self.sla_state
+        if state is None:
+            return ''
+        if state == 'breached':
+            return 'Breached'
+        if state == 'met':
+            return 'Met'
+        if state == 'missed':
+            return 'Missed'
+
+        seconds = (self.due_by - timezone.now()).total_seconds()
+        hours = seconds / 3600
+        if hours < 1:
+            return f"{int(seconds // 60)}m left"
+        if hours < 48:
+            return f"{hours:.0f}h left"
+        return f"{hours / 24:.0f}d left"
+
+    @property
     def first_response_time_hours(self):
         """Hours from creation to first real Manager engagement. Support teams call this FRT."""
         if not self.first_response_at:

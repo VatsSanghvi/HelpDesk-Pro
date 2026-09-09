@@ -158,3 +158,38 @@ and call `save()`.
 That is worth knowing generally: `.update()` is faster because it goes
 straight to SQL, but it skips `save()`, `auto_now`, and signals. If a model's
 `save()` carries business logic, bulk `.update()` will quietly bypass it.
+
+### The SLA column
+
+The mockup had SLA as its own column; the first port buried the badge inside
+the Status cell, which made rows taller and meant SLA state couldn't be
+scanned down a column.
+
+It is now a real column with a graded state rather than a breached/not-breached
+binary — the "countdown that intensifies as it nears breach" the brief asked
+for:
+
+| State | Meaning | Treatment |
+|---|---|---|
+| `breached` | Past deadline, still open | Solid red, pulsing — the only filled state |
+| `critical` | Under 4 hours left | Red tint, bordered, slow pulse |
+| `warning` | Under 24 hours left | Amber tint |
+| `ok` | Comfortably ahead | Quiet grey — deliberately doesn't compete |
+| `met` / `missed` | Closed: verdict against the deadline | Green / grey |
+
+Urgency is carried by colour, icon **and** weight together, so it survives for
+a colour-blind reader. Closed tickets get a verdict rather than a countdown,
+because "3h left" is meaningless on a ticket that is already done.
+
+**Column trade-off.** Nine columns did not fit at the 1440px reference width —
+the SLA column kept clipping. Rather than shrink everything, "Created By" was
+dropped: the mockup didn't have it, real ITSM list views (ServiceNow, Jira
+Service Management) don't show the requester in the default list either, and
+the requester is still on the ticket detail page. Nothing is lost, and the
+remaining columns get room to breathe.
+
+**Note on the current data.** Every open ticket in the demo database is already
+past its deadline, so `critical`, `warning` and `ok` don't appear yet — the
+states exist and work, they just need tickets whose deadlines are still in the
+future. Worth knowing before wondering why the countdown never shows: 12
+breached and 10 missed out of 32 tickets is the data, not a rendering bug.

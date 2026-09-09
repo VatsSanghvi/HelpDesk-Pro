@@ -412,7 +412,15 @@ h2 > .ni { font-size: 22px; color: var(--accent); vertical-align: -5px; }
    carries enough context to triage without opening the ticket. */
 /* Capped so the row still fits nine columns at 1440px without the Updated
    column falling off the right edge. */
-.cell-subject { max-width: 260px; }
+.cell-subject { max-width: 265px; }
+
+/* Category on one line with an ellipsis — wrapping it cost two rows of
+   height and pushed the SLA column off the right edge. */
+.cell-category {
+  color: var(--text-muted);
+  max-width: 130px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .cell-subject .subject-title {
   font-weight: 600; color: var(--text); font-size: 13px;
   display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -774,6 +782,44 @@ a:focus-visible, button:focus-visible,
 /* A breach should draw the eye without being a flashing distraction:
    one slow, low-amplitude pulse rather than a blink. */
 .sla-badge { animation: hd-sla-pulse 2.6s var(--ease) infinite; }
+
+/* ── SLA column ───────────────────────────────────────────────────
+   Urgency is encoded three ways at once — colour, icon, and weight — so
+   the state survives for a colour-blind reader and stays scannable down
+   a column of fifteen rows. Only the two genuinely urgent states move. */
+.sla {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 11.5px; font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sla .ni { font-size: 14px; }
+
+/* Past deadline — the loudest state, and the only one that is filled */
+.sla-breached {
+  background: #E11D48; color: #fff; font-weight: 700;
+  animation: hd-sla-pulse-strong 2.4s var(--ease) infinite;
+}
+/* Under 4 hours — urgent, but not yet a failure */
+.sla-critical {
+  background: #FFF1F2; color: #BE123C; border-color: #FDA4AF;
+  animation: hd-sla-pulse 3s var(--ease) infinite;
+}
+/* Same day */
+.sla-warning { background: #FFFBEB; color: #92400E; border-color: #FCD34D; }
+/* Comfortably ahead — deliberately quiet so it doesn't compete */
+.sla-ok      { background: transparent; color: var(--text-muted); border-color: var(--border); font-weight: 500; }
+/* Closed tickets get a verdict rather than a countdown */
+.sla-met     { background: #ECFDF5; color: #065F46; border-color: #6EE7B7; }
+.sla-missed  { background: #F1F5F9; color: #64748B; border-color: var(--border-strong); }
+
+@keyframes hd-sla-pulse-strong {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.45); }
+  60%      { box-shadow: 0 0 0 5px rgba(225, 29, 72, 0); }
+}
 
 @keyframes hd-sla-pulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.0); }
