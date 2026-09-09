@@ -246,6 +246,83 @@ h2 > .ni { font-size: 22px; color: var(--accent); vertical-align: -5px; }
 }
 .page-content { padding: 24px; }
 
+/* ── Notification bell ──────────────────────────────────────────── */
+.notif-wrap { position: relative; }
+.notif-bell {
+  position: relative;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+.notif-bell:hover { background: var(--primary-light); color: var(--text); }
+.notif-bell .ni { font-size: 21px; }
+/* The count sits on the bell rather than beside it, so an unread state is
+   obvious in peripheral vision. */
+.notif-count {
+  position: absolute; top: 2px; right: 2px;
+  min-width: 17px; height: 17px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: #E11D48;
+  color: #fff;
+  font-size: 10px; font-weight: 700; line-height: 17px;
+  text-align: center;
+  border: 2px solid #fff;
+  box-sizing: content-box;
+}
+.notif-panel {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 360px; max-height: 420px; overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  animation: hd-slide-in 0.16s var(--ease);
+}
+.notif-panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-muted);
+  position: sticky; top: 0; background: #fff;
+}
+.notif-panel-head a {
+  text-transform: none; letter-spacing: 0;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent); text-decoration: none;
+}
+.notif-panel-head a:hover { text-decoration: underline; }
+.notif-item {
+  display: flex; gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none !important;
+  color: var(--text);
+  transition: background 0.12s var(--ease);
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--accent-light); }
+/* Unread carries a teal rail plus a tinted ground — two cues, so it survives
+   for someone who can't rely on the colour. */
+.notif-unread { background: #F8FAFC; box-shadow: inset 3px 0 0 var(--accent); }
+.notif-item-icon { font-size: 18px; color: var(--text-subtle); flex-shrink: 0; margin-top: 1px; }
+.notif-unread .notif-item-icon { color: var(--accent); }
+.notif-item-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.notif-item-text { font-size: 13px; line-height: 1.4; }
+.notif-unread .notif-item-text { font-weight: 600; }
+.notif-item-time { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.notif-empty { padding: 28px 20px; text-align: center; color: var(--text-muted); }
+.notif-empty .ni { font-size: 30px; color: var(--border-strong); }
+.notif-empty p { font-size: 12.5px; margin: 8px 0 0; line-height: 1.5; }
+
 /* ── 5. Cards ───────────────────────────────────────────────────── */
 .card {
   border: 1px solid var(--border) !important;
@@ -312,12 +389,12 @@ h2 > .ni { font-size: 22px; color: var(--accent); vertical-align: -5px; }
   color: var(--text-muted);
   border-top: none !important;
   border-bottom: 1px solid var(--border) !important;
-  padding: 11px 16px !important;
+  padding: 11px 12px !important;
   background: #F8FAFC;
   white-space: nowrap;
 }
 .table tbody td {
-  padding: 10px 16px !important;
+  padding: 10px 12px !important;
   border-color: var(--border) !important;
   vertical-align: middle !important;
 }
@@ -330,6 +407,141 @@ h2 > .ni { font-size: 22px; color: var(--accent); vertical-align: -5px; }
   text-decoration: none !important;
 }
 .ticket-link:hover { text-decoration: underline !important; }
+
+/* Two-line subject: title with a description snippet underneath, so a row
+   carries enough context to triage without opening the ticket. */
+/* Capped so the row still fits nine columns at 1440px without the Updated
+   column falling off the right edge. */
+.cell-subject { max-width: 260px; }
+.cell-subject .subject-title {
+  font-weight: 600; color: var(--text); font-size: 13px;
+  display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.cell-subject .subject-summary {
+  display: block; font-size: 11.5px; color: var(--text-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  margin-top: 1px;
+}
+/* Closed tickets read as done at a glance, structurally rather than by hue */
+tr.row-closed .subject-title { text-decoration: line-through; color: var(--text-muted); }
+tr.row-closed { opacity: 0.82; }
+
+/* Assignee cell: initials avatar + name */
+.assignee { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.assignee-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 10px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.assignee-none { color: var(--text-subtle); font-style: italic; font-size: 12px; }
+
+/* Filter pills carry live counts */
+.filter-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.filter-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: #fff;
+  color: var(--text);
+  font-size: 12.5px; font-weight: 600;
+  text-decoration: none !important;
+  transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+}
+.filter-pill:hover { background: var(--accent-light); border-color: var(--accent); color: var(--text); }
+.filter-pill.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.filter-pill .n {
+  background: var(--primary-light); color: var(--text-muted);
+  border-radius: var(--radius-pill);
+  padding: 0 6px; font-size: 11px; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.filter-pill.active .n { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* Bulk action bar — the dark selected-state treatment */
+.bulk-bar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 11px 16px;
+  background: var(--primary);
+  color: #fff;
+  border-bottom: 1px solid var(--primary-dark);
+}
+.bulk-bar .bulk-label { font-size: 12.5px; font-weight: 600; }
+.bulk-bar .form-control {
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  color: #fff !important;
+}
+.bulk-bar .form-control option { color: var(--text); }
+.bulk-bar .btn-outline-primary {
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.35) !important;
+  color: #fff !important;
+}
+.bulk-bar .btn-outline-primary:hover { background: rgba(255,255,255,0.12) !important; }
+.bulk-bar .bulk-hint { font-size: 11.5px; color: rgba(255,255,255,0.6); }
+
+/* Search */
+.list-search { position: relative; }
+.list-search .ni {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  font-size: 18px; color: var(--text-subtle); pointer-events: none;
+}
+.list-search input {
+  padding-left: 34px !important;
+  min-width: 260px;
+}
+
+/* Bottom stat strip */
+.stat-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin-top: 18px;
+}
+.stat-tile {
+  background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; gap: 12px;
+}
+.stat-tile .ni { font-size: 22px; }
+.stat-tile-label {
+  font-size: 10.5px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.stat-tile-value {
+  font-size: 20px; font-weight: 700; color: var(--text);
+  line-height: 1.2; font-variant-numeric: tabular-nums;
+}
+.stat-danger .ni { color: #E11D48; }
+.stat-warn   .ni { color: var(--warning); }
+.stat-ok     .ni { color: var(--success); }
+.stat-info   .ni { color: var(--accent); }
+
+/* Pagination */
+.pager { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+.pager-info { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.pager-links { display: flex; gap: 4px; }
+.pager-links a, .pager-links span {
+  min-width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text); background: #fff;
+  text-decoration: none !important;
+}
+.pager-links a:hover { background: var(--accent-light); border-color: var(--accent); }
+.pager-links .current { background: var(--primary); border-color: var(--primary); color: #fff; }
+.pager-links .disabled { color: var(--text-subtle); background: #F8FAFC; }
+
+@media (max-width: 1280px) {
+  .stat-strip { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* ── 8. THE BADGE MATRIX ────────────────────────────────────────────
    The showcase piece. Two families, deliberately different SHAPES so
@@ -473,7 +685,7 @@ a:focus-visible, button:focus-visible,
   border-radius: var(--radius) !important;
   border: 1px solid transparent !important;
   font-size: 13px !important;
-  padding: 11px 16px !important;
+  padding: 11px 12px !important;
   box-shadow: var(--shadow-sm);
   animation: hd-slide-in 0.25s var(--ease);
 }

@@ -9,7 +9,7 @@
   {% load static %}
   <!-- ?v= is a cache buster. Browsers hold on to stylesheets aggressively and
        Ctrl+F5 does not always evict them, so bump this when main.css changes. -->
-  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=3">
   {% block css %}{% endblock %}
 </head>
 <body>
@@ -141,6 +141,47 @@
       <div class="topbar-sub">{% block topbar_sub %}{% endblock %}</div>
     </div>
     <div class="topbar-right">
+
+      <!-- Notification bell. Real notifications, created from actual ticket
+           events — an empty bell means nothing has happened, not that it's
+           decorative. -->
+      <div class="notif-wrap">
+        <button type="button" class="notif-bell" id="notif-bell"
+                aria-haspopup="true" aria-expanded="false"
+                aria-label="Notifications">
+          <span class="ni">notifications</span>
+          {% if notif_unread_count %}
+          <span class="notif-count">{{ notif_unread_count }}</span>
+          {% endif %}
+        </button>
+
+        <div class="notif-panel" id="notif-panel" hidden>
+          <div class="notif-panel-head">
+            <span>Notifications</span>
+            {% if notif_unread_count %}
+            <a href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
+            {% endif %}
+          </div>
+
+          {% for n in notif_recent %}
+          <a class="notif-item {% if not n.is_read %}notif-unread{% endif %}"
+             href="{% url 'notification_open' n.id %}">
+            <span class="ni notif-item-icon">{{ n.icon }}</span>
+            <span class="notif-item-body">
+              <span class="notif-item-text">{{ n.text }}</span>
+              <span class="notif-item-time">{{ n.get_created_at|date:"d M, H:i" }}</span>
+            </span>
+          </a>
+          {% empty %}
+          <div class="notif-empty">
+            <span class="ni">inbox</span>
+            <p>Nothing yet. Notifications appear when a ticket is assigned to
+               you, changes status, or gets a new work note.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
       <div class="avatar-circle">
         {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
       </div>
@@ -179,6 +220,31 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// Notification dropdown. Plain JS — no framework, and it degrades to nothing
+// worse than a non-opening button if JS is off.
+(function () {
+  var bell  = document.getElementById('notif-bell');
+  var panel = document.getElementById('notif-panel');
+  if (!bell || !panel) return;
+
+  function close() { panel.hidden = true; bell.setAttribute('aria-expanded', 'false'); }
+
+  bell.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    bell.setAttribute('aria-expanded', String(willOpen));
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!panel.hidden && !panel.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
 {% block js %}{% endblock %}
 </body>
 </html>

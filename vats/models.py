@@ -262,3 +262,72 @@ class Worknote(models.Model):
     def get_created_at(self):
         date = self.created_at + timedelta(days=0, hours=5, minutes=30)
         return date
+
+
+class Notification(models.Model):
+    """
+    In-app notifications for the topbar bell.
+
+    Deliberately created only from real lifecycle events — assignment, status
+    change, a new work note. Nothing is seeded, so an empty bell honestly
+    means nothing has happened to your tickets yet.
+    """
+    kind_choice = (
+        ("Assigned", "Assigned"),
+        ("Status",   "Status"),
+        ("Comment",  "Comment"),
+        ("SLA",      "SLA"),
+    )
+
+    recipient  = models.ForeignKey(
+        "registration.User", related_name="notifications", on_delete=models.CASCADE
+    )
+    actor      = models.ForeignKey(
+        "registration.User", related_name="notifications_sent",
+        null=True, blank=True, on_delete=models.SET_NULL,
+        help_text="Who caused this. Null for system-generated events."
+    )
+    kind       = models.CharField(_("Kind"), max_length=20, choices=kind_choice, default="Status")
+    text       = models.CharField(_("Text"), max_length=200)
+    ticket     = models.ForeignKey(
+        "vats.Ticket", related_name="notifications",
+        null=True, blank=True, on_delete=models.CASCADE
+    )
+    is_read    = models.BooleanField(_("Read"), default=False)
+    created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
+
+    class Meta:
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.recipient} — {self.text[:40]}"
+
+    @property
+    def icon(self):
+        """Material Symbols name for the bell dropdown."""
+        return {
+            "Assigned": "assignment_ind",
+            "Status":   "sync_alt",
+            "Comment":  "chat",
+            "SLA":      "warning",
+        }.get(self.kind, "notifications")
+
+    def get_created_at(self):
+        return self.created_at + timedelta(days=0, hours=5, minutes=30)
+
+
+def notify(recipient, text, kind="Status", ticket=None, actor=None):
+    """
+    Create a notification, skipping the case where someone would be told
+    about their own action — being notified that you did the thing you just
+    did is noise, not information.
+    """
+    if recipient is None:
+        return None
+    if actor is not None and recipient == actor:
+        return None
+    return Notification.objects.create(
+        recipient=recipient, actor=actor, kind=kind, text=text, ticket=ticket
+    )

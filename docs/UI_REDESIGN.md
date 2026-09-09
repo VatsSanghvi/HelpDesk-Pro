@@ -119,3 +119,42 @@ Rows are slightly taller than before, because priority chips carry more
 padding and long category names now wrap. The table shows roughly 19 rows per
 screen instead of ~25. Worth revisiting if density matters more than the badge
 treatment.
+
+---
+
+## Round two — the mockup's layout and features
+
+The first pass ported design *tokens* only, so the app looked correctly
+styled but still had the old layout. This round closed the gap with the
+Stitch mockup, building the elements as real functionality rather than
+decoration:
+
+| Element | Implementation |
+|---|---|
+| Notification bell | `Notification` model + `notify()` helper, fired from real events: ticket raised (Admins), assignment, reassignment, status change, rejection, cancellation, new work note. Unread badge, dropdown, click-to-open-and-mark-read, mark-all-read. |
+| Filter pills with counts | Per-status counts from the role-scoped queryset, computed before status filtering so the pills show totals |
+| Pagination | Django `Paginator`, 15/page — the view previously returned every ticket with no paging at all |
+| Search | Over ticket number, title and description |
+| Stat strip | Unassigned backlog, SLA breached, avg first response, resolution rate — real aggregates, role-scoped |
+| Two-line subject | Title plus a description snippet, so a row carries enough to triage without opening it |
+| Assignee avatars | Initials chip beside the name |
+| Closed-row treatment | Strikethrough + reduced opacity on Cancelled/Rejected |
+| Bulk action bar | Restyled to the dark selected-state treatment |
+
+**Deliberately not faked.** Notifications are only ever created by real
+lifecycle events — nothing is seeded. An empty bell honestly means nothing
+has happened to your tickets yet. `notify()` also skips notifying someone
+about their own action, since being told you did the thing you just did is
+noise.
+
+### A bug this surfaced
+
+The bulk-reject action used a queryset `.update()`, which **bypasses
+`Ticket.save()`** — the method that stamps `resolved_at`. Bulk-rejected
+tickets were therefore left with no resolution timestamp, silently skewing
+resolution-time metrics and the resolution-rate figure. Rewritten to iterate
+and call `save()`.
+
+That is worth knowing generally: `.update()` is faster because it goes
+straight to SQL, but it skips `save()`, `auto_now`, and signals. If a model's
+`save()` carries business logic, bulk `.update()` will quietly bypass it.
