@@ -11,7 +11,7 @@
       "type": "SharedResources"
     },
     "customTheme": {
-      "name": "HelpDeskProTheme8642529225154054.json",
+      "name": "HelpDeskProTheme-d5c74e18.json",
       "reportVersionAtImport": {
         "visual": "2.12.0",
         "report": "3.4.0",
@@ -65,8 +65,8 @@
       "type": "RegisteredResources",
       "items": [
         {
-          "name": "HelpDeskProTheme8642529225154054.json",
-          "path": "HelpDeskProTheme8642529225154054.json",
+          "name": "HelpDeskProTheme-d5c74e18.json",
+          "path": "HelpDeskProTheme-d5c74e18.json",
           "type": "CustomTheme"
         }
       ]
