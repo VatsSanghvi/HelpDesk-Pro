@@ -7,7 +7,9 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   {% load static %}
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <!-- ?v= is a cache buster. Browsers hold on to stylesheets aggressively and
+       Ctrl+F5 does not always evict them, so bump this when main.css changes. -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=3">
   {% block css %}{% endblock %}
 </head>
 <body>
@@ -18,7 +20,7 @@
 <nav class="sidebar">
 
   <a href="{% url 'home' %}" class="sidebar-brand" style="text-decoration:none;">
-    <div class="brand-icon">🎫</div>
+    <div class="brand-icon"><span class="ni">confirmation_number</span></div>
     <div>
       <span class="brand-name">HelpDesk Pro</span>
       <span class="brand-sub">IT Support Portal</span>
@@ -30,7 +32,7 @@
     <!-- Dashboard — all roles -->
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-        <span class="ni">⊞</span> Dashboard
+        <span class="ni">dashboard</span> Dashboard
       </a>
     </li>
 
@@ -39,29 +41,29 @@
     <div class="sidebar-section">Tickets</div>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
-        <span class="ni">📌</span> My Tickets
+        <span class="ni">inbox</span> My Tickets
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
-        <span class="ni">🎫</span> All Tickets
+        <span class="ni">confirmation_number</span> All Tickets
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {% if 'ticket_list_status' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'ticket_list_status' 'Pending' %}">
-        <span class="ni">⏳</span> Pending
+        <span class="ni">hourglass_empty</span> Pending
       </a>
     </li>
 
     <div class="sidebar-section">Manage</div>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'user_list' %}active{% endif %}" href="{% url 'user_list' %}">
-        <span class="ni">👥</span> Users
+        <span class="ni">group</span> Users
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" href="{% url 'category_list' %}">
-        <span class="ni">🏷</span> Categories
+        <span class="ni">label</span> Categories
       </a>
     </li>
 
@@ -70,17 +72,17 @@
     <div class="sidebar-section">My Tickets</div>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
-        <span class="ni">🎫</span> All My Tickets
+        <span class="ni">confirmation_number</span> All My Tickets
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
-        <span class="ni">📌</span> Open Tickets
+        <span class="ni">inbox</span> Open Tickets
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{% url 'ticket_create' %}">
-        <span class="ni">➕</span> Raise New Ticket
+        <span class="ni">add_circle</span> Raise New Ticket
       </a>
     </li>
 
@@ -89,22 +91,22 @@
     <div class="sidebar-section">Assigned Work</div>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'my_tickets' %}active{% endif %}" href="{% url 'my_tickets' %}">
-        <span class="ni">📌</span> My Open Tickets
+        <span class="ni">inbox</span> My Open Tickets
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'ticket_list' %}active{% endif %}" href="{% url 'ticket_list' %}">
-        <span class="ni">🎫</span> All Assigned
+        <span class="ni">confirmation_number</span> All Assigned
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{% url 'ticket_list_status' 'Assigned' %}">
-        <span class="ni">📋</span> Assigned
+        <span class="ni">assignment</span> Assigned
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{% url 'ticket_list_status' 'In Progress' %}">
-        <span class="ni">🔄</span> In Progress
+        <span class="ni">autorenew</span> In Progress
       </a>
     </li>
     {% endif %}
@@ -113,7 +115,7 @@
     <div class="sidebar-section">Account</div>
     <li class="nav-item">
       <a class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}" href="{% url 'profile' request.user.id %}">
-        <span class="ni">👤</span> My Profile
+        <span class="ni">person</span> My Profile
       </a>
     </li>
 
@@ -123,7 +125,7 @@
     <form method="POST" action="{% url 'logout' %}" style="margin:0;">
   {% csrf_token %}
   <button type="submit" class="nav-link" style="background:none;border:none;color:rgba(255,255,255,0.55);font-size:13px;display:flex;align-items:center;gap:8px;padding:8px 11px;width:100%;cursor:pointer;">
-    <span>🚪</span> Logout
+    <span class="ni">logout</span> Logout
   </button>
 </form>
   </div>
@@ -139,6 +141,47 @@
       <div class="topbar-sub">{% block topbar_sub %}{% endblock %}</div>
     </div>
     <div class="topbar-right">
+
+      <!-- Notification bell. Real notifications, created from actual ticket
+           events — an empty bell means nothing has happened, not that it's
+           decorative. -->
+      <div class="notif-wrap">
+        <button type="button" class="notif-bell" id="notif-bell"
+                aria-haspopup="true" aria-expanded="false"
+                aria-label="Notifications">
+          <span class="ni">notifications</span>
+          {% if notif_unread_count %}
+          <span class="notif-count">{{ notif_unread_count }}</span>
+          {% endif %}
+        </button>
+
+        <div class="notif-panel" id="notif-panel" hidden>
+          <div class="notif-panel-head">
+            <span>Notifications</span>
+            {% if notif_unread_count %}
+            <a href="{% url 'notifications_mark_all_read' %}">Mark all read</a>
+            {% endif %}
+          </div>
+
+          {% for n in notif_recent %}
+          <a class="notif-item {% if not n.is_read %}notif-unread{% endif %}"
+             href="{% url 'notification_open' n.id %}">
+            <span class="ni notif-item-icon">{{ n.icon }}</span>
+            <span class="notif-item-body">
+              <span class="notif-item-text">{{ n.text }}</span>
+              <span class="notif-item-time">{{ n.get_created_at|date:"d M, H:i" }}</span>
+            </span>
+          </a>
+          {% empty %}
+          <div class="notif-empty">
+            <span class="ni">inbox</span>
+            <p>Nothing yet. Notifications appear when a ticket is assigned to
+               you, changes status, or gets a new work note.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
       <div class="avatar-circle">
         {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
       </div>
@@ -177,6 +220,31 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+// Notification dropdown. Plain JS — no framework, and it degrades to nothing
+// worse than a non-opening button if JS is off.
+(function () {
+  var bell  = document.getElementById('notif-bell');
+  var panel = document.getElementById('notif-panel');
+  if (!bell || !panel) return;
+
+  function close() { panel.hidden = true; bell.setAttribute('aria-expanded', 'false'); }
+
+  bell.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var willOpen = panel.hidden;
+    panel.hidden = !willOpen;
+    bell.setAttribute('aria-expanded', String(willOpen));
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!panel.hidden && !panel.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+</script>
 {% block js %}{% endblock %}
 </body>
 </html>

@@ -3,7 +3,7 @@ from django.urls import reverse
 import importlib
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from .models import  Ticket, Category, Subcategory, Worknote
+from .models import  Ticket, Category, Subcategory, Worknote, Notification, notify
 from .forms import TicketForm, CategoryForm, TicketUpdateForm, SubcategoryForm, TicketApproveForm, TicketRejectForm
 from registration.models import User
 from django.conf import settings
@@ -15,6 +15,9 @@ from django.test import Client
 from registration.decorators import adminnotallowed, manager_required, viewer_required, admin_required, viewernotallowed
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q, Count, Avg
+from django.utils.http import url_has_allowed_host_and_scheme
 
 def work_note_update(request, ticket_id, field_name, old_value, new_value):
     work_note = Worknote()
@@ -46,6 +49,15 @@ def ticket_create(request):
             work_note.type = "Create"
             work_note.commented_by = request.user
             work_note.save()
+
+            # Triage is the Admin's job, so every Admin needs to know a ticket
+            # is waiting on them.
+            for admin in User.objects.filter(role="Admin", is_active=True):
+                notify(
+                    admin,
+                    f"{request.user.get_full_name()} raised {ticket.number} — awaiting triage",
+                    kind="Assigned", ticket=ticket, actor=request.user,
+                )
             
             messages.success(request, 'Your tickit has been created successfully.')
             
@@ -62,18 +74,119 @@ def ticket_create(request):
     context['form'] = form
     return render(request, 'vats/ticket_create.html', context)
 
+def role_scoped_tickets(user):
+    """
+    The one place role visibility is decided.
+
+    Admin sees everything, Manager sees what is assigned to them, Viewer sees
+    what they raised. Previously this branch was copy-pasted into several
+    views, which is how visibility rules drift apart.
+    """
+    base = Ticket.objects.select_related('category', 'subcategory', 'created_by', 'assigned_to')
+    if user.role == "Admin":
+        return base.all()
+    if user.role == "Manager":
+        return base.filter(assigned_to=user)
+    return base.filter(created_by=user)
+
+
+def ticket_list_context(request, tickets, status=None, page_title=None, my_view=False):
+    """
+    Shared context builder for every screen that renders the ticket table:
+    status counts for the filter pills, search, the stat strip, pagination.
+    """
+    search = (request.GET.get('q') or '').strip()
+    if search:
+        tickets = tickets.filter(
+            Q(number__icontains=search)
+            | Q(title__icontains=search)
+            | Q(problem_descp__icontains=search)
+        )
+
+    # Counts come off the role-scoped set before status filtering, so the pills
+    # show totals rather than "7" next to the status you already picked.
+    scoped = role_scoped_tickets(request.user)
+    raw_counts = dict(
+        scoped.values_list('status').annotate(n=Count('id')).values_list('status', 'n')
+    )
+    # Django templates can't resolve a dict key containing a space, so
+    # "In Progress" is exposed as "InProgress".
+    counts = {(k or '').replace(' ', ''): v for k, v in raw_counts.items()}
+
+    open_statuses   = ('Pending', 'Assigned', 'Scoping', 'In Progress')
+    closed_statuses = ('Completed', 'Cancelled', 'Rejected')
+
+    resolved = [t for t in scoped if t.resolution_time_hours is not None]
+    responded = [t for t in scoped if t.first_response_time_hours is not None]
+    total = scoped.count()
+    closed = scoped.filter(status__in=closed_statuses).count()
+
+    tickets = tickets.order_by('-created_at')
+    paginator = Paginator(tickets, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return {
+        'tickets': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'status': status,
+        'page_title': page_title,
+        'my_view': my_view,
+        'search': search,
+        'status_counts': counts,
+        'stats': {
+            'unassigned':   scoped.filter(assigned_to__isnull=True).exclude(status__in=closed_statuses).count(),
+            'breached':     sum(1 for t in scoped if t.is_sla_breached),
+            'avg_response': round(sum(t.first_response_time_hours for t in responded) / len(responded), 1) if responded else None,
+            'resolution_rate': round(closed / total * 100, 1) if total else None,
+        },
+    }
+
+
 @login_required
 def ticket_list(request):
-    context = {}
-    if request.user.role == "Admin":
-        context['tickets'] = Ticket.objects.all()
-    elif request.user.role == "Viewer":
-        context['tickets'] = Ticket.objects.filter(created_by = request.user)
-    else :
-        request.user.role == "Manager"
-        context['tickets'] = Ticket.objects.filter(assigned_to=request.user)
-    return render(request, 'vats/ticket_list.html', context)
+    tickets = role_scoped_tickets(request.user)
+    return render(request, 'vats/ticket_list.html', ticket_list_context(request, tickets))
     
+@login_required
+def notification_open(request, id):
+    """
+    Mark a notification read and go where it points.
+
+    Read-on-click rather than read-on-view: opening the dropdown to look is
+    not the same as having dealt with the thing.
+    """
+    notification = Notification.objects.filter(id=id, recipient=request.user).first()
+    if not notification:
+        messages.warning(request, 'That notification is not available.')
+        return redirect('home')
+
+    notification.is_read = True
+    notification.save(update_fields=['is_read'])
+
+    if notification.ticket_id:
+        return redirect('ticket_detail', notification.ticket_id)
+    return redirect('home')
+
+
+@login_required
+def notifications_mark_all_read(request):
+    """Clear the badge in one go, returning the user to where they were."""
+    updated = Notification.objects.filter(
+        recipient=request.user, is_read=False
+    ).update(is_read=True)
+    messages.success(request, f'{updated} notification(s) marked as read.')
+
+    # Validate the referer before trusting it — an unchecked redirect back to
+    # whatever the header says is an open-redirect vector.
+    referer = request.META.get('HTTP_REFERER')
+    if referer and url_has_allowed_host_and_scheme(
+        referer, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return redirect(referer)
+    return redirect('home')
+
+
 @login_required
 def my_tickets(request):
     """
@@ -82,25 +195,20 @@ def my_tickets(request):
     Manager -> tickets assigned to them that are still open
     Viewer  -> tickets they raised that are still open
     """
-    context = {}
     closed_statuses = ('Completed', 'Cancelled', 'Rejected')
 
     if request.user.role == "Admin":
-        context['tickets'] = Ticket.objects.filter(status='Pending')
-        context['page_title'] = 'My Tickets — Pending My Approval'
-    elif request.user.role == "Viewer":
-        context['tickets'] = Ticket.objects.filter(
-            created_by=request.user
-        ).exclude(status__in=closed_statuses)
-        context['page_title'] = 'My Tickets — Still Open'
+        tickets = Ticket.objects.filter(status='Pending')
+        title = 'My Tickets — Pending My Approval'
     else:
-        context['tickets'] = Ticket.objects.filter(
-            assigned_to=request.user
-        ).exclude(status__in=closed_statuses)
-        context['page_title'] = 'My Tickets — Open & Assigned to Me'
+        tickets = role_scoped_tickets(request.user).exclude(status__in=closed_statuses)
+        title = ('My Tickets — Still Open' if request.user.role == "Viewer"
+                 else 'My Tickets — Open & Assigned to Me')
 
-    context['my_view'] = True
-    return render(request, 'vats/ticket_list.html', context)
+    return render(
+        request, 'vats/ticket_list.html',
+        ticket_list_context(request, tickets, page_title=title, my_view=True),
+    )
 
 @login_required
 def ticket_bulk_action(request):
@@ -120,7 +228,20 @@ def ticket_bulk_action(request):
     tickets = Ticket.objects.filter(id__in=ticket_ids)
 
     if request.user.role == 'Admin' and bulk_action == 'reject':
-        count = tickets.filter(status='Pending').update(status='Rejected')
+        # Iterate rather than .update() — a queryset update bypasses
+        # Ticket.save(), which is what stamps resolved_at. Using update() here
+        # left bulk-rejected tickets with no resolution timestamp and silently
+        # skewed the resolution-time metrics.
+        count = 0
+        for ticket in tickets.filter(status='Pending'):
+            ticket.status = 'Rejected'
+            ticket.save()
+            notify(
+                ticket.created_by,
+                f"{ticket.number} was rejected by {request.user.get_full_name()}",
+                kind="Status", ticket=ticket, actor=request.user,
+            )
+            count += 1
         messages.success(request, f'{count} ticket(s) rejected.')
 
     elif request.user.role == 'Admin' and bulk_action == 'delete':
@@ -134,6 +255,11 @@ def ticket_bulk_action(request):
             ticket.status = 'Completed'
             ticket.save()
             work_note_update(request, ticket.id, "Status", "In Progress", "Completed")
+            notify(
+                ticket.created_by,
+                f"{ticket.number} was completed by {request.user.get_full_name()}",
+                kind="Status", ticket=ticket, actor=request.user,
+            )
             count += 1
         messages.success(request, f'{count} ticket(s) marked Completed.')
 
@@ -144,17 +270,11 @@ def ticket_bulk_action(request):
 
 @login_required
 def ticket_list_status(request, status):
-    context = {}
-    context['status'] = status
-    if request.user.role == "Admin":
-        context['tickets'] = Ticket.objects.filter(status=status)
-    elif request.user.role == "Viewer":
-        context['tickets'] = Ticket.objects.filter(created_by=request.user , status=status)
-    else :
-        request.user.role == "Manager"
-        context['tickets'] = Ticket.objects.filter(assigned_to=request.user, status=status)
-
-    return render(request, 'vats/ticket_list.html', context)
+    tickets = role_scoped_tickets(request.user).filter(status=status)
+    return render(
+        request, 'vats/ticket_list.html',
+        ticket_list_context(request, tickets, status=status),
+    )
 
 @login_required
 def ticket_detail(request, id):
@@ -168,6 +288,17 @@ def ticket_detail(request, id):
         work_note.commented_by = request.user
         work_note.type = "Comment"
         work_note.save()
+
+        # Tell the other side of the conversation. notify() drops the case
+        # where the commenter is the recipient, so nobody is told about their
+        # own note.
+        snippet = work_note.comment[:60] + ("…" if len(work_note.comment) > 60 else "")
+        for person in (ticket.created_by, ticket.assigned_to):
+            notify(
+                person,
+                f"{request.user.get_full_name()} commented on {ticket.number}: {snippet}",
+                kind="Comment", ticket=ticket, actor=request.user,
+            )
         
     user = User.objects.get(email=ticket.created_by)
     if ticket.created_by == request.user or request.user.role == "Admin" or ticket.assigned_to == request.user  :
@@ -197,6 +328,17 @@ def ticket_approve(request, id):
             work_note_update(request, id, "Status", "Pending", "Assigned")
             work_note_update(request, id, "Assigned to", "None", ticket.assigned_to.first_name + " " + ticket.assigned_to.last_name)
             work_note_update(request, id, "Priority", "None", ticket.priority)
+
+            notify(
+                ticket.assigned_to,
+                f"{request.user.get_full_name()} assigned you {ticket.number} ({ticket.priority} priority)",
+                kind="Assigned", ticket=ticket, actor=request.user,
+            )
+            notify(
+                ticket.created_by,
+                f"{ticket.number} was approved and assigned to {ticket.assigned_to.get_full_name()}",
+                kind="Status", ticket=ticket, actor=request.user,
+            )
             
             return redirect('ticket_list')
     
@@ -224,10 +366,15 @@ def ticket_approve(request, id):
 
 @login_required
 @admin_required
-def ticket_reject(request,id):  
+def ticket_reject(request,id):
     ticket = Ticket.objects.get(id=id)
     ticket.status = "Rejected"
     ticket.save()
+    notify(
+        ticket.created_by,
+        f"{ticket.number} was rejected by {request.user.get_full_name()}",
+        kind="Status", ticket=ticket, actor=request.user,
+    )
     messages.success(request, 'Ticket rejected successfully.')
         
     return redirect("ticket_detail",id)
@@ -238,6 +385,14 @@ def status_change_email_function(request,id):
     ticket = Ticket.objects.get(id=id)
     ticket.save()
     messages.success(request, 'Your tickit status has changed successfully.')
+
+    # Shared path for Scoping / In Progress / Completed, so the requester gets
+    # told about every move without duplicating this in three views.
+    notify(
+        ticket.created_by,
+        f"{ticket.number} moved to {ticket.status}",
+        kind="Status", ticket=ticket, actor=request.user,
+    )
             
     html_message = render_to_string('vats/status_change_email_template.html', {'context': ticket})
     message = EmailMessage('Ticket status updated', html_message, settings.EMAIL_HOST_USER, [ticket.created_by])
@@ -289,7 +444,18 @@ def ticket_update(request, id):
                 work_note_update(request, id, "Priority", ticket_old_priority, ticket.priority)
             if ticket_old_assigned_to.email != ticket.assigned_to.email:
                 work_note_update(request, id, "Assigned to", ticket_old_assigned_to.first_name + " " + ticket_old_assigned_to.last_name, ticket.assigned_to.first_name + " " + ticket.assigned_to.last_name)
-            
+                # Reassignment matters to both sides of the handover
+                notify(
+                    ticket.assigned_to,
+                    f"{request.user.get_full_name()} reassigned {ticket.number} to you",
+                    kind="Assigned", ticket=ticket, actor=request.user,
+                )
+                notify(
+                    ticket_old_assigned_to,
+                    f"{ticket.number} was reassigned to {ticket.assigned_to.get_full_name()}",
+                    kind="Assigned", ticket=ticket, actor=request.user,
+                )
+
             return redirect('ticket_list')
     
     context = {}
@@ -349,6 +515,12 @@ def ticket_cancel(request,id):
     ticket.status = "Cancelled"
     ticket.save()
     work_note_update(request, id, "Status", ticket_old_status, "Cancelled")
+    # Whoever was working it needs to know to stop
+    notify(
+        ticket.assigned_to,
+        f"{ticket.number} was cancelled by {request.user.get_full_name()}",
+        kind="Status", ticket=ticket, actor=request.user,
+    )
     return redirect('ticket_detail',id)
 
 

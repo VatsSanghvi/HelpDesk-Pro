@@ -39,6 +39,10 @@ ENV/
 # Local cache Power BI Desktop regenerates on every open - not source,
 # just repo bloat if tracked.
 *.abf
+# Power BI Desktop per-machine UI state (window positions, last-open page).
+# Regenerated on every open - noise in diffs, not source.
+**/.pbi/localSettings.json
+
 
 # ── Claude Code local MCP config (machine-specific paths) ──────────
 .mcp.json
@@ -50,3 +54,7 @@ ENV/
 Thumbs.db
 *.swp
 *.swo
+
+# ── Stitch design scratch — preview only, not part of the app ──────
+design-preview/*
+!design-preview/README.md

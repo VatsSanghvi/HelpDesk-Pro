@@ -6,7 +6,7 @@
 {% block body %}
 
 <div class="page-header">
-  <h2>👥 Users{% if role %} — {{ role }}s{% endif %}</h2>
+  <h2><span class="ni">group</span> Users{% if role %} — {{ role }}s{% endif %}</h2>
   <a href="{% url 'user_create' %}" class="btn btn-primary">➕ Add User</a>
 </div>
 
