@@ -67,10 +67,11 @@ Metrics are calculated in the model rather than pre-computed in Python, so they 
 
 ### Opening it
 
-Requires **Power BI Desktop** with the PBIP preview feature enabled. Open `Ticketing Project Power BI File.pbip`. The Django server must be running at `http://127.0.0.1:8000` for a refresh to succeed.
+Requires **Power BI Desktop** with the PBIP preview feature enabled. Open `powerbi/Ticketing Project Power BI File.pbip`. The Django server must be running at `http://127.0.0.1:8000` for a refresh to succeed.
 
 ```
-Ticketing Project Power BI File.pbip
+powerbi/
+├── Ticketing Project Power BI File.pbip
 ├── ...Report/
 │   ├── definition/pages/          # one folder per page, one folder per visual
 │   ├── definition/report.json     # theme registration, report settings
@@ -174,7 +175,16 @@ Visit http://localhost:8000
 │   ├── INTERVIEW_CHEATSHEET.md   # Concepts, talking points, trade-offs
 │   ├── UI_REDESIGN.md            # The redesign write-up
 │   └── ui-before/ ui-after/      # Before/after screenshots
-└── Ticketing Project Power BI File.pbip   # Power BI report (PBIP, version-controlled)
+├── docs/
+│   ├── INTERVIEW_CHEATSHEET.md    # Concepts, talking points, trade-offs
+│   ├── UI_REDESIGN.md             # The redesign write-up
+│   ├── CHANGELOG.md               # Full version history
+│   ├── PROJECT_EVOLUTION.md       # Before/after/next summary table
+│   ├── ui-before/ ui-after/       # Before/after screenshots
+│   ├── report/                    # Project report (.docx source + exported .pdf)
+│   └── assets/                    # Project Demo.mp4
+└── powerbi/
+    └── Ticketing Project Power BI File.pbip   # Power BI report (PBIP, version-controlled)
 ```
 
 ---

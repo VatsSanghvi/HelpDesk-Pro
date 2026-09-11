@@ -60,7 +60,7 @@ role rather than just a web dev portfolio piece.
 **Note:** this upgrade happened before the current git history began (the
 very first commit in this repo already contains it), so there's no git tag
 for the true "before" state — only this written record and the original
-project report (`HelpDesk_Pro_Project_Report_Final.pdf`) document it.
+project report ([`report/HelpDesk_Pro_Project_Report_Final.pdf`](report/HelpDesk_Pro_Project_Report_Final.pdf)) document it.
 
 ---
 
