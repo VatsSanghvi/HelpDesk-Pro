@@ -58,3 +58,6 @@ Thumbs.db
 # ── Stitch design scratch — preview only, not part of the app ──────
 design-preview/*
 !design-preview/README.md
+
+# /brag intermediate files (frames, captures, scripts)
+brag-output/work/

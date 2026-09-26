@@ -59,7 +59,7 @@ def ticket_create(request):
                     kind="Assigned", ticket=ticket, actor=request.user,
                 )
             
-            messages.success(request, 'Your tickit has been created successfully.')
+            messages.success(request, 'Your ticket has been created successfully.')
             
             html_message = render_to_string('vats/email_template.html', {'context': ticket})
             message = EmailMessage('New Ticket Generated', html_message, settings.EMAIL_HOST_USER, [request.user.email])
@@ -569,7 +569,7 @@ def subcategory_create(request, id):
         form = SubcategoryForm(request.POST)
         if form.is_valid():
             form.save()                     
-            messages.success(request, 'Your Subategory has been created successfully.')
+            messages.success(request, 'Your Subcategory has been created successfully.')
             return redirect('subcategory_list', id)
 
     context['form'] = form

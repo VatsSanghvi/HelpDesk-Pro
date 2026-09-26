@@ -1,0 +1,1 @@
+Built HelpDesk Pro: a Django IT support portal where every ticket runs on an SLA clock (High 4h, Moderate 24h, Low 72h), plus a 4-page Power BI report fed by the app's own REST API. 22 seconds, real app, real data: github.com/VatsSanghvi/HelpDesk-Pro
