@@ -19,13 +19,15 @@ You almost never need to re-run the app or Playwright.**
   `feed.json` in the same logic as the semantic model's DAX. Re-run with
   `python3 pbi_data.py` if you edit the aggregation logic.
 - `comp.html` — the actual video "recipe": a pure-function-of-time HTML/JS
-  composition that lays out every scene (hook, reveal, ticket list, dashboard,
-  the 4 Power BI pages, outro), reading `shots/*` and `pbi_data.json`.
+  composition that lays out every scene (cold open, ticket, SLA, dashboard,
+  the 4 Power BI pages, architecture, capabilities, insight, end card),
+  reading `shots/*` and `pbi_data.json`. Scene timings are listed in
+  `../brag-plan.md`.
   **This is the file to edit for almost any change** (copy, colors, timing,
   camera moves, which Power BI page shows what).
-- `render.js` — headless-Chromium renderer. `node render.js stills "1.2,5.4"`
+- `render.js` — headless-Chromium renderer (30.6s @ 30fps). `node render.js stills "1.2,5.4"`
   dumps preview JPEGs at given timestamps (fast, for checking a change);
-  `node render.js video` renders all 22.5s to `video_noaudio.mp4` (frame-by-
+  `node render.js video` renders the whole cut to `video_noaudio.mp4` (frame-by-
   frame PNG capture piped into ffmpeg).
 - `net.js` — routes the CDN URLs the app's templates reference (Chart.js,
   Bootstrap, jQuery, Tabler icons, Google Fonts) to local files during
@@ -43,11 +45,13 @@ cd brag-output/work
 mkdir -p cdn && cd cdn && npm init -y >/dev/null && \
   npm i chart.js@4.4.1 bootstrap@4.3.1 jquery@3.5.1 popper.js@1.14.7 @tabler/icons-webfont && cd ..
 ln -sf "$(python3 -c 'import imageio_ffmpeg;print(imageio_ffmpeg.get_ffmpeg_exe())')" /usr/local/bin/ffmpeg
-python3 -m http.server 8123 --bind 127.0.0.1 &         # serves comp.html + shots/
+(cd ../.. && python3 -m http.server 8123 --bind 127.0.0.1 &)  # serve the REPO ROOT (comp.html loads static/css/main.css)
 python3 music.py                                        # -> music.wav (~3s)
-NODE_PATH=$(npm root -g) node render.js video            # -> video_noaudio.mp4 (~1-2 min)
+NODE_PATH=$(npm root -g) node render.js video            # -> video_noaudio.mp4 (~6 min for 918 frames)
 ffmpeg -y -i video_noaudio.mp4 -i music.wav \
-  -c:v copy -c:a aac -b:a 192k -shortest ../brag.mp4
+  -filter_complex "[1:a]loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000[a]" \
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -movflags +faststart -shortest ../brag.mp4
+ffmpeg -y -i ../brag.mp4 -frames:v 1 -q:v 2 ../brag.jpg   # poster = frame 0 (designed as a settled frame)
 ```
 
 (`net.js` needs `chromium` from Playwright and pulls Google Fonts through

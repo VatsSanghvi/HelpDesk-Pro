@@ -2,9 +2,9 @@
 
 A full-stack IT helpdesk and ticket management system built with **Django**, with two analytics surfaces on top of it: an in-application operational dashboard for the support team, and a four-page **Power BI** report for stakeholders. Role-based access control, a REST API, automated SLA tracking, and CSV/Excel export.
 
-[![HelpDesk Pro in 22 seconds](brag-output/brag.jpg)](brag-output/brag.mp4)
+[![HelpDesk Pro in 30 seconds](brag-output/brag.jpg)](brag-output/brag.mp4)
 
-**▶ [Watch the 22-second demo video](brag-output/brag.mp4)**: raising a ticket, SLA tracking, the live dashboard, and all four Power BI pages.
+**▶ [Watch the 30-second demo video](brag-output/brag.mp4)**: raising a ticket, SLA tracking, the live dashboard, all four Power BI pages, and how the data flows from Django to Power BI.
 
 > The Power BI report is stored in **PBIP format** — plain-text JSON, version-controlled in this repository alongside the Django source. Every visual, measure and theme change is reviewable as a diff.
 
