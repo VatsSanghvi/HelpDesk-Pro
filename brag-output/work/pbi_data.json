@@ -1,0 +1,1033 @@
+[
+ {
+  "name": "Overview",
+  "title": "Help Desk Overview",
+  "cards": [
+   [
+    "Total Tickets",
+    32,
+    "0"
+   ],
+   [
+    "Open Tickets",
+    19,
+    "0"
+   ],
+   [
+    "High Priority Open",
+    5,
+    "0"
+   ],
+   [
+    "SLA Compliance %",
+    0.625,
+    "%"
+   ],
+   [
+    "Avg Resolution Time (Hrs)",
+    24.285714285714285,
+    "h"
+   ]
+  ],
+  "top": [
+   {
+    "t": "col",
+    "title": "Ticket Volume Over Time",
+    "d": [
+     [
+      "w/c 24 Aug",
+      5
+     ],
+     [
+      "w/c 31 Aug",
+      4
+     ],
+     [
+      "w/c 07 Sep",
+      13
+     ],
+     [
+      "w/c 14 Sep",
+      6
+     ],
+     [
+      "w/c 21 Sep",
+      4
+     ]
+    ]
+   },
+   {
+    "t": "donut",
+    "title": "Tickets by Priority",
+    "d": [
+     [
+      "High",
+      12
+     ],
+     [
+      "Moderate",
+      9
+     ],
+     [
+      "Not Yet Triaged",
+      6
+     ],
+     [
+      "Low",
+      5
+     ]
+    ]
+   },
+   {
+    "t": "bar",
+    "title": "Tickets by Status",
+    "d": [
+     [
+      "Completed",
+      12
+     ],
+     [
+      "Pending",
+      6
+     ],
+     [
+      "In Progress",
+      5
+     ],
+     [
+      "Assigned",
+      4
+     ],
+     [
+      "Scoping",
+      3
+     ],
+     [
+      "Cancelled",
+      1
+     ],
+     [
+      "Rejected",
+      1
+     ]
+    ]
+   }
+  ],
+  "bottom": [
+   {
+    "t": "bar",
+    "title": "Avg Resolution Time by Category",
+    "d": [
+     [
+      "Hardware",
+      31.2
+     ],
+     [
+      "Network & Connectivity",
+      23.5
+     ],
+     [
+      "Security & Access",
+      22.8
+     ],
+     [
+      "Data & Reporting",
+      20.0
+     ],
+     [
+      "Software & Applications",
+      19.0
+     ]
+    ],
+    "w": 400
+   },
+   {
+    "t": "table",
+    "title": "Open Tickets",
+    "cols": [
+     "ticket_number",
+     "title",
+     "priority_display",
+     "status",
+     "assigned_to",
+     "age_hours"
+    ],
+    "heads": [
+     "ticket_number",
+     "title",
+     "priority",
+     "status",
+     "assigned_to",
+     "age_hours"
+    ],
+    "rows": [
+     [
+      "TKT000002",
+      "Floor 12 shared printer showing offline",
+      "Moderate",
+      "In Progress",
+      "Michael Ross",
+      696.33
+     ],
+     [
+      "TKT000027",
+      "New employee cannot connect to VPN \u2014 certificate error",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      696.33
+     ],
+     [
+      "TKT000031",
+      "Company tablet battery draining in 2 hours",
+      "Low",
+      "Rejected",
+      "Unassigned",
+      624.33
+     ],
+     [
+      "TKT000005",
+      "Bloomberg Terminal freezing during market hours",
+      "High",
+      "In Progress",
+      "Michael Ross",
+      480.33
+     ],
+     [
+      "TKT000003",
+      "Company iPhone not receiving MFA codes",
+      "High",
+      "Assigned",
+      "Priya Nair",
+      456.33
+     ],
+     [
+      "TKT000011",
+      "Cisco AnyConnect VPN dropping connection every hour",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      456.33
+     ],
+     [
+      "TKT000015",
+      "Unable to access client portal \u2014 firewall blocking",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      456.33
+     ],
+     [
+      "TKT000023",
+      "Request for read access to Policy Admin database",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      408.33
+     ],
+     [
+      "TKT000030",
+      "Request for new KPI dashboard \u2014 Claims Processing team",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      408.33
+     ],
+     [
+      "TKT000022",
+      "Excel macro not running \u2014 security policy blocking it",
+      "High",
+      "Scoping",
+      "Priya Nair",
+      384.33
+     ],
+     [
+      "TKT000010",
+      "Bloomberg license expired \u2014 cannot log in",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      360.33
+     ],
+     [
+      "TKT000014",
+      "WiFi very slow on floor 9 \u2014 connectivity issues",
+      "Moderate",
+      "Scoping",
+      "Sarah Chen",
+      336.33
+     ],
+     [
+      "TKT000007",
+      "Unable to generate Q4 client reports in Salesforce",
+      "High",
+      "Scoping",
+      "Sarah Chen",
+      216.33
+     ],
+     [
+      "TKT000019",
+      "Need read access to Actuarial pricing models folder",
+      "Low",
+      "Assigned",
+      "Priya Nair",
+      144.33
+     ],
+     [
+      "TKT000024",
+      "Need 5-year historical claims data export for actuarial review",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      144.33
+     ],
+     [
+      "TKT000008",
+      "Cannot post journal entries in SAP \u2014 authorization error",
+      "High",
+      "Assigned",
+      "Michael Ross",
+      96.33
+     ],
+     [
+      "TKT000025",
+      "OneDrive sync stopped \u2014 5GB of files not syncing",
+      "Low",
+      "Assigned",
+      "Michael Ross",
+      72.33
+     ],
+     [
+      "TKT000017",
+      "New hire Aisha Malik needs system access by Monday",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      24.33
+     ],
+     [
+      "TKT000032",
+      "Laptop not turning on after Windows update",
+      "Not Yet Triaged",
+      "Pending",
+      "Unassigned",
+      0.01
+     ]
+    ],
+    "w": 816
+   }
+  ]
+ },
+ {
+  "name": "SLA & Aging",
+  "title": "SLA Performance & Ticket Aging",
+  "cards": [
+   [
+    "SLA Compliance %",
+    0.625,
+    "%"
+   ],
+   [
+    "SLA Breaches",
+    12,
+    "0"
+   ],
+   [
+    "Open Tickets",
+    19,
+    "0"
+   ],
+   [
+    "High Priority Open",
+    5,
+    "0"
+   ],
+   [
+    "Avg Resolution Time (Hrs)",
+    24.285714285714285,
+    "h"
+   ]
+  ],
+  "top": [
+   {
+    "t": "col",
+    "title": "SLA Breaches Over Time",
+    "d": [
+     [
+      "w/c 24 Aug",
+      1
+     ],
+     [
+      "w/c 31 Aug",
+      1
+     ],
+     [
+      "w/c 07 Sep",
+      4
+     ],
+     [
+      "w/c 14 Sep",
+      3
+     ],
+     [
+      "w/c 21 Sep",
+      3
+     ]
+    ]
+   },
+   {
+    "t": "bar",
+    "title": "SLA Breaches by Category",
+    "d": [
+     [
+      "Hardware",
+      3
+     ],
+     [
+      "Data & Reporting",
+      3
+     ],
+     [
+      "Software & Applications",
+      2
+     ],
+     [
+      "Network & Connectivity",
+      2
+     ],
+     [
+      "Security & Access",
+      2
+     ]
+    ]
+   },
+   {
+    "t": "bar",
+    "title": "SLA Breaches by Assignee",
+    "d": [
+     [
+      "Sarah Chen",
+      5
+     ],
+     [
+      "Michael Ross",
+      4
+     ],
+     [
+      "Priya Nair",
+      3
+     ]
+    ]
+   }
+  ],
+  "bottom": [
+   {
+    "t": "table",
+    "title": "Breached Tickets",
+    "heads": [
+     "ticket_number",
+     "title",
+     "category",
+     "priority",
+     "status",
+     "assigned_to",
+     "due_by",
+     "age_hours"
+    ],
+    "rows": [
+     [
+      "TKT000002",
+      "Floor 12 shared printer showing offline",
+      "Hardware",
+      "Moderate",
+      "In Progress",
+      "Michael Ross",
+      "29/08/2026 07:57",
+      696.33
+     ],
+     [
+      "TKT000005",
+      "Bloomberg Terminal freezing during market hours",
+      "Hardware",
+      "High",
+      "In Progress",
+      "Michael Ross",
+      "06/09/2026 11:57",
+      480.33
+     ],
+     [
+      "TKT000003",
+      "Company iPhone not receiving MFA codes",
+      "Hardware",
+      "High",
+      "Assigned",
+      "Priya Nair",
+      "07/09/2026 11:57",
+      456.33
+     ],
+     [
+      "TKT000011",
+      "Cisco AnyConnect VPN dropping connection every hour",
+      "Network & Connectivity",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      "08/09/2026 07:57",
+      456.33
+     ],
+     [
+      "TKT000022",
+      "Excel macro not running \u2014 security policy blocking it",
+      "Data & Reporting",
+      "High",
+      "Scoping",
+      "Priya Nair",
+      "10/09/2026 11:57",
+      384.33
+     ],
+     [
+      "TKT000014",
+      "WiFi very slow on floor 9 \u2014 connectivity issues",
+      "Network & Connectivity",
+      "Moderate",
+      "Scoping",
+      "Sarah Chen",
+      "13/09/2026 07:57",
+      336.33
+     ],
+     [
+      "TKT000007",
+      "Unable to generate Q4 client reports in Salesforce",
+      "Software & Applications",
+      "High",
+      "Scoping",
+      "Sarah Chen",
+      "17/09/2026 11:57",
+      216.33
+     ],
+     [
+      "TKT000019",
+      "Need read access to Actuarial pricing models folder",
+      "Security & Access",
+      "Low",
+      "Assigned",
+      "Priya Nair",
+      "23/09/2026 07:57",
+      144.33
+     ],
+     [
+      "TKT000024",
+      "Need 5-year historical claims data export for actuarial review",
+      "Data & Reporting",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      "21/09/2026 07:57",
+      144.33
+     ],
+     [
+      "TKT000008",
+      "Cannot post journal entries in SAP \u2014 authorization error",
+      "Software & Applications",
+      "High",
+      "Assigned",
+      "Michael Ross",
+      "22/09/2026 11:57",
+      96.33
+     ],
+     [
+      "TKT000025",
+      "OneDrive sync stopped \u2014 5GB of files not syncing",
+      "Data & Reporting",
+      "Low",
+      "Assigned",
+      "Michael Ross",
+      "26/09/2026 07:57",
+      72.33
+     ],
+     [
+      "TKT000017",
+      "New hire Aisha Malik needs system access by Monday",
+      "Security & Access",
+      "Moderate",
+      "In Progress",
+      "Sarah Chen",
+      "26/09/2026 07:57",
+      24.33
+     ]
+    ],
+    "w": 1232
+   }
+  ]
+ },
+ {
+  "name": "Category Deep-Dive",
+  "title": "Category & Subcategory Deep-Dive",
+  "cards": [
+   [
+    "Total Tickets",
+    32,
+    "0"
+   ],
+   [
+    "Open Tickets",
+    19,
+    "0"
+   ],
+   [
+    "Resolved Tickets",
+    13,
+    "0"
+   ],
+   [
+    "SLA Compliance %",
+    0.625,
+    "%"
+   ],
+   [
+    "Avg Resolution Time (Hrs)",
+    24.285714285714285,
+    "h"
+   ]
+  ],
+  "top": [
+   {
+    "t": "bar",
+    "title": "Top 10 Subcategories by Volume",
+    "d": [
+     [
+      "Laptop & Desktop",
+      3
+     ],
+     [
+      "Mobile Devices",
+      2
+     ],
+     [
+      "Microsoft Office 365",
+      2
+     ],
+     [
+      "VPN & Remote Access",
+      2
+     ],
+     [
+      "Account Lockout",
+      2
+     ],
+     [
+      "Power BI & Reports",
+      2
+     ],
+     [
+      "Printers & Scanners",
+      1
+     ],
+     [
+      "Monitors & Peripherals",
+      1
+     ],
+     [
+      "Trading Terminals",
+      1
+     ],
+     [
+      "Salesforce CRM",
+      1
+     ]
+    ],
+    "w": 608
+   },
+   {
+    "t": "bar",
+    "title": "Avg Resolution Time by Category",
+    "d": [
+     [
+      "Hardware",
+      31.2
+     ],
+     [
+      "Network & Connectivity",
+      23.5
+     ],
+     [
+      "Security & Access",
+      22.8
+     ],
+     [
+      "Data & Reporting",
+      20.0
+     ],
+     [
+      "Software & Applications",
+      19.0
+     ]
+    ],
+    "w": 608
+   }
+  ],
+  "bottom": [
+   {
+    "t": "table",
+    "title": "Category Breakdown",
+    "heads": [
+     "category",
+     "subcategory",
+     "Total Tickets",
+     "Open Tickets",
+     "SLA Breaches",
+     "Avg Resolution Time (Hrs)"
+    ],
+    "rows": [
+     [
+      "Data & Reporting",
+      "Data Export Requests",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Data & Reporting",
+      "Database Access",
+      1,
+      1,
+      0,
+      ""
+     ],
+     [
+      "Data & Reporting",
+      "Excel & Macros",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Data & Reporting",
+      "Power BI & Reports",
+      2,
+      1,
+      0,
+      "20.0 hrs"
+     ],
+     [
+      "Data & Reporting",
+      "SharePoint & OneDrive",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Hardware",
+      "Laptop & Desktop",
+      3,
+      1,
+      0,
+      "31.0 hrs"
+     ],
+     [
+      "Hardware",
+      "Mobile Devices",
+      2,
+      2,
+      1,
+      "42.0 hrs"
+     ],
+     [
+      "Hardware",
+      "Monitors & Peripherals",
+      1,
+      0,
+      0,
+      "21.0 hrs"
+     ],
+     [
+      "Hardware",
+      "Printers & Scanners",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Hardware",
+      "Trading Terminals",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Network & Connectivity",
+      "Email & Outlook",
+      1,
+      0,
+      0,
+      "36.0 hrs"
+     ],
+     [
+      "Network & Connectivity",
+      "Internet Access",
+      1,
+      1,
+      0,
+      ""
+     ],
+     [
+      "Network & Connectivity",
+      "VPN & Remote Access",
+      2,
+      2,
+      1,
+      ""
+     ],
+     [
+      "Network & Connectivity",
+      "Video Conferencing",
+      1,
+      0,
+      0,
+      "11.0 hrs"
+     ],
+     [
+      "Network & Connectivity",
+      "WiFi & LAN",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Security & Access",
+      "Account Lockout",
+      2,
+      0,
+      0,
+      "20.5 hrs"
+     ],
+     [
+      "Security & Access",
+      "Data Access Permissions",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Security & Access",
+      "MFA & Token Setup",
+      1,
+      0,
+      0,
+      "41.0 hrs"
+     ],
+     [
+      "Security & Access",
+      "New User Provisioning",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Security & Access",
+      "Password Reset",
+      1,
+      0,
+      0,
+      "9.0 hrs"
+     ],
+     [
+      "Software & Applications",
+      "Bloomberg Terminal",
+      1,
+      1,
+      0,
+      ""
+     ],
+     [
+      "Software & Applications",
+      "Internal Portals",
+      1,
+      0,
+      0,
+      "7.0 hrs"
+     ],
+     [
+      "Software & Applications",
+      "Microsoft Office 365",
+      2,
+      0,
+      0,
+      "25.0 hrs"
+     ],
+     [
+      "Software & Applications",
+      "SAP Finance",
+      1,
+      1,
+      1,
+      ""
+     ],
+     [
+      "Software & Applications",
+      "Salesforce CRM",
+      1,
+      1,
+      1,
+      ""
+     ]
+    ],
+    "w": 1232
+   }
+  ]
+ },
+ {
+  "name": "Agent Workload",
+  "title": "Agent Workload & Performance",
+  "cards": [
+   [
+    "Total Tickets",
+    32,
+    "0"
+   ],
+   [
+    "Open Tickets",
+    19,
+    "0"
+   ],
+   [
+    "Unassigned Tickets",
+    7,
+    "0"
+   ],
+   [
+    "SLA Compliance %",
+    0.625,
+    "%"
+   ],
+   [
+    "Avg Resolution Time (Hrs)",
+    24.285714285714285,
+    "h"
+   ]
+  ],
+  "top": [
+   {
+    "t": "col2",
+    "title": "Open vs Resolved by Assignee",
+    "d": [
+     [
+      "Sarah Chen",
+      5,
+      4
+     ],
+     [
+      "Michael Ross",
+      4,
+      4
+     ],
+     [
+      "Priya Nair",
+      3,
+      5
+     ],
+     [
+      "Unassigned",
+      7,
+      0
+     ]
+    ],
+    "legend": [
+     "Open Tickets",
+     "Resolved Tickets"
+    ],
+    "w": 608
+   },
+   {
+    "t": "bar",
+    "title": "Avg Resolution Time by Assignee",
+    "d": [
+     [
+      "Unassigned",
+      42.0
+     ],
+     [
+      "Michael Ross",
+      31.0
+     ],
+     [
+      "Sarah Chen",
+      26.5
+     ],
+     [
+      "Priya Nair",
+      13.6
+     ]
+    ],
+    "w": 608
+   }
+  ],
+  "bottom": [
+   {
+    "t": "table",
+    "title": "Agent Scorecard",
+    "heads": [
+     "assigned_to",
+     "assigned_to_role",
+     "Total Tickets",
+     "Open Tickets",
+     "Resolved Tickets",
+     "SLA Breaches",
+     "SLA Compliance %",
+     "Avg Resolution Time (Hrs)"
+    ],
+    "rows": [
+     [
+      "Michael Ross",
+      "Manager",
+      8,
+      4,
+      4,
+      4,
+      "50.0%",
+      "31.0 hrs"
+     ],
+     [
+      "Priya Nair",
+      "Manager",
+      8,
+      3,
+      5,
+      3,
+      "62.5%",
+      "13.6 hrs"
+     ],
+     [
+      "Sarah Chen",
+      "Manager",
+      9,
+      5,
+      4,
+      5,
+      "44.4%",
+      "26.5 hrs"
+     ],
+     [
+      "Unassigned",
+      "",
+      7,
+      7,
+      0,
+      0,
+      "100.0%",
+      "42.0 hrs"
+     ]
+    ],
+    "w": 1232
+   }
+  ]
+ }
+]

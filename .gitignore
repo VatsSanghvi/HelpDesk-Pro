@@ -59,5 +59,20 @@ Thumbs.db
 design-preview/*
 !design-preview/README.md
 
-# /brag intermediate files (frames, captures, scripts)
-brag-output/work/
+# /brag — keep the source assets (real screenshots, feed data, render
+# pipeline: see brag-output/work/README.md) so future video edits don't
+# require re-capturing from the running app. Only the reconstructable /
+# throwaway build output is ignored.
+brag-output/work/cdn/
+brag-output/work/netcache/
+brag-output/work/stills/
+brag-output/work/final/
+brag-output/work/*.mp4
+brag-output/work/*_noaudio.*
+brag-output/work/music.wav
+brag-output/work/comp_built.html
+brag-output/work/sheet*.jpg
+brag-output/work/final_sheet.jpg
+brag-output/work/check_f*.jpg
+brag-output/work/poster_src.jpg
+brag-output/work/render.log

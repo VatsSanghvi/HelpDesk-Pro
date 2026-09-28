@@ -1,0 +1,324 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="http://localhost:8000/static/css/main.css?v=3">
+<style>
+  html,body{margin:0;padding:0;background:#0F172A;overflow:hidden}
+  #stage{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:'Inter',sans-serif;
+    background: radial-gradient(1400px 700px at 18% -12%, #134E4A 0%, transparent 60%),
+                linear-gradient(150deg, #0F172A 0%, #1E293B 58%, #0F766E 150%);}
+  #glow{position:absolute;width:900px;height:900px;border-radius:50%;
+    background:radial-gradient(circle, rgba(20,184,166,.20) 0%, rgba(20,184,166,0) 65%);pointer-events:none}
+  .txt{position:absolute;left:96px;width:560px;color:#fff;font-weight:800;font-size:62px;line-height:1.06;letter-spacing:-0.035em}
+  .txt .t{color:#5EEAD4}
+  .sub{position:absolute;left:98px;width:540px;color:#CBD5E1;font-weight:500;font-size:26px;line-height:1.35;letter-spacing:-0.01em}
+  .kicker{position:absolute;left:98px;font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#5EEAD4}
+  #win{position:absolute;left:664px;top:193px;width:1160px;height:693px;border-radius:14px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(2,6,23,.55),0 8px 24px rgba(2,6,23,.35),0 0 0 1px rgba(148,163,184,.18);background:#fff}
+  #bar{position:absolute;left:0;top:0;right:0;height:40px;background:#E2E8F0;display:flex;align-items:center;padding-left:16px;gap:8px;z-index:3}
+  #bar .d{width:12px;height:12px;border-radius:50%}
+  #url{position:absolute;left:50%;top:8px;transform:translateX(-50%);height:24px;min-width:420px;padding:0 14px;border-radius:7px;background:#fff;color:#475569;
+    font:500 13px/24px 'Inter';text-align:center;box-shadow:0 1px 2px rgba(15,23,42,.08)}
+  #view{position:absolute;left:0;top:40px;width:1160px;height:653px;overflow:hidden;background:#F8FAFC}
+  .layer{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+  .layer img{display:block;width:1600px}
+  #cursor{position:absolute;left:0;top:0;width:34px;height:34px;z-index:20;pointer-events:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+  #ripple{position:absolute;width:60px;height:60px;border-radius:50%;border:3px solid #14B8A6;z-index:19;pointer-events:none}
+  .ring{position:absolute;border:3px solid #14B8A6;border-radius:12px;box-shadow:0 0 0 6px rgba(20,184,166,.18);pointer-events:none}
+  /* reveal / outro */
+  .center{position:absolute;left:0;right:0;text-align:center}
+  .logo-box{width:120px;height:120px;border-radius:30px;background:linear-gradient(135deg,#0F766E 0%,#14B8A6 100%);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 20px 50px rgba(20,184,166,.35), inset 0 1px 0 rgba(255,255,255,.25)}
+  .logo-box .ni{font-family:'Material Symbols Outlined';font-size:66px;color:#fff;font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 48;line-height:1}
+  .brand{color:#fff;font-weight:800;font-size:132px;letter-spacing:-0.045em;line-height:1}
+  .tag{color:#CBD5E1;font-weight:500;font-size:36px;letter-spacing:-0.015em}
+  #life{position:absolute;left:0;right:0;top:780px;display:flex;justify-content:center;align-items:center;gap:0}
+  #life .step{display:flex;align-items:center}
+  #life .sbadge{font-size:25px;padding:8px 22px;gap:12px;border-width:2px}
+  #life .sbadge::before{width:12px;height:12px}
+  #life .arr{color:#64748B;font-size:30px;margin:0 16px;font-weight:600}
+  .repo{display:inline-block;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:30px;color:#E2E8F0;
+    padding:14px 28px;border-radius:14px;background:rgba(15,23,42,.55);border:1px solid rgba(94,234,212,.35)}
+  .stack{color:#94A3B8;font-weight:600;font-size:30px;letter-spacing:.02em}
+  .stack b{color:#5EEAD4;font-weight:600}
+  /* power bi */
+  #pbi{position:absolute;left:0;top:0;width:1280px;height:720px;background:#12191E;transform-origin:0 0;font-family:'Segoe UI','Inter',sans-serif;color:#BBE1FA;overflow:hidden}
+  .pv{position:absolute;box-sizing:border-box;background:#1B262C;border:1px solid #2E6A96;border-radius:8px;box-shadow:2px 3px 10px rgba(0,0,0,.4);overflow:hidden}
+  .pv .ttl{position:absolute;left:10px;top:7px;font-size:12px;font-weight:600;color:#BBE1FA;white-space:nowrap}
+  .slc .lab{position:absolute;left:10px;top:9px;font-size:11px;font-weight:600;color:#BBE1FA}
+  .slc .dd{position:absolute;left:10px;right:10px;bottom:12px;height:26px;border:1px solid #2E6A96;border-radius:4px;font-size:11px;line-height:26px;padding-left:8px;color:#8FB8D6}
+  .slc .dd:after{content:'⌄';position:absolute;right:8px;top:-4px;color:#8FB8D6;font-size:14px}
+  .kc{position:absolute;top:10px;bottom:10px;box-sizing:border-box;padding-left:18px;border-left:4px solid #3282B8}
+  .kc .v{font-size:36px;font-weight:300;color:#BBE1FA;letter-spacing:-0.01em;margin-top:22px;white-space:nowrap}
+  .kc .l{font-size:11px;color:#8FB8D6;margin-top:6px;white-space:nowrap}
+  table.pt{position:absolute;left:8px;right:8px;top:30px;border-collapse:collapse;font-size:10.5px;width:calc(100% - 16px);table-layout:fixed}
+  table.pt th{background:#0F4C75;color:#BBE1FA;font-weight:600;text-align:left;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  table.pt td{padding:3px 6px;color:#BBE1FA;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-bottom:1px solid #22323C}
+  table.pt tr:nth-child(even) td{background:#16222A}
+  #tabs{position:absolute;left:0;right:0;bottom:0;height:26px;background:#0D1418;border-top:1px solid #2E6A96;display:flex;align-items:stretch;padding-left:10px;z-index:5}
+  #tabs .tb{font:600 12px/26px 'Segoe UI','Inter';color:#6E93AE;padding:0 16px;border-top:2px solid transparent;margin-top:-1px}
+  #tabs .tb.on{color:#BBE1FA;border-top-color:#3282B8;background:#1B262C}
+</style></head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <div class="kicker" id="k1" style="top:300px">HelpDesk Pro · Viewer</div>
+  <div class="txt" id="h1a" style="top:350px">Something broke?</div>
+  <div class="txt" id="h1b" style="top:420px"><span class="t">Raise a ticket.</span></div>
+
+  <div class="kicker" id="k3" style="top:330px">Tickets</div>
+  <div class="txt" id="h3a" style="top:380px">Your ticket is logged <span class="t">instantly.</span></div>
+  <div class="txt" id="h3b" style="top:380px">Every ticket gets an <span class="t">SLA clock.</span></div>
+  <div class="sub" id="s3b" style="top:540px">High 4h · Moderate 24h · Low 72h. Breached, Late or On time, on every row.</div>
+
+  <div class="kicker" id="k4" style="top:330px">Dashboard</div>
+  <div class="txt" id="h4" style="top:380px">Live KPIs for the <span class="t">whole team.</span></div>
+  <div class="sub" id="s4" style="top:540px">Admin, Manager and Viewer each get their own view.</div>
+
+  <div class="kicker" id="k5" style="top:300px">Analytics</div>
+  <div class="txt" id="h5a" style="top:350px">Plus a 4-page <span class="t">Power BI</span> report</div>
+  <div class="sub" id="s5" style="top:560px">fed by the app's own REST API.</div>
+
+  <div id="win">
+    <div id="bar"><div class="d" style="background:#F87171"></div><div class="d" style="background:#FBBF24"></div><div class="d" style="background:#34D399"></div><div id="url">localhost:8000/ticket_create/</div></div>
+    <div id="view">
+      <div class="layer" id="L1"><img class="ty" src="shots/type/000.png" style="position:absolute;left:0;top:0;opacity:1"><img class="ty" src="shots/type/001.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/002.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/003.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/004.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/005.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/006.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/007.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/008.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/009.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/010.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/011.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/012.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/013.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/014.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/015.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/016.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/017.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/018.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/019.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/020.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/021.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/022.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/023.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/024.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/025.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/026.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/027.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/028.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/029.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/030.png" style="position:absolute;left:0;top:0;opacity:0"><img class="ty" src="shots/type/031.png" style="position:absolute;left:0;top:0;opacity:0"><div style="width:1600px;height:900px"></div></div>
+      <div class="layer" id="L2"><img src="shots/after_submit.png"></div>
+      <div class="layer" id="L3"><img src="shots/tickets.png"></div>
+      <div class="layer" id="L4"><img src="shots/dashboard.png"></div>
+      <div id="pbiWrap" style="position:absolute;inset:0;background:#12191E"><div id="pbi"></div><div id="tabs"></div></div>
+      <div class="ring" id="ringA"></div><div class="ring" id="ringB"></div><div class="ring" id="ringC"></div>
+    </div>
+  </div>
+
+  <div id="reveal" class="center" style="top:0;height:1080px">
+    <div id="rlogo" class="logo-box" style="position:absolute;left:900px;top:250px"><span class="ni">confirmation_number</span></div>
+    <div id="rbrand" class="brand center" style="top:410px">HelpDesk Pro</div>
+    <div id="rtag" class="tag center" style="top:580px">The IT support portal that tracks every ticket against its SLA.</div>
+    <div id="life"></div>
+  </div>
+
+  <div id="outro" class="center" style="top:0;height:1080px">
+    <div id="ologo" class="logo-box" style="position:absolute;left:900px;top:230px"><span class="ni">confirmation_number</span></div>
+    <div id="obrand" class="brand center" style="top:390px">HelpDesk Pro</div>
+    <div id="ostack" class="stack center" style="top:560px"><b>Django</b> · REST API · <b>Power BI</b> · SLA tracking</div>
+    <div id="orepo" class="center" style="top:680px"><span class="repo">github.com/VatsSanghvi/HelpDesk-Pro</span></div>
+  </div>
+
+  <div id="ripple"></div>
+  <svg id="cursor" viewBox="0 0 24 24"><path d="M4 2.5 L4 19.5 L8.6 15.3 L11.6 22 L14.6 20.7 L11.7 14.2 L18 14.2 Z" fill="#0F172A" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</div>
+
+<script>
+const PBI = __PBI__;
+// ---------- helpers ----------
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const eout=x=>1-Math.pow(1-x,3);
+const eback=x=>{const c1=1.5,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)};
+const lerp=(a,b,x)=>a+(b-a)*x;
+const $=id=>document.getElementById(id);
+function show(el,t,a,b,{dy=26,fin=.45,fout=.3}={}){ // fade/slide in at a, out at b
+  const i=eout(seg(t,a,a+fin)), o=seg(t,b-fout,b);
+  const op=i*(1-eio(o));
+  el.style.opacity=op; el.style.transform=`translateY(${(1-i)*dy - eio(o)*dy*0.6}px)`;
+  el.style.visibility=op>0.001?'visible':'hidden';
+  return op;
+}
+const WV=1160,HV=653,S0=WV/1600;
+// camera: keyframes [t,cx,cy,z]
+function cam(keys,t){
+  let k=keys[0]; if(t<=k[0]) return k.slice(1);
+  for(let i=0;i<keys.length-1;i++){const a=keys[i],b=keys[i+1]; if(t<=b[0]){const x=eio(seg(t,a[0],b[0]));return [lerp(a[1],b[1],x),lerp(a[2],b[2],x),lerp(a[3],b[3],x)];}}
+  return keys[keys.length-1].slice(1);
+}
+function place(layer,imgH,c,dx=0){ // c=[cx,cy,z] in css px of the 1600-wide capture
+  const s=S0*c[2]; let tx=WV/2-c[0]*s, ty=HV/2-c[1]*s;
+  tx=Math.min(0,Math.max(WV-1600*s,tx)); ty=Math.min(0,Math.max(HV-imgH*s,ty));
+  layer.style.transform=`translate(${tx+dx}px,${ty}px) scale(${s})`;
+  return (x,y)=>[664+tx+dx+x*s, 193+40+ty+y*s];
+}
+// ---------- power bi drawing ----------
+const fmtCard=(v,f)=>v==null?'(Blank)':f==='%'?(v*100).toFixed(1)+'%':f==='h'?v.toFixed(1)+' hrs':String(Math.round(v));
+const DC=['#3282B8','#BBE1FA','#5E9FCB','#8FC4E4','#4A8FC2'];
+function chartSVG(v,w,h,p){
+  const d=v.d; let s=`<svg width="${w}" height="${h}" style="position:absolute;left:0;top:0">`;
+  const top=34,bot=h-8;
+  if(v.t==='col'||v.t==='col2'){
+    const L=34,R=w-12,B=bot-18; const n=d.length; const max=Math.max(...d.map(r=>Math.max(r[1],r[2]||0)))*1.15||1;
+    for(let g=0;g<=3;g++){const y=B-(B-top-10)*g/3; s+=`<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="#2A3B47"/><text x="${L-6}" y="${y+3}" fill="#8FB8D6" font-size="9" text-anchor="end">${Math.round(max*g/3)}</text>`;}
+    const bw=(R-L)/n;
+    if(v.t==='col2'){s+=`<rect x="${w/2-120}" y="${top-6}" width="8" height="8" fill="${DC[0]}"/><text x="${w/2-108}" y="${top+2}" fill="#8FB8D6" font-size="9">${v.legend[0]}</text><rect x="${w/2+10}" y="${top-6}" width="8" height="8" fill="${DC[1]}"/><text x="${w/2+22}" y="${top+2}" fill="#8FB8D6" font-size="9">${v.legend[1]}</text>`;}
+    d.forEach((r,i)=>{
+      const pp=eout(clamp(p*1.6-i*0.6/n));
+      const series=v.t==='col2'?[r[1],r[2]]:[r[1]];
+      const gw=bw*0.66, sw=gw/series.length;
+      series.forEach((val,j)=>{const hh=(B-top-10)*val/max*pp; const x=L+i*bw+(bw-gw)/2+j*sw;
+        s+=`<rect x="${x}" y="${B-hh}" width="${sw-2}" height="${hh}" fill="${DC[j]}" rx="1"/>`;
+        if(pp>.9&&val) s+=`<text x="${x+sw/2-1}" y="${B-hh-4}" fill="#BBE1FA" font-size="9" font-weight="600" text-anchor="middle">${val}</text>`;});
+      const lab=String(r[0]); s+=`<text x="${L+i*bw+bw/2}" y="${B+13}" fill="#8FB8D6" font-size="${n>12?8:9}" text-anchor="middle">${lab.length>14?lab.slice(0,13)+'…':lab}</text>`;
+    });
+  } else if(v.t==='bar'){
+    const L=Math.min(150,w*0.34),R=w-40; const n=d.length; const max=Math.max(...d.map(r=>r[1]))*1.05||1;
+    const rh=Math.min(22,(bot-top)/n);
+    d.forEach((r,i)=>{const pp=eout(clamp(p*1.6-i*0.5/n)); const y=top+i*rh; const bw=(R-L)*r[1]/max*pp;
+      const lab=String(r[0]); s+=`<text x="${L-8}" y="${y+rh*0.62}" fill="#8FB8D6" font-size="9" text-anchor="end">${lab.length>24?lab.slice(0,23)+'…':lab}</text>`;
+      s+=`<rect x="${L}" y="${y+rh*0.16}" width="${bw}" height="${rh*0.68}" fill="${DC[0]}" rx="1"/>`;
+      if(pp>.9) s+=`<text x="${L+bw+5}" y="${y+rh*0.62}" fill="#BBE1FA" font-size="9" font-weight="600">${r[1]}</text>`;});
+  } else if(v.t==='donut'){
+    const tot=d.reduce((a,r)=>a+r[1],0); const cx=w*0.33,cy=(top+bot)/2+4,R=Math.min(70,(bot-top)/2),r0=R*0.58;
+    let a0=-Math.PI/2; const sweep=2*Math.PI*eio(clamp(p*1.3));
+    d.forEach((r,i)=>{const a=2*Math.PI*r[1]/tot; const aa=Math.max(0,Math.min(a,sweep-(a0+Math.PI/2)));
+      if(aa>0.001){const a1=a0+aa, lg=aa>Math.PI?1:0;
+        const P=(rr,an)=>`${cx+rr*Math.cos(an)},${cy+rr*Math.sin(an)}`;
+        s+=`<path d="M${P(R,a0)} A${R},${R} 0 ${lg} 1 ${P(R,a1)} L${P(r0,a1)} A${r0},${r0} 0 ${lg} 0 ${P(r0,a0)} Z" fill="${DC[i%5]}" stroke="#1B262C" stroke-width="1.5"/>`;}
+      a0+=a;
+      const ly=cy-(d.length*18)/2+i*18+9, lx=w*0.62;
+      s+=`<rect x="${lx}" y="${ly-7}" width="9" height="9" rx="2" fill="${DC[i%5]}"/><text x="${lx+15}" y="${ly+1}" fill="#8FB8D6" font-size="9.5">${r[0]}</text><text x="${w-14}" y="${ly+1}" fill="#BBE1FA" font-size="9.5" font-weight="600" text-anchor="end">${r[1]} (${Math.round(r[1]/tot*100)}%)</text>`;});
+  }
+  return s+'</svg>';
+}
+const prioColor={'High':'#E0705F','Moderate':'#E0B25C','Low':'#4CAF7D','Not Yet Triaged':'#6E93AE'};
+function tableHTML(v,p){
+  const nr=Math.min(v.rows.length,8), show=Math.floor(nr*clamp(p*1.4)+0.001);
+  let h='<table class="pt"><tr>'+v.heads.map(x=>`<th>${x}</th>`).join('')+'</tr>';
+  v.rows.slice(0,nr).forEach((r,i)=>{h+=`<tr style="opacity:${i<show?1:0}">`+r.map((c,j)=>{
+    let st=''; const hd=v.heads[j]; if(/priority/.test(hd)&&prioColor[c]) st=`color:${prioColor[c]};font-weight:600`;
+    if(hd==='age_hours') c=c+'';
+    return `<td style="${st}">${c}</td>`}).join('')+'</tr>'});
+  return h+'</table>';
+}
+function colsFor(v){ // relative column widths
+  const W={ticket_number:.12,title:.32,priority_display:.1,priority:.1,status:.1,assigned_to:.13,age_hours:.09,category:.15,due_by:.14,subcategory:.2,assigned_to_role:.1};
+  return v.heads.map(x=>W[x]||.1);
+}
+function drawPBI(pi,t0,t){
+  const pg=PBI[pi]; const p=x=>clamp((t-t0-x)/0.55);
+  let h=`<div style="position:absolute;left:0;top:0;width:1280px;height:52px;background:#0F4C75"></div>
+    <div style="position:absolute;left:24px;top:11px;font-size:21px;font-weight:600;color:#BBE1FA;letter-spacing:-.01em">${pg.title}</div>`;
+  ['Created','Category','Priority','Status','Assigned to'].forEach((n,i)=>{h+=`<div class="pv slc" style="left:${24+248*i}px;top:60px;width:236px;height:80px"><div class="lab">${n}</div><div class="dd">All</div></div>`;});
+  const cp=eout(p(0));
+  h+=`<div class="pv" style="left:24px;top:148px;width:1232px;height:124px">`;
+  pg.cards.forEach((c,i)=>{let val=c[1]; if(val!=null&&c[2]!=='%'&&c[2]!=='h') val=Math.round(val*cp); else if(val!=null) val=val*cp;
+    h+=`<div class="kc" style="left:${14+i*244}px;width:232px"><div class="v">${fmtCard(val,c[2])}</div><div class="l">${c[0]}</div></div>`;});
+  h+='</div>';
+  const tops=pg.top, n=tops.length; let x=24;
+  tops.forEach((v,i)=>{const w=v.w||(n===3?400:608); h+=`<div class="pv" style="left:${x}px;top:280px;width:${w}px;height:198px"><div class="ttl">${v.title}</div>${chartSVG(v,w,198,p(0.08+i*0.08))}</div>`; x+=w+16;});
+  x=24; pg.bottom.forEach((v,i)=>{const w=v.w||1232;
+    h+=`<div class="pv" style="left:${x}px;top:486px;width:${w}px;height:210px"><div class="ttl">${v.title}</div>${v.t==='table'||v.heads?tableHTML(v,p(0.25+i*.08)):chartSVG(v,w,210,p(0.25+i*.08))}</div>`; x+=w+16;});
+  const el=$('pbi'); el.innerHTML=h;
+  el.querySelectorAll('table.pt').forEach((tb,k)=>{const v=pg.bottom.filter(b=>b.heads)[k]; const ws=colsFor(v); const sum=ws.reduce((a,b)=>a+b,0);
+    tb.querySelectorAll('th').forEach((th,j)=>th.style.width=(ws[j]/sum*100)+'%');});
+  $('tabs').innerHTML=PBI.map((q,j)=>`<div class="tb ${j===pi?'on':''}">${q.name}</div>`).join('');
+}
+// lifecycle badges
+const LIFE=[['Pending','Pending'],['Assigned','Assigned'],['Scoping','Scoping'],['InProgress','In Progress'],['Completed','Completed']];
+$('life').innerHTML=LIFE.map((b,i)=>`<div class="step" id="lf${i}">${i?'<span class="arr">→</span>':''}<span class="sbadge sbadge-${b[0]}">${b[1]}</span></div>`).join('');
+
+// ---------- timeline ----------
+const TYPE_N=32;
+function typeFrame(t){ // index of real capture to show
+  if(t<0.45) return 0; if(t<0.62) return 1; if(t<0.8) return 2;
+  if(t<1.72) return 3+Math.min(14,Math.floor((t-0.8)/0.92*15));
+  if(t<2.62) return 18+Math.min(12,Math.floor((t-1.72)/0.9*13));
+  return 31;
+}
+
+function cursorPath(keys,t){ // keys [t,x,y] screen coords
+  if(t<=keys[0][0]) return keys[0].slice(1);
+  for(let i=0;i<keys.length-1;i++){const a=keys[i],b=keys[i+1]; if(t<=b[0]){const x=eio(seg(t,a[0],b[0]));return [lerp(a[1],b[1],x),lerp(a[2],b[2],x)];}}
+  return keys[keys.length-1].slice(1);
+}
+function ring(el,xy1,xy2,op){ if(op<=0.001){el.style.opacity=0;return;} el.style.opacity=op;
+  el.style.left=(xy1[0]-664)+'px'; el.style.top=(xy1[1]-233)+'px'; el.style.width=(xy2[0]-xy1[0])+'px'; el.style.height=(xy2[1]-xy1[1])+'px';}
+
+window.render=function(t){
+  // background glow drift
+  $('glow').style.transform=`translate(${lerp(-200,500,t/22.5)}px,${lerp(-300,100,t/22.5)}px)`;
+
+  // ----- window visibility & motion -----
+  const winIn1=eout(seg(t,0,0.55)), winOut1=eio(seg(t,3.2,3.55));
+  const winIn2=eout(seg(t,6.45,7.05)), winOut2=eio(seg(t,18.6,18.92));
+  let wop=0, wy=0, ws=1;
+  if(t<3.6){wop=winIn1*(1-winOut1); wy=(1-winIn1)*60; ws=1-winOut1*0.06;}
+  else if(t>6.4&&t<19.05){wop=winIn2*(1-winOut2); wy=(1-winIn2)*60; ws=1-winOut2*0.05;}
+  const win=$('win'); win.style.opacity=wop; win.style.visibility=wop>0.001?'visible':'hidden'; win.style.transform=`translateY(${wy}px) scale(${ws})`;
+
+  // ----- which layer -----
+  const L=['L1','L2','L3','L4'].map($); L.forEach(l=>l.style.opacity=0); $('pbiWrap').style.opacity=0; $('pbiWrap').style.transform='none';
+  ['ringA','ringB','ringC'].forEach(r=>$(r).style.opacity=0);
+  let url='localhost:8000/ticket_create/'; let cur=null, click=null;
+
+  if(t<3.6){ // scene 1
+    const k=typeFrame(t); document.querySelectorAll('#L1 img.ty').forEach((im,i)=>im.style.opacity=i===k?1:0);
+    L[0].style.opacity=1;
+    const to=place(L[0],900,cam([[0,930,380,1.28],[3.5,900,390,1.42]],t));
+    const pts=[[0,1500,980],[0.38,...to(690,219)],[0.56,...to(1130,219)],[0.76,...to(640,262)],[1.66,...to(640,262)],[1.74,...to(760,330)],[2.5,...to(800,360)],[2.88,...to(1282,574)],[3.6,...to(1282,574)]];
+    cur=cursorPath(pts,t);
+    [[0.45],[0.62],[0.8],[1.74],[2.96]].forEach(c=>{if(t>=c[0]&&t<c[0]+0.45) click=[t-c[0],...cursorPath(pts,c[0])];});
+  } else if(t<8.55){ // scene 3a: toast + new row
+    L[1].style.opacity=1; url='localhost:8000/ticket_list/';
+    const to=place(L[1],900,cam([[6.4,900,260,1.25],[8.5,880,270,1.36]],t));
+    ring($('ringA'),to(284,300),to(1590,366),eout(seg(t,7.2,7.6))*(1-seg(t,8.3,8.5)));
+  } else if(t<11.05){ // scene 3b: admin list SLA column
+    const x=eio(seg(t,8.5,8.9)); L[2].style.opacity=1; L[1].style.opacity=x<1?1:0; url='localhost:8000/ticket_list/';
+    place(L[1],900,[880,270,1.36],-WV*x);
+    const to=place(L[2],1320,cam([[8.9,900,300,1.0],[9.6,1240,400,1.55],[11.0,1300,560,1.62]],t),WV*(1-x));
+    const rp=eout(seg(t,9.5,9.85));
+    ring($('ringB'),to(1396,358),to(1520,388),rp);
+    ring($('ringC'),to(1396,1066),to(1486,1094),eout(seg(t,9.9,10.25)));
+    ring($('ringA'),to(1396,768),to(1510,798),eout(seg(t,10.1,10.45)));
+  } else if(t<14.05){ // scene 4 dashboard
+    const x=eio(seg(t,11.0,11.4)); L[3].style.opacity=1; L[2].style.opacity=x<1?1:0; url='localhost:8000/';
+    place(L[2],1320,[1300,560,1.62],-WV*x);
+    place(L[3],1632,cam([[11.4,900,160,1.2],[12.4,960,200,1.25],[13.9,1180,560,1.2]],t),WV*(1-x));
+  } else { // scene 5 power bi
+    url='Power BI Desktop — Ticketing Project Power BI File.pbip';
+    const x=eio(seg(t,14.0,14.4)); $('pbiWrap').style.opacity=1; $('pbiWrap').style.transform=`translateX(${WV*(1-x)}px)`; L[3].style.opacity=x<1?1:0; place(L[3],1632,[1180,560,1.2],-WV*x);
+    const sc=WV/1280; $('pbi').style.transform=`scale(${sc})`;
+    const starts=[14.35,16.0,17.0,18.0]; let pi=0; starts.forEach((s,i)=>{if(t>=s-0.1) pi=i;}); if(t<16.0-0.1)pi=0;
+    drawPBI(pi,starts[pi],t);
+    // gentle push-in
+    const z=lerp(1,1.03,seg(t,14,19)); $('pbi').style.transform=`scale(${sc*z})`;
+    // cursor clicks tabs at bottom
+    const tabX=[40,125,237,365].map(v=>664+v*sc+30), tabY=193+40+HV-12;
+    const pts=[[14,1700,900],[15.4,tabX[1]+20,tabY-60],[15.75,tabX[1]+20,tabY],[16.5,tabX[1]+20,tabY],[16.75,tabX[2]+40,tabY],[17.5,tabX[2]+40,tabY],[17.75,tabX[3]+40,tabY],[19,tabX[3]+40,tabY]];
+    cur=cursorPath(pts,t);
+    [15.82,16.82,17.82].forEach(c=>{if(t>=c&&t<c+0.45) click=[t-c,...cursorPath(pts,c)];});
+  }
+  $('url').textContent=url;
+
+  // cursor render
+  const cEl=$('cursor'), rEl=$('ripple');
+  if(cur&&wop>0.05){cEl.style.opacity=wop; const pr=click?1-0.15*Math.sin(Math.PI*clamp(click[0]/0.18)):1;
+    cEl.style.transform=`translate(${cur[0]-6}px,${cur[1]-4}px) scale(${pr})`;} else cEl.style.opacity=0;
+  if(click&&wop>0.05){const q=click[0]/0.45; rEl.style.opacity=(1-q)*0.9; const s=0.3+q*1.1;
+    rEl.style.transform=`translate(${click[1]-30}px,${click[2]-30}px) scale(${s})`;} else rEl.style.opacity=0;
+
+  // ----- left captions -----
+  show($('k1'),t,0.15,3.35); show($('h1a'),t,0.2,3.35); show($('h1b'),t,0.95,3.35);
+  show($('k3'),t,6.6,10.95); show($('h3a'),t,6.7,8.45); show($('h3b'),t,8.65,10.95); show($('s3b'),t,9.0,10.95);
+  show($('k4'),t,11.1,13.95); show($('h4'),t,11.15,13.95); show($('s4'),t,11.5,13.95);
+  show($('k5'),t,14.1,18.8); show($('h5a'),t,14.15,18.8); show($('s5'),t,15.0,18.8);
+
+  // ----- reveal -----
+  const R=$('reveal'); const rOn=t>3.35&&t<6.7; R.style.visibility=rOn?'visible':'hidden';
+  if(rOn){const ro=1-eio(seg(t,6.25,6.6));
+    const lg=eback(seg(t,3.45,3.95)); $('rlogo').style.opacity=clamp(seg(t,3.45,3.7))*ro; $('rlogo').style.transform=`scale(${0.4+0.6*lg}) rotate(${(1-lg)*-12}deg)`;
+    const b=eout(seg(t,3.6,4.1)); $('rbrand').style.opacity=b*ro; $('rbrand').style.transform=`translateY(${(1-b)*30}px)`; $('rbrand').style.letterSpacing=`${lerp(-0.02,-0.045,b)}em`;
+    const g=eout(seg(t,4.0,4.4)); $('rtag').style.opacity=g*ro; $('rtag').style.transform=`translateY(${(1-g)*20}px)`;
+    LIFE.forEach((_,i)=>{const e=eback(seg(t,4.55+i*0.16,4.9+i*0.16)); const el=$('lf'+i); el.style.opacity=clamp(seg(t,4.55+i*0.16,4.75+i*0.16))*ro; el.style.transform=`translateY(${(1-e)*24}px)`;});
+  }
+  // ----- outro -----
+  const O=$('outro'); const oOn=t>18.93; O.style.visibility=oOn?'visible':'hidden';
+  if(oOn){const lg=eback(seg(t,18.95,19.45)); $('ologo').style.opacity=clamp(seg(t,18.95,19.2)); $('ologo').style.transform=`scale(${0.4+0.6*lg})`;
+    const b=eout(seg(t,19.05,19.55)); $('obrand').style.opacity=b; $('obrand').style.transform=`translateY(${(1-b)*30}px)`;
+    const s=eout(seg(t,19.4,19.8)); $('ostack').style.opacity=s; $('ostack').style.transform=`translateY(${(1-s)*20}px)`;
+    const r=eout(seg(t,19.7,20.1)); $('orepo').style.opacity=r; $('orepo').style.transform=`translateY(${(1-r)*20}px)`;
+    const fade=seg(t,22.1,22.5); O.style.opacity=1-fade*0.0; // hold to the end
+  }
+};
+window.ready=Promise.all([document.fonts.load('800 60px Inter'),document.fonts.load('500 20px Inter'),document.fonts.load('300 20px Inter'),document.fonts.load('600 20px Inter'),document.fonts.load('600 16px "JetBrains Mono"'),document.fonts.load('40px "Material Symbols Outlined"','confirmation_number'), ...[...document.images].map(i=>i.decode().catch(()=>{}))]);
+</script>
+</body></html>
