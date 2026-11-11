@@ -141,16 +141,12 @@
     tip.hidden = false;
     var box = el.getBoundingClientRect();
     var own = tip.getBoundingClientRect();
-    // Beside the element when there is room, so the tip covers part of its
-    // own row instead of the row above or below; otherwise above, then below.
-    var left = box.left - own.width - 10;
-    var top = box.top + (box.height - own.height) / 2;
-    if (left < 8) {
-      left = Math.min(Math.max(8, box.left), window.innerWidth - own.width - 8);
-      top = box.top - own.height - 8;
-      if (top < 8) top = box.bottom + 8;
-    }
-    top = Math.min(Math.max(8, top), window.innerHeight - own.height - 8);
+    // Directly under the element and aligned to its left edge: a one-line tip
+    // sits in the row's own bottom margin, clear of the ticket it describes
+    // and of the neighbouring rows' labels. Above it when there is no room.
+    var left = Math.min(Math.max(8, box.left), window.innerWidth - own.width - 8);
+    var top = box.bottom + 6;
+    if (top + own.height > window.innerHeight - 8) top = box.top - own.height - 6;
     tip.style.left = left + 'px';
     tip.style.top = top + 'px';
   }

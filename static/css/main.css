@@ -473,10 +473,10 @@ a.t-title:hover { color: var(--green); text-decoration: underline; }
 .verdict-none { color: var(--ink-3); font-weight: 400; }
 
 .tip {
-  position: fixed; z-index: 90; max-width: 18rem; pointer-events: none;
-  background: var(--ink); color: #fff; border-radius: var(--r);
-  padding: 0.375rem 0.625rem; font-size: var(--fs-sm); line-height: 1.35;
-  box-shadow: var(--shadow-menu);
+  position: fixed; z-index: 90; max-width: calc(100vw - 1rem); pointer-events: none;
+  background: var(--ink); color: #fff; border-radius: var(--r-sm);
+  padding: 0.1875rem 0.5rem; font-size: var(--fs-xs); line-height: 1.4; white-space: nowrap;
+  font-variant-numeric: tabular-nums; box-shadow: var(--shadow-menu);
 }
 
 /* ── 11. Figures ────────────────────────────────────────────────── */
@@ -757,6 +757,18 @@ input[type="checkbox"], input[type="radio"] { width: 1rem; height: 1rem; margin:
 .auth-solo .panel { width: 100%; max-width: 26rem; padding: 2rem; }
 .auth-solo .brand { margin-bottom: 1.5rem; }
 
+/* ── Dashboard pieces ───────────────────────────────────────────── */
+.progress-row { padding: 1rem 1.125rem 1.125rem; }
+.progress-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.25rem 1.5rem; flex-wrap: wrap; margin-bottom: 0.875rem; }
+.progress-due { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; }
+.stage-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.stage-n { font-weight: 700; font-size: var(--fs-md); }
+
+/* ── Ticket page ────────────────────────────────────────────────── */
+.ticket-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.875rem; margin-top: 0.625rem; }
+.composer { margin-bottom: 1.5rem; }
+.profile-head { display: flex; align-items: center; gap: 1rem; }
+
 /* ── 20. Motion ─────────────────────────────────────────────────── */
 /* One authored moment: on load each clock's marker travels from the start of
    its window to where the ticket stands. Everything else is state feedback. */
@@ -826,18 +838,6 @@ input[type="checkbox"], input[type="radio"] { width: 1rem; height: 1rem; margin:
   .btn, .icon-btn, .tab { min-height: 2.75rem; }
   .btn-sm { min-height: 2.25rem; }
 }
-
-/* ── Dashboard pieces ───────────────────────────────────────────── */
-.progress-row { padding: 1rem 1.125rem 1.125rem; }
-.progress-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.25rem 1.5rem; flex-wrap: wrap; margin-bottom: 0.875rem; }
-.progress-due { display: flex; flex-direction: column; align-items: flex-end; gap: 0.125rem; }
-.stage-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.stage-n { font-weight: 700; font-size: var(--fs-md); }
-
-/* ── Ticket page ────────────────────────────────────────────────── */
-.ticket-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 0.875rem; margin-top: 0.625rem; }
-.composer { margin-bottom: 1.5rem; }
-.profile-head { display: flex; align-items: center; gap: 1rem; }
 
 /* ── 22. Tables on narrow containers ────────────────────────────── */
 /* A ticket table stops being a table when its own container gets too narrow

@@ -620,8 +620,15 @@ class Command(BaseCommand):
                 due = created + window
                 last_touch = now - (now - created) * 0.2
 
+            # A recorded first response moves with the ticket, so the time it
+            # took stays what it was instead of being measured from a new start.
+            responded = ticket.first_response_at
+            if responded:
+                responded = created + (responded - ticket.created_at)
+
             Ticket.objects.filter(pk=ticket.pk).update(
                 created_at=created, due_by=due, resolved_at=resolved, updated_at=last_touch,
+                first_response_at=responded,
             )
 
             # Spread the audit trail between creation and the last touch, so
