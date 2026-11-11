@@ -1,0 +1,1 @@
+{% load ui_extras %}{% if priority %}<span class="prio prio-{{ priority|lower }}"><span class="prio-sq">{{ priority|priority_rank }}</span>{{ priority }}</span>{% else %}<span class="prio prio-none" title="Not triaged yet. An Admin sets the priority on approval."><span class="prio-sq" aria-hidden="true">?</span>Untriaged</span>{% endif %}

@@ -22,7 +22,6 @@ Creates:
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
-import random
 
 from registration.models import User
 from vats.models import Category, Subcategory, Ticket, Worknote
@@ -31,12 +30,21 @@ from vats.models import Category, Subcategory, Ticket, Worknote
 class Command(BaseCommand):
     help = 'Seeds the database with Vats Financial Services IT Helpdesk sample data'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--retime', action='store_true',
+            help='Re-date every existing ticket relative to now, so the SLA '
+                 'clocks show a realistic mix instead of an aged dataset.',
+        )
+
     def handle(self, *args, **kwargs):
         self.stdout.write('\n🏢  Vats Financial Services — IT HelpDesk — Seeding sample data...\n')
 
         self.create_categories()
         self.create_users()
-        self.create_tickets()
+        created = self.create_tickets()
+        if created or kwargs.get('retime'):
+            self.retime_tickets()
 
         self.stdout.write(self.style.SUCCESS('\n✅  Done! Database seeded successfully.\n'))
         self.stdout.write('Login credentials:\n')
@@ -519,19 +527,7 @@ class Command(BaseCommand):
             ticket.save()
             Ticket.save = _original_save
 
-            days_ago = random.randint(1, 30)
-            created = timezone.now() - timedelta(days=days_ago)
-            Ticket.objects.filter(pk=ticket.pk).update(created_at=created)
-
-            if ticket.priority:
-                sla_map = {'High': 4, 'Moderate': 24, 'Low': 72}
-                hours = sla_map.get(ticket.priority, 24)
-                due = created + timedelta(hours=hours)
-                Ticket.objects.filter(pk=ticket.pk).update(due_by=due)
-
-            if t['status'] in ('Completed', 'Cancelled', 'Rejected'):
-                resolved = created + timedelta(hours=random.randint(2, 48))
-                Ticket.objects.filter(pk=ticket.pk).update(resolved_at=resolved)
+            # Dates are set afterwards by retime_tickets(), relative to now.
 
             Worknote.objects.create(
                 ticket=ticket,
@@ -574,6 +570,72 @@ class Command(BaseCommand):
             self.stdout.write(f'   ✓ [{ticket.number}] {t["title"][:55]}...' if len(t["title"]) > 55 else f'   ✓ [{ticket.number}] {t["title"]}')
 
         self.stdout.write(f'\n   Created {created_count} tickets total.')
+        return created_count
+
+    # ── Dates ─────────────────────────────────────────────────────
+
+    # Share of the SLA window already used, dealt to open tickets in order.
+    # Two are past their deadline and two are inside the last quarter, which
+    # is what a working desk looks like on an ordinary morning.
+    OPEN_USED = (1.30, 0.62, 0.84, 0.45, 1.10, 0.30, 0.20, 0.55, 0.12, 0.78, 0.38, 0.08)
+    # How long closed tickets took, as a share of their window. Mostly inside it.
+    CLOSED_USED = (0.40, 0.70, 0.90, 1.30, 0.50, 0.80, 0.60, 1.60, 0.30, 0.95)
+    # How long ago untriaged tickets were raised, in minutes.
+    PENDING_AGE = (35, 70, 140, 21 * 60, 27 * 60)
+
+    def retime_tickets(self):
+        """
+        Date every ticket relative to now.
+
+        A seed that stamps tickets a random 1-30 days back leaves every open
+        ticket weeks past its deadline, which demonstrates a failing desk and
+        nothing else. Dating from now keeps the demo true to the product: some
+        tickets comfortably on time, a few close, a couple late.
+        """
+        self.stdout.write('🕑  Dating tickets relative to now...')
+        now = timezone.now()
+        sla_map = {'High': 4, 'Moderate': 24, 'Low': 72}
+        counters = {'open': 0, 'closed': 0, 'pending': 0}
+
+        for ticket in Ticket.objects.order_by('pk'):
+            window = timedelta(hours=sla_map.get(ticket.priority, 24))
+            due = resolved = None
+
+            if ticket.status == 'Pending':
+                age = self.PENDING_AGE[counters['pending'] % len(self.PENDING_AGE)]
+                counters['pending'] += 1
+                created = now - timedelta(minutes=age)
+                last_touch = created
+            elif ticket.status in ('Completed', 'Cancelled', 'Rejected'):
+                i = counters['closed']
+                counters['closed'] += 1
+                created = now - timedelta(days=2 + (i * 5) % 27, hours=(i * 7) % 9)
+                resolved = created + window * self.CLOSED_USED[i % len(self.CLOSED_USED)]
+                due = created + window if ticket.priority else None
+                last_touch = resolved
+            else:
+                used = self.OPEN_USED[counters['open'] % len(self.OPEN_USED)]
+                counters['open'] += 1
+                created = now - window * used
+                due = created + window
+                last_touch = now - (now - created) * 0.2
+
+            Ticket.objects.filter(pk=ticket.pk).update(
+                created_at=created, due_by=due, resolved_at=resolved, updated_at=last_touch,
+            )
+
+            # Spread the audit trail between creation and the last touch, so
+            # the activity feed reads as a history rather than one instant.
+            notes = list(Worknote.objects.filter(ticket=ticket).order_by('pk'))
+            span = last_touch - created
+            for position, note in enumerate(notes):
+                share = position / max(len(notes) - 1, 1)
+                Worknote.objects.filter(pk=note.pk).update(created_at=created + span * share)
+
+        self.stdout.write(
+            f"   ✓ {counters['open']} open, {counters['pending']} untriaged, "
+            f"{counters['closed']} closed"
+        )
 
 
 # ── Helpers to bypass Twilio during seeding ──────────────────────

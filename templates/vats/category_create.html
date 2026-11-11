@@ -1,32 +1,36 @@
 {% extends 'base.html' %}
+{% load ui_extras %}
 {% block title %}New Category{% endblock %}
-{% block topbar_title %}Add Category{% endblock %}
-{% block topbar_sub %}Create a new ticket category{% endblock %}
+{% block page_class %}page-narrow{% endblock %}
 
 {% block body %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="page-header">
-      <h2><span class="ni">label</span> New Category</h2>
-      <a href="{% url 'category_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
-    </div>
-    <div class="card">
-      <div class="card-body">
-        <form method="POST">
-          {% csrf_token %}
-          {% for field in form %}
-          <div class="form-group">
-            <label>{{ field.label }}</label>
-            {{ field }}
-          </div>
-          {% endfor %}
-          <div style="display:flex;justify-content:flex-end;gap:10px;">
-            <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">Create Category</button>
-          </div>
-        </form>
-      </div>
-    </div>
+
+<a class="back" href="{% url 'category_list' %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
+
+<div class="page-head">
+  <div>
+    <h1>New Category</h1>
+    <p class="lede">Create a new ticket category.</p>
   </div>
 </div>
+
+<section class="panel">
+  <div class="panel-body panel-body-top">
+    <form method="POST" class="form">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="form-foot">
+        <a class="btn btn-secondary" href="{% url 'category_list' %}">Cancel</a>
+        <button type="submit" class="btn btn-primary">Create Category</button>
+      </div>
+    </form>
+  </div>
+</section>
+
 {% endblock %}

@@ -219,6 +219,14 @@ been working on lately.
   honesty-trap section above. Report is stored in PBIP format and
   version-controlled in the repo.
 
+- **2026-11-11** — Product redesign. Rebuilt every screen as a "triage
+  board": priority as a numbered square and a waiting clock on every open
+  ticket showing how much of its SLA window is used. The dashboard leads with
+  a sentence instead of KPI tiles, employees get a progress line per ticket,
+  and navigation moved to a top bar. Removed Bootstrap, jQuery and all CDNs,
+  so the app makes no outside requests. Added 22 tests. Write-up in
+  `docs/UI_PRODUCT_REDESIGN.md`.
+
 - **2026-09-09** — Full UI redesign. Rebuilt the badge matrix so status and
   priority can't be confused (outlined pills vs solid chips with rank
   glyphs), gave untriaged priority a real visual state instead of a bare

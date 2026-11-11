@@ -1,49 +1,77 @@
 {% extends 'base.html' %}
+{% load ui_extras %}
 {% block title %}{{ update_type }} Ticket{% endblock %}
-{% block topbar_title %}{{ update_type }} Ticket{% endblock %}
-{% block topbar_sub %}Make changes and save{% endblock %}
+{% block page_class %}page-mid{% endblock %}
 
 {% block body %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
 
-    <div class="page-header">
-      <h2>
-        {% if update_type == "Assign" %}✔ Approve & Assign Ticket
-        {% else %}✏ Update Ticket{% endif %}
-      </h2>
-      <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
-    </div>
+<a class="back" href="{% url 'ticket_detail' form.instance.id %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
 
-    <div class="card">
-      <div class="card-header">
-        <div class="card-header-title">
-          {% if update_type == "Assign" %}Set Priority & Assignee{% else %}Update Fields{% endif %}
-        </div>
-      </div>
-      <div class="card-body">
-        <form method="POST">
-          {% csrf_token %}
-          {% for field in form %}
-          <div class="form-group">
-            <label>{{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}</label>
-            {{ field }}
-            {% if field.errors %}
-              <div style="color:var(--danger);font-size:12px;margin-top:3px;">{{ field.errors.0 }}</div>
-            {% endif %}
-          </div>
-          {% endfor %}
-
-          <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
-            <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">
-              {% if update_type == "Assign" %}Approve & Assign{% else %}Save Changes{% endif %}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+<div class="page-head">
+  <div>
+    <h1>{% if update_type == "Assign" %}Approve &amp; Assign Ticket{% else %}Update Ticket{% endif %}</h1>
+    <p class="lede">{{ form.instance.number }} · {{ form.instance.title }}</p>
   </div>
 </div>
+
+<div class="cols cols-even">
+  <section class="panel" aria-labelledby="update-title">
+    <div class="panel-head">
+      <h2 id="update-title">{% if update_type == "Assign" %}Set Priority &amp; Assignee{% else %}Update Fields{% endif %}</h2>
+    </div>
+    <div class="panel-body">
+      <form method="POST" class="form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-error alert-inline">{% icon 'triangle-alert' %}<span>{{ form.non_field_errors.0 }}</span></div>
+        {% endif %}
+
+        {% for field in form %}
+        <div class="field{% if field.errors %} has-error{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required and not field.field.disabled %} <span class="req" aria-hidden="true">*</span>{% endif %}</label>
+          {{ field }}
+          {% if field.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ field.errors.0 }}</p>{% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="form-foot">
+          <a class="btn btn-secondary" href="{% url 'ticket_detail' form.instance.id %}">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            {% if update_type == "Assign" %}Approve &amp; Assign{% else %}Save Changes{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <aside class="stack">
+    {% if update_type == "Assign" %}
+    <section class="panel aside-note">
+      <div class="panel-body panel-body-top">
+        <h2>What the ticket says</h2>
+        <p class="prose" style="font-size: var(--fs-sm);">{{ form.instance.problem_descp }}</p>
+        <p style="margin-top: 0.625rem;">Raised by {{ form.instance.created_by|display_name }} in {{ form.instance.category }}, {{ form.instance.created_at|ago }}.</p>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="panel aside-note">
+      <div class="panel-body panel-body-top">
+        <h2>What each priority commits to</h2>
+        {% sla_windows as windows %}
+        <ul class="sla-key">
+          {% for window in windows %}
+          <li>
+            {% include 'partials/priority.html' with priority=window.priority %}
+            <span>resolved within {{ window.hours }} hours</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <p style="margin-top: 0.75rem;">The SLA clock starts the moment a priority is first set.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+
 {% endblock %}

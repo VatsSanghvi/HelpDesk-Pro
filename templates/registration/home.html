@@ -1,336 +1,329 @@
 {% extends 'base.html' %}
+{% load ui_extras %}
 {% block title %}Dashboard{% endblock %}
-{% block topbar_title %}Dashboard{% endblock %}
-{% block topbar_sub %}Welcome back, {{ request.user.first_name|capfirst }} — here's your overview{% endblock %}
 
 {% block body %}
 
-<!-- KPI Cards -->
-<div class="row mb-4" id="kpi-row">
-  <div class="col-md-3 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-blue" style="float:right;">confirmation_number</div>
-      <div class="kpi-label">Total Tickets</div>
-      <div class="kpi-value" id="kpi-total">—</div>
-      <div class="kpi-sub">All time</div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-orange" style="float:right;">hourglass_empty</div>
-      <div class="kpi-label">Open</div>
-      <div class="kpi-value" id="kpi-open">—</div>
-      <div class="kpi-sub">Needs attention</div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-green" style="float:right;">task_alt</div>
-      <div class="kpi-label">Resolved</div>
-      <div class="kpi-value" id="kpi-resolved">—</div>
-      <div class="kpi-sub">Completed + Cancelled</div>
-    </div>
-  </div>
-  <div class="col-md-3 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-purple" style="float:right;">bolt</div>
-      <div class="kpi-label">Avg Resolution</div>
-      <div class="kpi-value" id="kpi-avg">—</div>
-      <div class="kpi-sub">hours per ticket</div>
-    </div>
+<div class="page-head">
+  <div>
+    <h1>{{ headline }}</h1>
+    <p class="lede">{{ lede }}</p>
   </div>
 </div>
 
-<div class="row mb-4">
-  <div class="col-md-6 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-blue" style="float:right;">timer</div>
-      <div class="kpi-label">Avg First Response Time</div>
-      <div class="kpi-value" id="kpi-frt">—</div>
-      <div class="kpi-sub">hours until a Manager first engages</div>
+{% if request.user.role == "Viewer" %}
+{# ── Employee: where each of my tickets stands ───────────────────── #}
+<div class="cols">
+  <section class="panel" aria-labelledby="mine-title">
+    <div class="panel-head">
+      <h2 id="mine-title">Your open tickets</h2>
+      <a class="panel-link" href="{% url 'ticket_list' %}">All My Tickets {% icon 'arrow-right' 'i-sm' %}</a>
     </div>
-  </div>
-  <div class="col-md-6 mb-3">
-    <div class="kpi-card">
-      <div class="kpi-icon kpi-green" style="float:right;">star</div>
-      <div class="kpi-label">Avg CSAT Rating</div>
-      <div class="kpi-value" id="kpi-csat">—</div>
-      <div class="kpi-sub">out of 5, from resolved tickets rated so far</div>
-    </div>
-  </div>
-</div>
-
-<!-- Charts row -->
-<div class="row mb-4">
-  <!-- Volume chart -->
-  <div class="col-md-7 mb-3">
-    <div class="card h-100">
-      <div class="card-header">
-        <div>
-          <div class="card-header-title">Ticket Volume — Last 7 Days</div>
-          <div class="card-header-sub">By status</div>
+    {% if my_open %}
+    <ul class="rows">
+      {% for ticket in my_open %}
+      <li class="progress-row">
+        <div class="progress-head">
+          <div>
+            <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
+            <span class="t-meta">{{ ticket.number }} · {{ ticket.category }} · raised {{ ticket.get_created_at|date:"d M, H:i" }}</span>
+          </div>
+          <span class="t-meta nowrap">
+            {% if ticket.assigned_to %}With {{ ticket.assigned_to|display_name }}{% else %}Waiting for triage{% endif %}
+          </span>
         </div>
-      </div>
-      <div class="card-body" style="padding: 14px 18px !important;">
-        <canvas id="volumeChart" height="200"></canvas>
-      </div>
+        {% lifecycle ticket as steps %}
+        <ol class="steps" aria-label="Progress of {{ ticket.number }}">
+          {% for step in steps %}
+          <li class="step is-{{ step.state }}"{% if step.state == 'current' %} aria-current="step"{% endif %}>{{ step.name }}</li>
+          {% endfor %}
+        </ol>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty">
+      <h3>Nothing open right now</h3>
+      <p>When you raise a ticket it appears here, with each step it has reached.</p>
+      <a class="btn btn-primary" href="{% url 'ticket_create' %}">{% icon 'plus' %}Raise New Ticket</a>
     </div>
-  </div>
+    {% endif %}
+  </section>
 
-  <!-- Priority donut -->
-  <div class="col-md-5 mb-3">
-    <div class="card h-100">
-      <div class="card-header">
-        <div>
-          <div class="card-header-title">Priority Breakdown</div>
-          <div class="card-header-sub">Current open tickets</div>
-        </div>
+  <aside class="stack">
+    <section class="panel aside-note">
+      <div class="panel-body panel-body-top">
+        <h2>What happens after you raise a ticket</h2>
+        <ol>
+          <li>An admin reviews it, sets its priority and assigns it to a manager.</li>
+          <li>You get an email confirmation and a WhatsApp notification.</li>
+          <li>The manager works on it. Every change of status is sent to you.</li>
+          <li>Once it is completed you can rate how it was handled.</li>
+        </ol>
       </div>
-      <div class="card-body d-flex align-items-center justify-content-center" style="gap:24px;">
-        <canvas id="priorityChart" width="160" height="160" style="max-width:160px;max-height:160px;"></canvas>
-        <div id="priority-legend" style="font-size:13px; min-width:120px;"></div>
-      </div>
-    </div>
-  </div>
+    </section>
+
+    {% if my_closed %}
+    <section class="panel" aria-labelledby="closed-title">
+      <div class="panel-head"><h2 id="closed-title">Recently closed</h2></div>
+      <ul class="rows">
+        {% for ticket in my_closed %}
+        <li>
+          <a class="row-link" href="{% url 'ticket_detail' ticket.id %}">
+            <span class="row-title">{{ ticket.title }}</span>
+            <span class="row-meta">{{ ticket.number }} · {{ ticket.status }}{% if ticket.status == 'Completed' and not ticket.csat_rating %} · not rated yet{% endif %}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </aside>
 </div>
 
-<!-- Bottom row -->
-<div class="row mb-4">
-  <!-- Category breakdown -->
-  <div class="col-md-6 mb-3">
-    <div class="card h-100">
-      <div class="card-header">
-        <div class="card-header-title">Tickets by Category</div>
+{% else %}
+{# ── Admin and Manager: what needs attention, then the numbers ───── #}
+<div class="cols">
+  <div class="stack">
+    <section class="panel" aria-labelledby="board-title">
+      <div class="panel-head">
+        <h2 id="board-title">Open tickets</h2>
+        <span class="panel-note">Most urgent first</span>
+        <a class="panel-link" href="{% url 'ticket_list' %}">{% if request.user.role == "Admin" %}All Tickets{% else %}All Assigned{% endif %} {% icon 'arrow-right' 'i-sm' %}</a>
       </div>
-      <div class="card-body">
-        <div id="category-bars">
-          <div class="text-muted" style="font-size:13px;">Loading...</div>
-        </div>
+      {% if board %}
+      <div class="table-wrap">
+        <table class="table table-stack">
+          <thead>
+            <tr>
+              <th>Priority</th>
+              <th>Ticket</th>
+              {% if request.user.role == "Admin" %}<th class="hide-sm">Assignee</th>{% endif %}
+              <th>Time against SLA</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ticket in board %}
+            <tr>
+              <td class="col-tight c-prio">{% include 'partials/priority.html' with priority=ticket.priority %}</td>
+              <td class="c-main">
+                <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
+                <span class="t-meta">{{ ticket.number }} · {{ ticket.category }} · {{ ticket.status }}</span>
+              </td>
+              {% if request.user.role == "Admin" %}
+              <td class="c-person hide-sm nowrap">{{ ticket.assigned_to|display_name|default:"Unassigned" }}</td>
+              {% endif %}
+              <td class="col-tight c-sla">{% include 'partials/clock.html' with ticket=ticket focusable=True index=forloop.counter0 %}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if board_more %}
+      <a class="row-more" href="{% url 'ticket_list' %}" style="border-top: 1px solid var(--rule);">and {{ board_more }} more with a later deadline</a>
+      {% endif %}
+      {% else %}
+      <div class="empty">
+        <h3>No tickets on the clock</h3>
+        <p>{% if request.user.role == "Admin" %}A ticket's SLA clock starts when you set its priority and assign it.{% else %}Tickets appear here as soon as an Admin assigns them to you.{% endif %}</p>
+      </div>
+      {% endif %}
+    </section>
+
+    <div class="figures" aria-label="Service figures">
+      <div class="figure"><b>{{ open_count }}</b><span>open</span></div>
+      <div class="figure{% if late_count %} is-alert{% endif %}"><b>{{ late_count }}</b><span>past SLA deadline</span></div>
+      {% if request.user.role == "Admin" %}
+      <div class="figure"><b>{{ untriaged_count }}</b><span>waiting for triage</span></div>
+      {% else %}
+      <div class="figure"><b>{{ resolved_count }}</b><span>resolved</span></div>
+      {% endif %}
+      <div class="figure{% if avg_resolution is None %} is-empty{% endif %}">
+        <b>{% if avg_resolution is None %}–{% else %}{{ avg_resolution }} h{% endif %}</b><span>average resolution</span>
+      </div>
+      <div class="figure{% if avg_first_response is None %} is-empty{% endif %}">
+        <b>{% if avg_first_response is None %}–{% else %}{{ avg_first_response }} h{% endif %}</b>
+        <span>average first response{% if avg_first_response is None %}, none recorded yet{% endif %}</span>
+      </div>
+      <div class="figure{% if avg_csat is None %} is-empty{% endif %}">
+        <b>{% if avg_csat is None %}–{% else %}{{ avg_csat }} / 5{% endif %}</b>
+        <span>CSAT rating{% if avg_csat is None %}, no tickets rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
       </div>
     </div>
   </div>
 
-  <!-- Team workload (admin) / SLA info (manager) -->
-  {% if request.user.role == "Admin" %}
-  <div class="col-md-6 mb-3">
-    <div class="card h-100">
-      <div class="card-header">
-        <div class="card-header-title">Team Workload</div>
+  <aside class="stack">
+    {% if request.user.role == "Admin" %}
+    <section class="panel" aria-labelledby="triage-title">
+      <div class="panel-head">
+        <h2 id="triage-title">Waiting for triage</h2>
+        {% if untriaged_count %}<span class="panel-count">{{ untriaged_count }}</span>{% endif %}
       </div>
-      <div class="card-body" style="padding-top:12px !important;">
-        <div id="team-list">
-          <div class="text-muted" style="font-size:13px;">Loading...</div>
+      {% if untriaged %}
+      <ul class="rows">
+        {% for ticket in untriaged %}
+        <li>
+          <a class="row-link" href="{% url 'ticket_detail' ticket.id %}">
+            <span class="row-title">{{ ticket.title }}</span>
+            <span class="row-meta">{{ ticket.number }} · {{ ticket.created_by|display_name }} · {{ ticket.created_at|ago }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if untriaged_more %}<span class="row-more" style="border-top: 1px solid var(--rule);">and {{ untriaged_more }} more</span>{% endif %}
+      <div class="panel-foot">
+        <a class="btn btn-primary btn-block" href="{% url 'ticket_list_status' 'Pending' %}">Triage new tickets</a>
+      </div>
+      {% else %}
+      <p class="empty-inline">Nothing is waiting. Every ticket raised so far has a priority and an owner.</p>
+      {% endif %}
+    </section>
+
+    <section class="panel" aria-labelledby="team-title">
+      <div class="panel-head"><h2 id="team-title">Team workload</h2></div>
+      {% if team %}
+      <div class="rows">
+        {% for member in team %}
+        <div class="row load">
+          <span><span class="load-name">{{ member.user|display_name }}</span>{% if member.late %}<span class="load-late">{{ member.late }} late</span>{% endif %}</span>
+          <span class="load-open">{{ member.open }} open</span>
+          <span class="meter" aria-hidden="true"><i style="--share: {{ member.share }}%"></i></span>
         </div>
+        {% endfor %}
       </div>
-    </div>
-  </div>
-  {% else %}
-  <div class="col-md-6 mb-3">
-    <div class="card h-100">
-      <div class="card-header">
-        <div class="card-header-title">Quick Actions</div>
+      {% else %}
+      <p class="empty-inline">No managers yet. <a href="{% url 'user_create' %}">Add a user</a> with the Manager role to assign tickets.</p>
+      {% endif %}
+    </section>
+
+    {% else %}
+    <section class="panel" aria-labelledby="stages-title">
+      <div class="panel-head"><h2 id="stages-title">Your queue by stage</h2></div>
+      <ul class="rows">
+        {% for stage in stages %}
+        <li>
+          <a class="row-link stage-row" href="{% url 'ticket_list_status' stage.status %}">
+            {% include 'partials/status.html' with status=stage.status %}
+            <span class="stage-n">{{ stage.count }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="panel-foot">
+        <a class="btn btn-secondary btn-block" href="{% url 'my_tickets' %}">My Open Tickets</a>
       </div>
-      <div class="card-body">
-        {% if request.user.role == "Viewer" %}
-        <a href="{% url 'ticket_create' %}" class="btn btn-primary btn-block mb-2"><span class="ni">add_circle</span> Raise New Ticket</a>
-        <a href="{% url 'ticket_list' %}" class="btn btn-outline-primary btn-block"><span class="ni">assignment</span> View My Tickets</a>
-        {% else %}
-        <a href="{% url 'ticket_list' %}" class="btn btn-primary btn-block mb-2"><span class="ni">assignment</span> View Assigned Tickets</a>
-        <a href="{% url 'ticket_list_status' 'In Progress' %}" class="btn btn-outline-primary btn-block"><span class="ni">autorenew</span> In Progress</a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
+    </section>
+    {% endif %}
+  </aside>
 </div>
 
-<!-- Recent tickets table -->
-<div class="card">
-  <div class="card-header">
-    <div>
-      <div class="card-header-title">Recent Tickets</div>
-      <div class="card-header-sub">Latest activity</div>
+<div class="trio section-gap">
+  <section class="panel" aria-labelledby="volume-title">
+    <div class="panel-head"><h2 id="volume-title">Ticket volume, last 7 days</h2><span class="panel-note">By current status</span></div>
+    <div class="panel-body">
+      <div class="chart-legend" aria-hidden="true">
+        <span><i style="--swatch: #0d5a41"></i>Open</span>
+        <span><i style="--swatch: #8fbfa8"></i>Resolved</span>
+        <span><i style="--swatch: #c9d6ce"></i>Pending</span>
+      </div>
+      <div class="chart-box"><canvas id="volumeChart" role="img" aria-label="Tickets raised on each of the last seven days, by current status"></canvas></div>
     </div>
-    <a href="{% url 'ticket_list' %}" class="btn btn-outline-primary btn-sm">View all →</a>
-  </div>
-  <div class="card-body" style="padding: 0 !important;">
-    <div id="recent-tickets-table">
-      <div style="padding: 20px; color: var(--text-muted); font-size:13px;">Loading tickets...</div>
-    </div>
-  </div>
+  </section>
+
+  <section class="panel" aria-labelledby="priority-title">
+    <div class="panel-head"><h2 id="priority-title">Priority breakdown</h2><span class="panel-note">All tickets</span></div>
+    <div class="panel-body"><div class="bars" id="priority-bars"><p class="muted">Loading…</p></div></div>
+  </section>
+
+  <section class="panel" aria-labelledby="category-title">
+    <div class="panel-head"><h2 id="category-title">Tickets by category</h2><span class="panel-note">All tickets</span></div>
+    <div class="panel-body"><div class="bars" id="category-bars"><p class="muted">Loading…</p></div></div>
+  </section>
 </div>
+{% endif %}
 
 {% endblock %}
 
 {% block js %}
+{% if request.user.role != "Viewer" %}
+{% load static %}
+<script src="{% static 'vendor/chart.umd.js' %}" defer></script>
 <script>
-// Kept in sync with the badge matrix in main.css — a donut slice and its
-// table badge must be the same colour or the palette reads as accidental.
-const PRIORITY_COLORS = { High: '#E11D48', Moderate: '#D97706', Low: '#2563EB', None: '#94A3B8' };
-const STATUS_COLORS   = { Open: '#0EA5E9', Resolved: '#059669', Pending: '#64748B' };
+// Charts read the same analytics endpoint the REST API exposes, so what is
+// drawn here is exactly what an integration would receive.
+document.addEventListener('DOMContentLoaded', function () {
+  var css = getComputedStyle(document.documentElement);
+  var token = function (name) { return css.getPropertyValue(name).trim(); };
+  var escape = function (text) {
+    var span = document.createElement('span');
+    span.textContent = text;
+    return span.innerHTML;
+  };
 
-// Fetch analytics from the API endpoint we built
-fetch('/api/v1/analytics/dashboard/', {
-  headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-  credentials: 'same-origin',
-})
-.then(r => r.json())
-.then(data => {
-  const kpis   = data.kpis;
-  const charts = data.charts;
-
-  // ── KPI cards ──────────────────────────────────────────────────
-  document.getElementById('kpi-total').textContent    = kpis.total ?? '—';
-  document.getElementById('kpi-open').textContent     = kpis.open  ?? '—';
-  document.getElementById('kpi-resolved').textContent = kpis.resolved ?? '—';
-  document.getElementById('kpi-avg').textContent      = kpis.avg_resolution_hours != null
-    ? kpis.avg_resolution_hours + 'h' : 'N/A';
-  document.getElementById('kpi-frt').textContent      = kpis.avg_first_response_hours != null
-    ? kpis.avg_first_response_hours + 'h' : 'N/A';
-  document.getElementById('kpi-csat').textContent     = kpis.avg_csat_rating != null
-    ? kpis.avg_csat_rating + ' / 5' : 'N/A';
-
-  // ── Volume bar chart ───────────────────────────────────────────
-  const vCtx = document.getElementById('volumeChart').getContext('2d');
-  new Chart(vCtx, {
-    type: 'bar',
-    data: {
-      labels: charts.daily_volume.map(d => d.date),
-      datasets: [
-        { label: 'Open',     data: charts.daily_volume.map(d => d.open),     backgroundColor: STATUS_COLORS.Open,     borderRadius: 4 },
-        { label: 'Resolved', data: charts.daily_volume.map(d => d.resolved), backgroundColor: STATUS_COLORS.Resolved, borderRadius: 4 },
-        { label: 'Pending',  data: charts.daily_volume.map(d => d.pending),  backgroundColor: STATUS_COLORS.Pending,  borderRadius: 4 },
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top', labels: { font: { size: 12 }, boxWidth: 12 } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
-        y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 12 }, stepSize: 1 } }
-      }
-    }
-  });
-
-  // ── Priority donut ─────────────────────────────────────────────
-  const pd = charts.priority_dist;
-  const labels = Object.keys(pd).filter(k => k && k !== 'null');
-  const vals   = labels.map(k => pd[k]);
-  const colors = labels.map(k => PRIORITY_COLORS[k] || '#CBD5E1');
-
-  const pCtx = document.getElementById('priorityChart').getContext('2d');
-  new Chart(pCtx, {
-    type: 'doughnut',
-    data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 0 }] },
-    options: { responsive: false, cutout: '70%', plugins: { legend: { display: false } } }
-  });
-
-  // Legend
-  const leg = document.getElementById('priority-legend');
-  labels.forEach((l, i) => {
-    const total = vals.reduce((a, b) => a + b, 0);
-    const pct   = total ? Math.round(vals[i] / total * 100) : 0;
-    leg.innerHTML += `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-        <span style="width:10px;height:10px;border-radius:3px;background:${colors[i]};display:inline-block;flex-shrink:0;"></span>
-        <span style="flex:1;color:var(--text-muted);">${l}</span>
-        <strong style="color:var(--text);">${pct}%</strong>
-      </div>`;
-  });
-
-  // ── Category bars ──────────────────────────────────────────────
-  const catEl = document.getElementById('category-bars');
-  catEl.innerHTML = '';
-  const maxCount = Math.max(...charts.category_breakdown.map(c => c.count), 1);
-  charts.category_breakdown.forEach(c => {
-    const pct = Math.round(c.count / maxCount * 100);
-    catEl.innerHTML += `
-      <div style="margin-bottom:12px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-          <span style="color:var(--text);font-weight:500;">${c.name}</span>
-          <span style="color:var(--text-muted);">${c.count}</span>
-        </div>
-        <div style="background:#F1F5F9;border-radius:4px;height:7px;">
-          <div style="width:${pct}%;background:var(--primary);border-radius:4px;height:7px;transition:width 0.6s;"></div>
-        </div>
-      </div>`;
-  });
-  if (!charts.category_breakdown.length) {
-    catEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">No category data yet.</div>';
+  function bars(target, rows, emptyText) {
+    var el = document.getElementById(target);
+    if (!rows.length) { el.innerHTML = '<p class="muted">' + emptyText + '</p>'; return; }
+    var most = Math.max.apply(null, rows.map(function (row) { return row.count; }).concat(1));
+    el.innerHTML = rows.map(function (row) {
+      return '<div class="bar ' + (row.cls || '') + '">' +
+        '<span class="bar-name">' + escape(row.name) + '</span>' +
+        '<span class="bar-n">' + row.count + '</span>' +
+        '<span class="meter" aria-hidden="true"><i style="--share: ' + Math.round(row.count / most * 100) + '%"></i></span>' +
+        '</div>';
+    }).join('');
   }
 
-  // ── Team workload (admin only) ─────────────────────────────────
-  const teamEl = document.getElementById('team-list');
-  if (teamEl && charts.team_workload.length) {
-    teamEl.innerHTML = '';
-    charts.team_workload.forEach(m => {
-      teamEl.innerHTML += `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
-          <div style="width:32px;height:32px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--primary);flex-shrink:0;">
-            ${m.name.split(' ').map(n=>n[0]).join('')}
-          </div>
-          <div style="flex:1;">
-            <div style="font-weight:600;font-size:13px;color:var(--text);">${m.name}</div>
-            <div style="font-size:11px;color:var(--text-muted);">${m.open} open · ${m.resolved} resolved</div>
-          </div>
-          <div style="font-size:13px;font-weight:700;color:var(--text);">${m.total}</div>
-        </div>`;
+  fetch('/api/v1/analytics/dashboard/', { credentials: 'same-origin' })
+    .then(function (response) {
+      if (!response.ok) throw new Error('analytics ' + response.status);
+      return response.json();
+    })
+    .then(function (data) {
+      var charts = data.charts;
+
+      var dist = charts.priority_dist;
+      bars('priority-bars', [
+        { name: 'High', count: dist.High || 0, cls: 'bar-high' },
+        { name: 'Moderate', count: dist.Moderate || 0, cls: 'bar-moderate' },
+        { name: 'Low', count: dist.Low || 0, cls: 'bar-low' },
+        { name: 'Untriaged', count: dist['null'] || dist.None || 0, cls: 'bar-none' }
+      ].filter(function (row) { return row.count; }), 'No tickets yet.');
+
+      bars('category-bars', charts.category_breakdown, 'No category data yet.');
+
+      Chart.defaults.font.family = token('--font');
+      Chart.defaults.font.size = 12.5;
+      Chart.defaults.color = token('--ink-2');
+      var days = charts.daily_volume;
+      var series = function (key, label, color) {
+        return { label: label, data: days.map(function (day) { return day[key]; }), backgroundColor: color, borderRadius: 2, maxBarThickness: 40 };
+      };
+      new Chart(document.getElementById('volumeChart'), {
+        type: 'bar',
+        data: {
+          labels: days.map(function (day) { return day.date; }),
+          datasets: [series('open', 'Open', '#0d5a41'), series('resolved', 'Resolved', '#8fbfa8'), series('pending', 'Pending', '#c9d6ce')]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: token('--ink'), padding: 10, cornerRadius: 6, boxPadding: 4 }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false }, border: { color: token('--rule-strong') } },
+            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 }, grid: { color: token('--rule') }, border: { display: false } }
+          }
+        }
+      });
+    })
+    .catch(function () {
+      ['priority-bars', 'category-bars'].forEach(function (id) {
+        document.getElementById(id).innerHTML = '<p class="muted">Could not load this chart. Reload the page to try again.</p>';
+      });
+      document.querySelector('.chart-box').innerHTML = '<p class="muted">Could not load this chart. Reload the page to try again.</p>';
     });
-    // Remove last border
-    if (teamEl.lastChild) teamEl.lastChild.style.borderBottom = 'none';
-  } else if (teamEl) {
-    teamEl.innerHTML = '<div style="color:var(--text-muted);font-size:13px;">No manager data.</div>';
-  }
-
-  // ── Recent tickets table ───────────────────────────────────────
-  loadRecentTickets();
-})
-.catch(err => {
-  console.error('Dashboard API error:', err);
-  // Silently fall back — the ticket table still loads separately
-  loadRecentTickets();
 });
-
-function loadRecentTickets() {
-  fetch('/api/v1/tickets/?ordering=-created_at&page=1', { credentials: 'same-origin' })
-  .then(r => r.json())
-  .then(data => {
-    const tickets = data.results || [];
-    const el = document.getElementById('recent-tickets-table');
-    if (!tickets.length) {
-      el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px;">No tickets yet.</div>';
-      return;
-    }
-    const statusClass = {
-      'Pending':'sbadge-Pending','Assigned':'sbadge-Assigned','Scoping':'sbadge-Scoping',
-      'In Progress':'sbadge-InProgress','Completed':'sbadge-Completed',
-      'Cancelled':'sbadge-Cancelled','Rejected':'sbadge-Rejected'
-    };
-    const prioClass = { High:'pbadge-High', Moderate:'pbadge-Moderate', Low:'pbadge-Low' };
-    let html = `<div style="overflow-x:auto;"><table class="table table-hover">
-      <thead><tr>
-        <th>Ticket #</th><th>Title</th><th>Category</th>
-        <th>Priority</th><th>Assigned To</th><th>Status</th><th>Updated</th>
-      </tr></thead><tbody>`;
-    tickets.slice(0, 8).forEach(t => {
-      const updated = new Date(t.updated_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-      html += `<tr>
-        <td><a href="/ticket_detail/${t.id}" class="ticket-link">${t.number}</a></td>
-        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</td>
-        <td>${t.category_name || '—'}</td>
-        <td>${t.priority ? `<span class="sbadge ${prioClass[t.priority]||''}">${t.priority}</span>` : `<span class="sbadge pbadge-None">Untriaged</span>`}</td>
-        <td>${t.assigned_to ? t.assigned_to.full_name : '<span style="color:var(--text-muted)">Unassigned</span>'}</td>
-        <td><span class="sbadge ${statusClass[t.status]||''}">${t.status||'—'}</span></td>
-        <td style="color:var(--text-muted);font-size:12px;">${updated}</td>
-      </tr>`;
-    });
-    html += '</tbody></table></div>';
-    el.innerHTML = html;
-  })
-  .catch(() => {
-    document.getElementById('recent-tickets-table').innerHTML =
-      '<div style="padding:16px;color:var(--text-muted);font-size:13px;">Could not load tickets.</div>';
-  });
-}
 </script>
+{% endif %}
 {% endblock %}

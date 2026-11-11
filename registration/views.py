@@ -15,10 +15,11 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required, my_user_details
 
+from vats.dashboard import build_dashboard
+
 @login_required
 def home(request):
-    context = {}
-    return render(request, 'registration/home.html', context)
+    return render(request, 'registration/home.html', build_dashboard(request.user))
 
 # USER CBV
 @method_decorator(login_required, name='dispatch')

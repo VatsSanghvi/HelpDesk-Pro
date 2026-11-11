@@ -384,7 +384,7 @@ def ticket_reject(request,id):
 def status_change_email_function(request,id):
     ticket = Ticket.objects.get(id=id)
     ticket.save()
-    messages.success(request, 'Your tickit status has changed successfully.')
+    messages.success(request, 'Your ticket status has changed successfully.')
 
     # Shared path for Scoping / In Progress / Completed, so the requester gets
     # told about every move without duplicating this in three views.
@@ -588,8 +588,11 @@ def subcategory_list(request, id):
 @admin_required
 def subcategory_delete(request, id):
     subcategory = Subcategory.objects.get(id=id)
+    category_id = subcategory.category_id
     subcategory.delete()
-    return redirect('subcategory_list')
+    # Back to the list it was deleted from. The route needs the category id;
+    # redirecting without it raised NoReverseMatch after every delete.
+    return redirect('subcategory_list', category_id)
 
 
 

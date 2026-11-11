@@ -1,38 +1,48 @@
 {% extends 'base.html' %}
-{% block title %}User{% endblock %}
-{% block topbar_title %}User{% endblock %}
-{% block topbar_sub %}Create or update a system user{% endblock %}
-{% load crispy_forms_tags %}
+{% load ui_extras %}
+{% block title %}{% if object %}Edit User{% else %}Add User{% endif %}{% endblock %}
+{% block page_class %}page-narrow{% endblock %}
 
 {% block body %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
 
-    <div class="page-header">
-      <h2><span class="ni">person</span> {% if object %}Edit User{% else %}Add New User{% endif %}</h2>
-      <a href="{% url 'user_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
-    </div>
+{% if object %}
+<a class="back" href="{% url 'profile' object.id %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
+{% else %}
+<a class="back" href="{% url 'user_list' %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
+{% endif %}
 
-    <div class="card">
-      <div class="card-header"><div class="card-header-title">User Details</div></div>
-      <div class="card-body">
-        <form method="POST">
-          {% csrf_token %}
-          {% for field in form %}
-          <div class="form-group">
-            <label>{{ field.label }}{% if field.field.required %} <span style="color:red;">*</span>{% endif %}</label>
-            {{ field }}
-            {% if field.help_text %}<small style="color:var(--text-muted);font-size:11px;">{{ field.help_text }}</small>{% endif %}
-            {% if field.errors %}<div style="color:var(--danger);font-size:12px;margin-top:3px;">{{ field.errors.0 }}</div>{% endif %}
-          </div>
-          {% endfor %}
-          <div style="display:flex;justify-content:flex-end;gap:10px;">
-            <a href="{% url 'user_list' %}" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Create User{% endif %}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+<div class="page-head">
+  <div>
+    <h1>{% if object %}Edit User{% else %}Add New User{% endif %}</h1>
+    <p class="lede">{% if object %}{{ object.email }}{% else %}Create an account and choose what this person can do.{% endif %}</p>
   </div>
 </div>
+
+<section class="panel" aria-labelledby="user-form-title">
+  <div class="panel-head"><h2 id="user-form-title">User Details</h2></div>
+  <div class="panel-body">
+    <form method="POST" class="form">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-error alert-inline">{% icon 'triangle-alert' %}<span>{{ form.non_field_errors.0 }}</span></div>
+      {% endif %}
+
+      {% for field in form %}
+      <div class="field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req" aria-hidden="true">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ field.errors.0 }}</p>{% endif %}
+        {% if field.help_text %}<div class="field-help">{{ field.help_text }}</div>{% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="form-foot">
+        <a class="btn btn-secondary" href="{% if object %}{% url 'profile' object.id %}{% else %}{% url 'user_list' %}{% endif %}">Cancel</a>
+        <button type="submit" class="btn btn-primary">{% if object %}Save Changes{% else %}Create User{% endif %}</button>
+      </div>
+    </form>
+  </div>
+</section>
+
 {% endblock %}

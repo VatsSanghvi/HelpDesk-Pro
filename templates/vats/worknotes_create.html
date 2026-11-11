@@ -1,10 +1,25 @@
 {% extends 'base.html' %}
-{%load crispy_forms_tags %} 
+{% load ui_extras %}
+{% block title %}Cancel Ticket{% endblock %}
+{% block page_class %}page-narrow{% endblock %}
+
 {% block body %}
-<h1>Comments for cancelling the ticket.</h1>
-<form method="POST">
-    {% csrf_token %}
-    {{form|crispy}}
-    <input type='submit' class="btn btn-primary" value="Submit">
-</form>
-{% endblock body %}
+<div class="page-head">
+  <div><h1>Comments for cancelling the ticket</h1></div>
+</div>
+<section class="panel">
+  <div class="panel-body panel-body-top">
+    <form method="POST" class="form">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="form-foot"><button type="submit" class="btn btn-primary">Submit</button></div>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -31,6 +31,19 @@ A full-stack IT helpdesk and ticket management system built with **Django**, wit
 
 ---
 
+## 🖥 The interface
+
+The app is designed as a **triage board**. The room is a calm green so that red is unmissable, priority is a numbered square (1 High, 2 Moderate, 3 Low, dashed for Untriaged), and every open ticket carries a **waiting clock**: a banded track showing how much of its SLA window is used, with the marker moving into amber for the last quarter and red once the deadline has passed.
+
+- **Dashboard, per role.** The Admin's opens with one sentence ("3 tickets are past their SLA deadline"), then the open tickets ordered by urgency, the tickets waiting for triage, and team workload. A Manager sees the same for their own queue. An employee sees each of their tickets on a five-step progress line.
+- **Ticket list.** Status tabs with live counts, search, bulk actions, CSV and Excel export. On a narrow screen each row becomes a readable block instead of a table that scrolls sideways.
+- **Ticket page.** Progress, description and the audit trail on the left, the facts on the right, and the next action for your role in the header.
+- **Nothing loads from outside.** Fonts, icons, styles and charts ship with the app, so it runs on a locked-down network and sends no visitor data to third parties.
+
+The reasoning behind the design is in [`docs/UI_PRODUCT_REDESIGN.md`](docs/UI_PRODUCT_REDESIGN.md); the rules it follows are in [`DESIGN.md`](DESIGN.md).
+
+---
+
 ## 📊 Power BI Report
 
 Four pages on a shared 1280×720 grid. Every page carries the same five slicers — created-date range, category, priority, status, assignee — so a filter applied anywhere holds across the whole report.
@@ -92,7 +105,7 @@ powerbi/
 |---|---|
 | Backend | Python 3.13, Django 5.1 |
 | REST API | Django REST Framework 3.15, django-filter |
-| Frontend | Django templates, Bootstrap 4, Chart.js 4 |
+| Frontend | Django templates, a self-contained CSS design system (no framework), Chart.js 4 shipped with the app |
 | Business Intelligence | Power BI Desktop (PBIP/PBIR), DAX, Power Query (M) |
 | Database | SQLite (dev) / MySQL (production-ready) |
 | Notifications | Twilio (WhatsApp), Gmail SMTP |
@@ -135,6 +148,17 @@ python manage.py runserver
 
 Visit http://localhost:8000
 
+### 6. Demo data (optional)
+```bash
+python manage.py seed_data
+```
+Creates a fictional company with 5 categories, 9 users and about 30 tickets, dated relative to now so the SLA clocks show a realistic mix of on-time, close and late. Run it again with `--retime` before a demo to refresh the dates.
+
+### 7. Tests
+```bash
+python manage.py test
+```
+
 ---
 
 ## 📡 API Endpoints
@@ -174,7 +198,11 @@ Visit http://localhost:8000
 │   ├── serializers.py        # DRF serializers (compact list / full detail)
 │   └── filters.py            # django-filter FilterSets
 ├── templates/                # Django templates — sidebar layout, dashboard, forms
-├── static/css/main.css       # Custom design system over Bootstrap 4
+├── static/
+│   ├── css/main.css          # The design system: tokens, components, responsive rules
+│   ├── js/app.js             # Menus, bulk selection, tooltips — no framework
+│   ├── fonts/  vendor/       # Typeface and Chart.js, shipped with the app
+├── PRODUCT.md  DESIGN.md     # Who the product is for, and the design system's rules
 ├── docs/
 │   ├── INTERVIEW_CHEATSHEET.md   # Concepts, talking points, trade-offs
 │   ├── UI_REDESIGN.md            # The redesign write-up

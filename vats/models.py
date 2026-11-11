@@ -186,6 +186,13 @@ class Ticket(models.Model):
         date = self.updated_at + timedelta(days=0, hours=5, minutes=30)
         return date
 
+    def get_due_by(self):
+        """The SLA deadline in the same display offset as the other timestamps,
+        so a ticket's created, updated and due times can be read together."""
+        if not self.due_by:
+            return None
+        return self.due_by + timedelta(days=0, hours=5, minutes=30)
+
     def work_note_list(self):
         return Worknote.objects.filter(ticket=self).order_by('-created_at')
 
@@ -282,15 +289,56 @@ class Ticket(models.Model):
 
     @property
     def sla_icon(self):
+        """Icon name in the sprite (templates/partials/icons.html) for the SLA state."""
         return {
-            'breached':  'warning',
-            'critical':  'alarm',
-            'remaining': 'schedule',
-            'met':       'check_circle',
-            'missed':    'running_with_errors',
-            'suspended': 'pause_circle',
-            'no_sla':    'block',
-        }.get(self.sla_state, 'schedule')
+            'breached':  'triangle-alert',
+            'critical':  'alarm-clock',
+            'remaining': 'clock',
+            'met':       'circle-check',
+            'missed':    'clock-alert',
+            'suspended': 'circle-pause',
+            'no_sla':    'ban',
+        }.get(self.sla_state, 'clock')
+
+    @property
+    def sla_window_hours(self):
+        """Hours this ticket's priority allows, from settings.SLA_HOURS."""
+        sla_hours = getattr(settings, 'SLA_HOURS', {'High': 4, 'Moderate': 24, 'Low': 72})
+        return sla_hours.get(self.priority)
+
+    # The waiting clock's track is wider than the SLA window so that a breach
+    # has somewhere to go: the window fills the first three quarters, and the
+    # last quarter is overtime.
+    SLA_TRACK_SPAN = 4 / 3
+
+    @property
+    def sla_clock(self):
+        """
+        Where an open ticket stands inside its SLA window, for the waiting
+        clock. None for tickets with no running clock (untriaged, or closed —
+        those get a verdict from sla_label instead).
+
+        Returns:
+          pct   0-100, the marker's position along the track
+          tone  'ok' | 'soon' | 'late'
+          used  share of the window consumed, as a whole percentage
+        'soon' starts at the last quarter of the window or the last hour,
+        whichever comes first, so a 72-hour ticket warns earlier than one hour
+        out while a 4-hour ticket is not amber for most of its life.
+        """
+        if self.sla_state not in ('remaining', 'critical', 'breached'):
+            return None
+        window = (self.sla_window_hours or 24) * 3600
+        seconds_left = (self.due_by - timezone.now()).total_seconds()
+        used = (window - seconds_left) / window
+        if seconds_left < 0:
+            tone = 'late'
+        elif used >= 0.75 or seconds_left <= 3600:
+            tone = 'soon'
+        else:
+            tone = 'ok'
+        pct = max(0.0, min(used / self.SLA_TRACK_SPAN, 1.0)) * 100
+        return {'pct': round(pct, 1), 'tone': tone, 'used': max(0, round(used * 100))}
 
     @property
     def first_response_time_hours(self):
@@ -385,13 +433,13 @@ class Notification(models.Model):
 
     @property
     def icon(self):
-        """Material Symbols name for the bell dropdown."""
+        """Icon name in the sprite for the bell dropdown."""
         return {
-            "Assigned": "assignment_ind",
-            "Status":   "sync_alt",
-            "Comment":  "chat",
-            "SLA":      "warning",
-        }.get(self.kind, "notifications")
+            "Assigned": "user-plus",
+            "Status":   "history",
+            "Comment":  "message-circle",
+            "SLA":      "triangle-alert",
+        }.get(self.kind, "bell")
 
     def get_created_at(self):
         return self.created_at + timedelta(days=0, hours=5, minutes=30)

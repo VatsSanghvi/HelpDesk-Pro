@@ -3,6 +3,50 @@
 Every entry here is written for interview storytelling, not just as a commit
 log: what changed, why it mattered, and what problem it solved. Newest first.
 
+## [v3.0] — 2026-11-11 — Product redesign: the triage board
+
+**Why:** The goal changed from "a portfolio project" to "something a business
+would pay for". A buyer watching a demo should think two things in the first
+ten seconds: *this team is in control* and *my staff could use this today*.
+The previous UI was a tidy admin template (dark sidebar, white KPI cards,
+tinted icon tiles) and said neither.
+
+- Rebuilt every screen around one idea: an emergency-department triage board.
+  Priority is a numbered square, and every open ticket carries a **waiting
+  clock** showing how much of its SLA window is used.
+- The Admin dashboard now opens with a sentence, not six KPI tiles, followed
+  by open tickets most urgent first, tickets waiting for triage, and team
+  workload with late counts per person.
+- Employees get a dashboard that actually works for them: each ticket on a
+  five-step progress line. (Before, the Viewer dashboard called an analytics
+  API that Viewers are not allowed to use, so its cards stayed empty.)
+- Navigation moved from a sidebar to a top bar, freeing the full width for
+  the ticket table. The personal queue and status filters became controls on
+  the ticket page rather than separate menu entries.
+- Removed Bootstrap, jQuery, Popper and three CDNs. Fonts, icons, styles and
+  Chart.js now ship with the app: it makes no outside requests.
+- Works on a phone: ticket tables become stacked blocks through container
+  queries, and the navigation collapses into a menu.
+- The seed command now dates tickets relative to now (`seed_data --retime`),
+  so a demo shows a working desk rather than 12 tickets a month overdue.
+- Added a test suite (22 tests): the SLA clock, the dashboard summary, and
+  every screen for every role.
+- Fixed along the way: deleting a subcategory crashed on redirect; the SLA
+  due time was shown in a different time offset from created and updated;
+  assignee dropdowns listed email addresses instead of names.
+
+Designed with the Impeccable plugin for Claude Code. The owner chose the
+direction from five rendered options.
+
+**Files touched:** `static/css/main.css` (rewritten), `static/js/app.js`,
+`static/fonts/`, `static/vendor/`, every file in `templates/`,
+`vats/dashboard.py` (new), `vats/models.py`, `vats/forms.py`,
+`vats/templatetags/ui_extras.py`, `vats/context_processors.py`,
+`vats/management/commands/seed_data.py`, `vats/tests.py`,
+`registration/views.py`, `registration/forms.py`, `PRODUCT.md`, `DESIGN.md`.
+
+---
+
 ## [v2.2] — 2026-09-03 — CSAT, First Response Time, My Tickets, Bulk Actions
 
 **Why:** After analytics/SLA tracking (v2.1) was in place, the two obvious

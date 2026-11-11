@@ -1,52 +1,68 @@
 {% extends 'base_auth.html' %}
-{% block title %}Login{% endblock %}
-{% load crispy_forms_tags %}
+{% load ui_extras %}
+{% block title %}Sign in{% endblock %}
 
 {% block body %}
-<div class="login-page">
-  <div class="login-card">
+<div class="auth">
 
-    <div class="login-logo">
-      <div class="logo-box"><span class="ni">confirmation_number</span></div>
-      <h4>HelpDesk Pro</h4>
-      <p>IT Support Management Portal</p>
-    </div>
+  <div class="auth-side">
+    <span class="brand">{% include 'partials/mark.html' %}<span>HelpDesk Pro</span></span>
 
-    {% if form.errors %}
-    <div class="alert alert-danger" style="font-size:13px;">
-      Invalid email or password. Please try again.
-    </div>
-    {% endif %}
+    <div class="auth-pitch">
+      <h1>IT support with every ticket on the clock.</h1>
+      <p>Employees raise a request, the IT team triages it, and each ticket is worked against a clear deadline that everyone can see.</p>
 
-    <form method="POST">
-      {% csrf_token %}
-      <div class="form-group">
-        <label>Email Address</label>
-        <input type="email" name="username" class="form-control" placeholder="you@company.com" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <div class="form-check" style="margin:0;">
-          <input class="form-check-input" type="checkbox" id="remember">
-          <label class="form-check-label" for="remember" style="font-size:12px; color:var(--text-muted); font-weight:400;">Remember me</label>
+      <div class="auth-sample" aria-hidden="true">
+        <div class="auth-sample-row">
+          <span class="prio prio-high"><span class="prio-sq">1</span></span>
+          <span class="row-title">Laptop will not start after update</span>
+          <span class="clock clock-soon"><span class="track"><span class="track-mark" style="--at: 62%; --i: 2"></span></span><span class="clock-label">38m left</span></span>
         </div>
-        <a href="{% url 'password_reset' %}" style="font-size:12px; color:var(--primary);">Forgot password?</a>
+        <div class="auth-sample-row">
+          <span class="prio prio-moderate"><span class="prio-sq">2</span></span>
+          <span class="row-title">Shared printer showing offline</span>
+          <span class="clock"><span class="track"><span class="track-mark" style="--at: 31%; --i: 5"></span></span><span class="clock-label">14h remaining</span></span>
+        </div>
+        <div class="auth-sample-row">
+          <span class="prio prio-low"><span class="prio-sq">3</span></span>
+          <span class="row-title">Request for a second monitor</span>
+          <span class="clock"><span class="track"><span class="track-mark" style="--at: 9%; --i: 8"></span></span><span class="clock-label">2d remaining</span></span>
+        </div>
+        <div class="auth-sample-cap">Example tickets</div>
       </div>
+    </div>
 
-      <input type="hidden" name="next" value="{{ next }}">
-      <button type="submit" class="btn btn-primary btn-block" style="padding: 10px !important; font-size:14px !important;">
-        Sign In
-      </button>
-    </form>
-
-    <hr style="margin: 24px 0;">
-    <p style="text-align:center; font-size:12px; color:var(--text-muted); margin:0;">
-      HelpDesk Pro &copy; 2024 — IT Support Portal
-    </p>
+    <p class="auth-foot">HelpDesk Pro &copy; {% now "Y" %}</p>
   </div>
+
+  <main class="auth-main">
+    <div class="auth-form">
+      <h2>Sign In</h2>
+      <p class="lede">Use your work email address.</p>
+
+      <form method="POST" class="form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-error alert-inline" role="alert">{% icon 'triangle-alert' %}<span>Invalid email or password. Please try again.</span></div>
+        {% endif %}
+
+        <div class="field">
+          <label for="id_username">Email Address</label>
+          <input type="email" name="username" id="id_username" placeholder="you@company.com" autocomplete="email" required autofocus>
+        </div>
+        <div class="field">
+          <label for="id_password">Password</label>
+          <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+        </div>
+
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Sign In</button>
+      </form>
+
+      <p class="auth-links"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+    </div>
+  </main>
+
 </div>
 {% endblock %}

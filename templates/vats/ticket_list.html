@@ -1,233 +1,184 @@
 {% extends 'base.html' %}
 {% load ui_extras %}
 {% block title %}Tickets{% endblock %}
-{% block topbar_title %}Tickets{% endblock %}
-{% block topbar_sub %}
-  {% if status %}Filtered by status: {{ status }}{% else %}All tickets{% endif %}
-{% endblock %}
 
 {% block body %}
 
-<div class="page-header">
-  <h2>
-    <span class="ni">confirmation_number</span> {{ page_title|default:"Tickets" }}
-    {% if status %}<span style="font-size:14px;font-weight:400;color:var(--text-muted);"> / {{ status }}</span>{% endif %}
-  </h2>
-  <div style="display:flex;gap:8px;align-items:center;">
-
-    <form method="GET" class="list-search" role="search">
-      <span class="ni">search</span>
-      <input type="search" name="q" value="{{ search }}" class="form-control form-control-sm"
-             placeholder="Search ticket #, title or description…" aria-label="Search tickets">
-    </form>
-
-    {% if request.user.role == "Viewer" %}
-      <a href="{% url 'ticket_create' %}" class="btn btn-primary"><span class="ni">add_circle</span> New Ticket</a>
-    {% endif %}
+<div class="page-head">
+  <div>
+    <h1>{{ page_title|default:"Tickets" }}{% if status %}<span class="muted"> / {{ status }}</span>{% endif %}</h1>
+  </div>
+  <div class="page-actions">
     {% if request.user.role == "Admin" or request.user.role == "Manager" %}
-      <a href="/api/v1/tickets/export/csv/" class="btn btn-outline-primary"><span class="ni">download</span> CSV</a>
-      <a href="/api/v1/tickets/export/excel/" class="btn btn-outline-primary"><span class="ni">download</span> Excel</a>
+    <a class="btn btn-secondary" href="/api/v1/tickets/export/csv/">{% icon 'download' %}CSV</a>
+    <a class="btn btn-secondary" href="/api/v1/tickets/export/excel/">{% icon 'file-spreadsheet' %}Excel</a>
     {% endif %}
   </div>
 </div>
 
-<!-- Status filter pills, with live counts from the role-scoped queryset -->
-<div class="filter-pills">
-  <a href="{% url 'ticket_list' %}" class="filter-pill {% if not status %}active{% endif %}">All</a>
-  <a href="{% url 'ticket_list_status' 'Pending' %}"     class="filter-pill {% if status == 'Pending' %}active{% endif %}"><span class="dot" style="background:#64748B"></span>Pending{% if status_counts.Pending %}<span class="n">{{ status_counts.Pending }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'Assigned' %}"    class="filter-pill {% if status == 'Assigned' %}active{% endif %}"><span class="dot" style="background:#0EA5E9"></span>Assigned{% if status_counts.Assigned %}<span class="n">{{ status_counts.Assigned }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'Scoping' %}"     class="filter-pill {% if status == 'Scoping' %}active{% endif %}"><span class="dot" style="background:#A855F7"></span>Scoping{% if status_counts.Scoping %}<span class="n">{{ status_counts.Scoping }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'In Progress' %}" class="filter-pill {% if status == 'In Progress' %}active{% endif %}"><span class="dot" style="background:#F59E0B"></span>In Progress{% if status_counts.InProgress %}<span class="n">{{ status_counts.InProgress }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'Completed' %}"   class="filter-pill {% if status == 'Completed' %}active{% endif %}"><span class="dot" style="background:#10B981"></span>Completed{% if status_counts.Completed %}<span class="n">{{ status_counts.Completed }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'Cancelled' %}"   class="filter-pill {% if status == 'Cancelled' %}active{% endif %}"><span class="dot" style="background:#94A3B8"></span>Cancelled{% if status_counts.Cancelled %}<span class="n">{{ status_counts.Cancelled }}</span>{% endif %}</a>
-  <a href="{% url 'ticket_list_status' 'Rejected' %}"    class="filter-pill {% if status == 'Rejected' %}active{% endif %}"><span class="dot" style="background:#E11D48"></span>Rejected{% if status_counts.Rejected %}<span class="n">{{ status_counts.Rejected }}</span>{% endif %}</a>
+<div class="toolbar">
+  {# The personal queue and the full role-wide table are two views of the same list. #}
+  <nav class="segmented" aria-label="Which tickets">
+    {% if request.user.role == "Admin" %}
+    <a href="{% url 'ticket_list' %}"{% if not my_view %} aria-current="page"{% endif %}>All Tickets</a>
+    <a href="{% url 'my_tickets' %}"{% if my_view %} aria-current="page"{% endif %}>My Tickets</a>
+    {% elif request.user.role == "Manager" %}
+    <a href="{% url 'ticket_list' %}"{% if not my_view %} aria-current="page"{% endif %}>All Assigned</a>
+    <a href="{% url 'my_tickets' %}"{% if my_view %} aria-current="page"{% endif %}>My Open Tickets</a>
+    {% else %}
+    <a href="{% url 'ticket_list' %}"{% if not my_view %} aria-current="page"{% endif %}>All My Tickets</a>
+    <a href="{% url 'my_tickets' %}"{% if my_view %} aria-current="page"{% endif %}>Open Tickets</a>
+    {% endif %}
+  </nav>
+
+  <div class="toolbar-end">
+    <form method="GET" class="search" role="search">
+      {% icon 'search' %}
+      <label class="visually-hidden" for="ticket-search">Search tickets</label>
+      <input type="search" id="ticket-search" name="q" value="{{ search }}" placeholder="Search ticket #, title or description">
+    </form>
+  </div>
 </div>
 
-<div class="card">
-  <div class="card-body" style="padding: 0 !important;">
-    {% if tickets %}
-    {% if request.user.role == "Admin" or request.user.role == "Manager" %}
-    <form method="POST" action="{% url 'ticket_bulk_action' %}" id="bulk-action-form">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{% if my_view %}my_tickets{% else %}ticket_list{% endif %}">
-      <div class="bulk-bar">
-        <span class="bulk-label"><span class="ni">checklist</span> Bulk actions</span>
-        <select name="bulk_action" class="form-control form-control-sm" style="width:auto;">
-          {% if request.user.role == "Admin" %}
-          <option value="reject">Reject selected (Pending only)</option>
-          <option value="delete">Delete selected</option>
-          {% else %}
-          <option value="complete">Mark selected Completed (In Progress only)</option>
-          {% endif %}
-        </select>
-        <button type="submit" class="btn btn-sm btn-outline-primary"
-                onclick="return confirm('Apply this bulk action to all checked tickets?');">Apply to Selected</button>
-        <span class="bulk-hint">Check tickets below, then choose an action.</span>
-      </div>
-    {% endif %}
-    <div style="overflow-x:auto;">
-      <table class="table table-hover">
+{% if not my_view %}
+{# Status filter, with live counts from the role-scoped queryset #}
+<nav class="tabs" aria-label="Filter by status">
+  <a class="tab" href="{% url 'ticket_list' %}"{% if not status %} aria-current="page"{% endif %}>All</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Pending' %}"{% if status == 'Pending' %} aria-current="page"{% endif %}>Pending{% if status_counts.Pending %}<span class="tab-count">{{ status_counts.Pending }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Assigned' %}"{% if status == 'Assigned' %} aria-current="page"{% endif %}>Assigned{% if status_counts.Assigned %}<span class="tab-count">{{ status_counts.Assigned }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Scoping' %}"{% if status == 'Scoping' %} aria-current="page"{% endif %}>Scoping{% if status_counts.Scoping %}<span class="tab-count">{{ status_counts.Scoping }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'In Progress' %}"{% if status == 'In Progress' %} aria-current="page"{% endif %}>In Progress{% if status_counts.InProgress %}<span class="tab-count">{{ status_counts.InProgress }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Completed' %}"{% if status == 'Completed' %} aria-current="page"{% endif %}>Completed{% if status_counts.Completed %}<span class="tab-count">{{ status_counts.Completed }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Cancelled' %}"{% if status == 'Cancelled' %} aria-current="page"{% endif %}>Cancelled{% if status_counts.Cancelled %}<span class="tab-count">{{ status_counts.Cancelled }}</span>{% endif %}</a>
+  <a class="tab" href="{% url 'ticket_list_status' 'Rejected' %}"{% if status == 'Rejected' %} aria-current="page"{% endif %}>Rejected{% if status_counts.Rejected %}<span class="tab-count">{{ status_counts.Rejected }}</span>{% endif %}</a>
+</nav>
+{% endif %}
+
+<section class="panel" aria-label="Tickets">
+  {% if tickets %}
+  {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+  <form method="POST" action="{% url 'ticket_bulk_action' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{% if my_view %}my_tickets{% else %}ticket_list{% endif %}">
+    <div class="bulk" data-bulk>
+      <span class="bulk-label">{% icon 'list-checks' %}Bulk actions</span>
+      <label class="visually-hidden" for="bulk-action">Action for selected tickets</label>
+      <select name="bulk_action" id="bulk-action">
+        {% if request.user.role == "Admin" %}
+        <option value="reject">Reject selected (Pending only)</option>
+        <option value="delete">Delete selected</option>
+        {% else %}
+        <option value="complete">Mark selected Completed (In Progress only)</option>
+        {% endif %}
+      </select>
+      <button type="submit" class="btn btn-secondary btn-sm" data-bulk-apply
+              data-confirm="Apply this bulk action to all ticked tickets?">Apply to Selected</button>
+      <span class="bulk-hint" data-bulk-count aria-live="polite">Tick tickets below, then choose an action.</span>
+    </div>
+  {% endif %}
+
+    <div class="table-wrap">
+      <table class="table table-list table-stack{% if request.user.role != "Viewer" %} has-check{% endif %}">
         <thead>
           <tr>
             {% if request.user.role == "Admin" or request.user.role == "Manager" %}
-            <th style="width:32px;"><input type="checkbox" id="select-all-tickets"></th>
+            <th class="col-check"><input type="checkbox" data-select-all aria-label="Select all tickets on this page"></th>
             {% endif %}
-            <th>Ticket ID</th>
+            <th class="w-prio">Priority</th>
             <th>Subject &amp; Summary</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Category</th>
-            <th>Assignee</th>
-            <th>Updated</th>
-            <th>SLA State</th>
+            <th class="w-status">Status</th>
+            <th class="w-person hide-sm">Assignee</th>
+            <th class="w-date hide-md">Updated</th>
+            <th class="w-sla">SLA State</th>
           </tr>
         </thead>
         <tbody>
           {% for ticket in tickets %}
-          <tr {% if ticket.status == 'Cancelled' or ticket.status == 'Rejected' %}class="row-closed"{% endif %}>
+          <tr{% if ticket.status == 'Cancelled' or ticket.status == 'Rejected' %} class="is-closed"{% endif %}>
             {% if request.user.role == "Admin" or request.user.role == "Manager" %}
-            <td><input type="checkbox" name="ticket_ids" value="{{ ticket.id }}" class="ticket-row-checkbox"></td>
+            <td class="col-check c-check"><input type="checkbox" name="ticket_ids" value="{{ ticket.id }}" data-select-row aria-label="Select {{ ticket.number }}"></td>
             {% endif %}
-            <td>
-              <a href="{% url 'ticket_detail' ticket.id %}" class="ticket-link">{{ ticket.number }}</a>
+            <td class="c-prio">{% include 'partials/priority.html' with priority=ticket.priority %}</td>
+            <td class="c-main">
+              <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
+              <span class="t-meta t-meta-clip"><span class="t-id">{{ ticket.number }}</span> · {{ ticket.category }} · {{ ticket.problem_descp|truncatechars:90 }}</span>
             </td>
-            <td class="cell-subject">
-              <a href="{% url 'ticket_detail' ticket.id %}" style="text-decoration:none;">
-                <span class="subject-title">{{ ticket.title }}</span>
-              </a>
-              <span class="subject-summary">{{ ticket.problem_descp|truncatechars:70 }}</span>
-            </td>
-            <td>
-              {% if ticket.status %}
-              <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
-                {{ ticket.status }}
-              </span>
-              {% else %}—{% endif %}
-            </td>
-            <td>
-              {% if ticket.priority %}
-              <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-              {% else %}
-              <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
-              {% endif %}
-            </td>
-            <td class="cell-category">{{ ticket.category }}</td>
-            <td>
+            <td class="c-status">{% include 'partials/status.html' with status=ticket.status %}</td>
+            <td class="c-person hide-sm">
               {% if ticket.assigned_to %}
-                <span class="assignee">
-                  <span class="assignee-avatar {{ ticket.assigned_to|avatar_class }}">{{ ticket.assigned_to.first_name|first|upper }}{{ ticket.assigned_to.last_name|first|upper }}</span>
-                  {{ ticket.assigned_to.first_name|capfirst }} {{ ticket.assigned_to.last_name|capfirst }}
-                </span>
+              <span class="person"><span class="avatar avatar-sm {{ ticket.assigned_to|avatar_class }}" aria-hidden="true">{{ ticket.assigned_to|initials }}</span>{{ ticket.assigned_to|display_name }}</span>
               {% else %}
-                <span class="assignee-none">Unassigned</span>
+              <span class="person-none">Unassigned</span>
               {% endif %}
             </td>
-            <td style="font-size:12px;color:var(--text-muted);white-space:nowrap;">
-              {{ ticket.get_updated_at|date:"d M, H:i" }}
-            </td>
-            <td>
-              {% if ticket.sla_state %}
-              <span class="sla sla-{{ ticket.sla_state }}"
-                    title="{% if ticket.due_by %}SLA deadline: {{ ticket.due_by|date:'d M Y, H:i' }}{% else %}No SLA applies{% endif %}">
-                <span class="ni">{{ ticket.sla_icon }}</span>{{ ticket.sla_label }}
-              </span>
-              {% else %}
-              <span style="color:var(--text-subtle);">—</span>
-              {% endif %}
-            </td>
+            <td class="c-date hide-md nowrap muted">{{ ticket.get_updated_at|date:"d M, H:i" }}</td>
+            <td class="c-sla">{% include 'partials/clock.html' with ticket=ticket index=forloop.counter0 %}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-    {% if request.user.role == "Admin" or request.user.role == "Manager" %}
-    </form>
-    {% endif %}
 
-    <!-- Pagination -->
-    {% if page_obj.paginator.num_pages > 1 %}
-    <div class="pager">
-      <span class="pager-info">
-        Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} tickets
-      </span>
-      <span class="pager-links">
-        {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}{% if search %}&q={{ search }}{% endif %}">Prev</a>
-        {% else %}<span class="disabled">Prev</span>{% endif %}
+  {% if request.user.role == "Admin" or request.user.role == "Manager" %}
+  </form>
+  {% endif %}
 
-        {% for p in page_obj.paginator.page_range %}
-          {% if p == page_obj.number %}
-            <span class="current">{{ p }}</span>
-          {% elif p > page_obj.number|add:"-3" and p < page_obj.number|add:"3" %}
-            <a href="?page={{ p }}{% if search %}&q={{ search }}{% endif %}">{{ p }}</a>
-          {% endif %}
-        {% endfor %}
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pager">
+    <span>Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} tickets</span>
+    <nav class="pager-links" aria-label="Pages">
+      {% if page_obj.has_previous %}
+      <a href="{% query_with request page=page_obj.previous_page_number %}">Prev</a>
+      {% else %}<span class="is-off">Prev</span>{% endif %}
 
-        {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}{% if search %}&q={{ search }}{% endif %}">Next</a>
-        {% else %}<span class="disabled">Next</span>{% endif %}
-      </span>
-    </div>
-    {% endif %}
+      {% for p in page_obj.paginator.page_range %}
+        {% if p == page_obj.number %}
+        <span class="is-current" aria-current="page">{{ p }}</span>
+        {% elif p > page_obj.number|add:"-3" and p < page_obj.number|add:"3" %}
+        <a href="{% query_with request page=p %}">{{ p }}</a>
+        {% endif %}
+      {% endfor %}
 
+      {% if page_obj.has_next %}
+      <a href="{% query_with request page=page_obj.next_page_number %}">Next</a>
+      {% else %}<span class="is-off">Next</span>{% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="empty">
+    {% if search %}
+    <h3>No tickets match “{{ search }}”</h3>
+    <p>Search looks at the ticket number, the title and the description.</p>
+    <a class="btn btn-secondary" href="?">Clear search</a>
+    {% elif status %}
+    <h3>No {{ status }} tickets</h3>
+    <p>Nothing is in this status right now.</p>
+    <a class="btn btn-secondary" href="{% url 'ticket_list' %}">Show all tickets</a>
+    {% elif request.user.role == "Viewer" %}
+    <h3>No tickets found</h3>
+    <p>Raise a ticket and the IT team will pick it up. You can follow every step here.</p>
+    <a class="btn btn-primary" href="{% url 'ticket_create' %}">Raise your first ticket</a>
     {% else %}
-    <div class="empty-state" style="padding:48px 24px;text-align:center;color:var(--text-muted);">
-      <div style="margin-bottom:12px;"><span class="ni" style="font-size:40px;color:var(--border-strong);">inbox</span></div>
-      <p style="font-size:14px;margin:0;">
-        {% if search %}No tickets match “{{ search }}”.{% else %}No tickets found{% if status %} with status "{{ status }}"{% endif %}.{% endif %}
-      </p>
-      {% if request.user.role == "Viewer" %}
-      <a href="{% url 'ticket_create' %}" class="btn btn-primary mt-3">Raise your first ticket</a>
-      {% endif %}
-    </div>
+    <h3>No tickets found</h3>
+    <p>{% if my_view %}Nothing is waiting on you.{% else %}Tickets appear here as soon as someone raises one.{% endif %}</p>
     {% endif %}
   </div>
-</div>
+  {% endif %}
+</section>
 
-<!-- Operational stat strip. Real aggregates over the role-scoped set, so a
-     Manager sees their own numbers rather than the whole company's. -->
-<div class="stat-strip">
-  <div class="stat-tile stat-warn">
-    <span class="ni">inbox</span>
-    <span>
-      <span class="stat-tile-label">Unassigned backlog</span>
-      <span class="stat-tile-value">{{ stats.unassigned }}</span>
-    </span>
+{# Real aggregates over the role-scoped set, so a Manager sees their own numbers. #}
+<div class="figures figures-4 section-gap" aria-label="Queue figures">
+  <div class="figure"><b>{{ stats.unassigned }}</b><span>unassigned backlog</span></div>
+  <div class="figure{% if stats.breached %} is-alert{% endif %}"><b>{{ stats.breached }}</b><span>SLA breached</span></div>
+  <div class="figure{% if not stats.avg_response %} is-empty{% endif %}">
+    <b>{% if stats.avg_response %}{{ stats.avg_response }} hrs{% else %}–{% endif %}</b>
+    <span>avg first response{% if not stats.avg_response %}, none recorded yet{% endif %}</span>
   </div>
-  <div class="stat-tile stat-danger">
-    <span class="ni">warning</span>
-    <span>
-      <span class="stat-tile-label">SLA breached</span>
-      <span class="stat-tile-value">{{ stats.breached }}</span>
-    </span>
-  </div>
-  <div class="stat-tile stat-info">
-    <span class="ni">timer</span>
-    <span>
-      <span class="stat-tile-label">Avg first response</span>
-      <span class="stat-tile-value">{% if stats.avg_response %}{{ stats.avg_response }} hrs{% else %}—{% endif %}</span>
-    </span>
-  </div>
-  <div class="stat-tile stat-ok">
-    <span class="ni">task_alt</span>
-    <span>
-      <span class="stat-tile-label">Resolution rate</span>
-      <span class="stat-tile-value">{% if stats.resolution_rate %}{{ stats.resolution_rate }}%{% else %}—{% endif %}</span>
-    </span>
+  <div class="figure{% if not stats.resolution_rate %} is-empty{% endif %}">
+    <b>{% if stats.resolution_rate %}{{ stats.resolution_rate }}%{% else %}–{% endif %}</b><span>resolution rate</span>
   </div>
 </div>
 
-{% endblock %}
-
-{% block js %}
-<script>
-var selectAll = document.getElementById('select-all-tickets');
-if (selectAll) {
-  selectAll.addEventListener('change', function () {
-    document.querySelectorAll('.ticket-row-checkbox').forEach(function (cb) {
-      cb.checked = selectAll.checked;
-    });
-  });
-}
-</script>
 {% endblock %}

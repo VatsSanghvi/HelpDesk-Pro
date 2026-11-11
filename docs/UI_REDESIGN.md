@@ -1,5 +1,9 @@
 # UI Redesign — before and after
 
+> **Superseded on 2026-11-11.** The app was redesigned again as a product; see
+> [`UI_PRODUCT_REDESIGN.md`](UI_PRODUCT_REDESIGN.md). This document describes
+> the earlier Stitch-based redesign and is kept as history.
+
 Screenshots of the same seven screens, same viewport (1440px), same capture
 method, before and after the redesign. Directly comparable.
 

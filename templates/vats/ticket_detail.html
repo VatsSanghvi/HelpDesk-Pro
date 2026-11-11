@@ -1,260 +1,210 @@
 {% extends 'base.html' %}
+{% load ui_extras %}
 {% block title %}{{ ticket.number }}{% endblock %}
-{% block topbar_title %}{{ ticket.number }}{% endblock %}
-{% block topbar_sub %}{{ ticket.title }}{% endblock %}
 
 {% block body %}
 
-<div class="page-header">
+<a class="back" href="{% url 'ticket_list' %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
+
+<div class="page-head">
   <div>
-    <h2>{{ ticket.title }}</h2>
-    <div style="display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap;">
-      <span style="font-size:12px;color:var(--text-muted);">{{ ticket.number }}</span>
-      {% if ticket.status %}
-      <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
-        {{ ticket.status }}
-      </span>
-      {% endif %}
-      {% if ticket.priority %}
-      <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-      {% else %}
-      <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
-      {% endif %}
-      {% if ticket.is_sla_breached %}
-      <span class="sla-badge">⚠ SLA Breached</span>
-      {% endif %}
+    <h1>{{ ticket.title }}</h1>
+    <div class="ticket-meta">
+      <span class="t-id">{{ ticket.number }}</span>
+      {% include 'partials/status.html' with status=ticket.status %}
+      {% include 'partials/priority.html' with priority=ticket.priority %}
+      {% include 'partials/clock.html' with ticket=ticket focusable=True wide=True %}
     </div>
   </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <a href="{% url 'ticket_list' %}" class="btn btn-outline-secondary btn-sm">← Back</a>
 
+  <div class="page-actions">
     {% if request.user.role == "Admin" and ticket.status == "Pending" %}
-      <a href="{% url 'ticket_approve' ticket.id %}" class="btn btn-success btn-sm">✔ Approve</a>
-      <a href="{% url 'ticket_reject' ticket.id %}" class="btn btn-danger btn-sm">✖ Reject</a>
+      <a class="btn btn-primary" href="{% url 'ticket_approve' ticket.id %}">{% icon 'check' %}Approve</a>
+      <a class="btn btn-danger" href="{% url 'ticket_reject' ticket.id %}" data-confirm="Reject {{ ticket.number }}? The person who raised it will be told.">{% icon 'x' %}Reject</a>
     {% endif %}
 
     {% if request.user.role == "Manager" %}
       {% if ticket.status == "Assigned" %}
-        <a href="{% url 'ticket_scoping' ticket.id %}" class="btn btn-primary btn-sm">→ Scoping</a>
-        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
-        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+        <a class="btn btn-primary" href="{% url 'ticket_scoping' ticket.id %}">{% icon 'arrow-right' %}Scoping</a>
       {% elif ticket.status == "Scoping" %}
-        <a href="{% url 'ticket_inprogress' ticket.id %}" class="btn btn-primary btn-sm">→ In Progress</a>
-        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
-        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+        <a class="btn btn-primary" href="{% url 'ticket_inprogress' ticket.id %}">{% icon 'arrow-right' %}In Progress</a>
       {% elif ticket.status == "In Progress" %}
-        <a href="{% url 'ticket_completed' ticket.id %}" class="btn btn-success btn-sm">✔ Complete</a>
-        <a href="{% url 'ticket_update' ticket.id %}" class="btn btn-outline-primary btn-sm">Edit</a>
-        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel</a>
+        <a class="btn btn-primary" href="{% url 'ticket_completed' ticket.id %}">{% icon 'check' %}Complete</a>
       {% endif %}
+      {% if ticket.status == "Assigned" or ticket.status == "Scoping" or ticket.status == "In Progress" %}
+        <a class="btn btn-secondary" href="{% url 'ticket_update' ticket.id %}">{% icon 'pencil' %}Edit</a>
+        <a class="btn btn-danger" href="{% url 'ticket_cancel' ticket.id %}" data-confirm="Cancel {{ ticket.number }}? This stops the SLA clock and cannot be undone.">Cancel</a>
+      {% endif %}
+      <a class="btn btn-secondary" href="{{ my_string }}" target="_blank" rel="noopener">{% icon 'message-circle' %}WhatsApp</a>
     {% endif %}
 
     {% if request.user.role == "Viewer" and ticket.created_by == request.user %}
       {% if ticket.status != "Completed" and ticket.status != "Cancelled" and ticket.status != "Rejected" %}
-        <a href="{% url 'ticket_cancel' ticket.id %}" class="btn btn-danger btn-sm">Cancel Ticket</a>
+        <a class="btn btn-danger" href="{% url 'ticket_cancel' ticket.id %}" data-confirm="Cancel {{ ticket.number }}? The IT team will stop working on it.">Cancel Ticket</a>
       {% endif %}
     {% endif %}
   </div>
 </div>
 
-<div class="row">
+<div class="cols">
 
-  <!-- Left: ticket details -->
-  <div class="col-md-7 mb-3">
-    <div class="card mb-3">
-      <div class="card-header"><div class="card-header-title">Ticket Details</div></div>
-      <div class="card-body" style="padding: 0 18px !important;">
-        <div class="detail-row">
-          <span class="detail-label">Category</span>
-          <span class="detail-value">{{ ticket.category }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Subcategory</span>
-          <span class="detail-value">{{ ticket.subcategory }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Description</span>
-          <span class="detail-value" style="white-space:pre-wrap;">{{ ticket.problem_descp }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Priority</span>
-          <span class="detail-value">
-            {% if ticket.priority %}
-            <span class="sbadge pbadge-{{ ticket.priority }}">{{ ticket.priority }}</span>
-            {% else %}
-            <span class="sbadge pbadge-None" title="Not triaged yet — an Admin sets priority on approval">Untriaged</span>
-            {% endif %}
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">
-            <span class="sbadge sbadge-{% if ticket.status == 'In Progress' %}InProgress{% else %}{{ ticket.status }}{% endif %}">
-              {{ ticket.status }}
-            </span>
-          </span>
-        </div>
-        {% if request.user.role != "Viewer" %}
-        <div class="detail-row">
-          <span class="detail-label">Created By</span>
-          <span class="detail-value">
-            {{ ticket.created_by.first_name|capfirst }} {{ ticket.created_by.last_name|capfirst }}
-            <span style="color:var(--text-muted);font-size:12px;">({{ ticket.created_by.email }})</span>
-          </span>
-        </div>
-        {% endif %}
-        <div class="detail-row">
-          <span class="detail-label">Assigned To</span>
-          <span class="detail-value">
-            {% if ticket.assigned_to %}
-              {{ ticket.assigned_to.first_name|capfirst }} {{ ticket.assigned_to.last_name|capfirst }}
-            {% else %}
-              <span style="color:var(--text-muted);">Unassigned</span>
-            {% endif %}
-          </span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Created</span>
-          <span class="detail-value" style="color:var(--text-muted);">{{ ticket.get_created_at|date:"d M Y, H:i" }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Last Updated</span>
-          <span class="detail-value" style="color:var(--text-muted);">{{ ticket.get_updated_at|date:"d M Y, H:i" }}</span>
-        </div>
-        {% if ticket.due_by %}
-        <div class="detail-row">
-          <span class="detail-label">SLA Due By</span>
-          <span class="detail-value {% if ticket.is_sla_breached %}sla-breach{% endif %}">
-            {{ ticket.due_by|date:"d M Y, H:i" }}
-            {% if ticket.is_sla_breached %}<span class="sla-badge ml-1">Breached</span>{% endif %}
-          </span>
-        </div>
-        {% endif %}
-        {% if ticket.first_response_time_hours %}
-        <div class="detail-row">
-          <span class="detail-label">First Response Time</span>
-          <span class="detail-value" style="font-weight:600;">{{ ticket.first_response_time_hours }}h</span>
-        </div>
-        {% endif %}
-        {% if ticket.resolution_time_hours %}
-        <div class="detail-row">
-          <span class="detail-label">Resolution Time</span>
-          <span class="detail-value" style="color:var(--success);font-weight:600;">{{ ticket.resolution_time_hours }}h</span>
-        </div>
-        {% endif %}
-        {% if ticket.csat_rating and request.user.role != "Viewer" %}
-        <div class="detail-row">
-          <span class="detail-label">CSAT Rating</span>
-          <span class="detail-value">{% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}⭐{% else %}☆{% endif %}{% endfor %}</span>
-        </div>
+  <div class="stack">
+    <section class="panel" aria-labelledby="progress-title">
+      <div class="panel-head"><h2 id="progress-title">Progress</h2></div>
+      <div class="panel-body">
+        {% lifecycle ticket as steps %}
+        <ol class="steps">
+          {% for step in steps %}
+          <li class="step is-{{ step.state }}"{% if step.state == 'current' %} aria-current="step"{% endif %}>{{ step.name }}</li>
+          {% endfor %}
+        </ol>
+        {% if ticket.status == "Cancelled" %}
+        <p class="steps-note">This ticket was cancelled. Its SLA clock is suspended.</p>
+        {% elif ticket.status == "Rejected" %}
+        <p class="steps-note">This ticket was rejected at triage, so it never entered the queue and has no SLA.</p>
+        {% elif ticket.status == "Pending" %}
+        <p class="steps-note">Waiting for an Admin to set a priority and assign it. The SLA clock starts then.</p>
         {% endif %}
       </div>
-    </div>
+    </section>
+
+    <section class="panel" aria-labelledby="description-title">
+      <div class="panel-head"><h2 id="description-title">Description</h2></div>
+      <div class="panel-body"><p class="prose">{{ ticket.problem_descp }}</p></div>
+    </section>
 
     {% if request.user.role == "Viewer" and ticket.created_by == request.user and ticket.status == "Completed" %}
-    <div class="card mb-3">
-      <div class="card-header"><div class="card-header-title">Rate Your Support Experience</div></div>
-      <div class="card-body">
+    <section class="panel" aria-labelledby="rate-title">
+      <div class="panel-head"><h2 id="rate-title">Rate Your Support Experience</h2></div>
+      <div class="panel-body">
         {% if ticket.csat_rating %}
-          <div style="font-size:20px;letter-spacing:2px;">
-            {% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}⭐{% else %}☆{% endif %}{% endfor %}
-          </div>
-          {% if ticket.csat_feedback %}
-          <p style="color:var(--text-muted);font-size:13px;margin-top:8px;">"{{ ticket.csat_feedback }}"</p>
-          {% endif %}
-          <p style="color:var(--text-muted);font-size:12px;margin-top:4px;">Thanks for your feedback!</p>
+          <span class="stars" role="img" aria-label="{{ ticket.csat_rating }} out of 5">
+            {% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}{% icon 'star' 'is-on' %}{% else %}{% icon 'star' %}{% endif %}{% endfor %}
+          </span>
+          {% if ticket.csat_feedback %}<p class="feed-note">{{ ticket.csat_feedback }}</p>{% endif %}
+          <p class="steps-note">Thanks for your feedback!</p>
         {% else %}
-          <form method="POST" action="{% url 'ticket_rate' ticket.id %}">
+          <form method="POST" action="{% url 'ticket_rate' ticket.id %}" class="form">
             {% csrf_token %}
-            <label style="font-size:13px;color:var(--text-muted);">How satisfied were you with how this ticket was handled?</label>
-            <div style="display:flex;gap:16px;margin:10px 0;">
-              {% for i in "12345" %}
-              <label style="cursor:pointer;text-align:center;font-size:12px;">
-                <input type="radio" name="csat_rating" value="{{ forloop.counter }}" required style="display:block;margin:0 auto 4px;">
-                {{ forloop.counter }}★
-              </label>
-              {% endfor %}
+            <fieldset class="field" style="border:0;padding:0;margin:0;">
+              <legend class="field-label">How satisfied were you with how this ticket was handled?</legend>
+              <div class="rating">
+                {% for value in "54321" %}
+                <input type="radio" name="csat_rating" id="rate-{{ value }}" value="{{ value }}" required>
+                <label for="rate-{{ value }}">{% icon 'star' %}<span class="visually-hidden">{{ value }} out of 5</span></label>
+                {% endfor %}
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="csat-feedback">Anything you'd like to add? (optional)</label>
+              <textarea name="csat_feedback" id="csat-feedback" rows="2" style="height: 4.5rem;"></textarea>
             </div>
-            <div class="form-group mb-2">
-              <textarea name="csat_feedback" class="form-control" rows="2" placeholder="Anything you'd like to add? (optional)"></textarea>
+            <div class="form-foot" style="justify-content: flex-start;">
+              <button type="submit" class="btn btn-primary">Submit Rating</button>
             </div>
-            <button type="submit" class="btn btn-primary btn-sm">Submit Rating</button>
           </form>
         {% endif %}
       </div>
-    </div>
+    </section>
     {% endif %}
 
-    <!-- Work note input -->
-    <div class="card">
-      <div class="card-header"><div class="card-header-title">Add Work Note</div></div>
-      <div class="card-body">
-        <form method="POST">
+    <section class="panel" aria-labelledby="activity-title">
+      <div class="panel-head"><h2 id="activity-title">Activity</h2></div>
+      <div class="panel-body">
+        <form method="POST" class="composer">
           {% csrf_token %}
-          <div class="form-group mb-3">
-            <textarea name="work_note" class="form-control worknote-box" rows="3"
-              placeholder="Add a note, comment, or update about this ticket..."></textarea>
+          <label class="visually-hidden" for="work-note">Add Work Note</label>
+          <textarea name="work_note" id="work-note" rows="3" required
+                    placeholder="Add a note, comment, or update about this ticket"></textarea>
+          <div class="composer-foot">
+            <button type="submit" class="btn btn-primary">{% icon 'send' %}Post Note</button>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm">Post Note</button>
         </form>
+
+        <ol class="feed">
+          {% for work_note in ticket.work_note_list %}
+            {% if work_note.type == "Comment" or work_note.field_name == "Note" %}
+            <li>
+              <span class="feed-dot">{% icon 'message-circle' %}</span>
+              <div>
+                <div class="feed-head">
+                  <span class="feed-who">{{ work_note.commented_by|display_name }}</span>
+                  <span class="feed-when">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+                </div>
+                <p class="feed-note">{{ work_note.comment }}</p>
+              </div>
+            </li>
+            {% elif work_note.type == "Field" %}
+            <li>
+              <span class="feed-dot">{% icon 'history' %}</span>
+              <div>
+                <div class="feed-head">
+                  <span class="feed-who">{{ work_note.commented_by|display_name }}</span>
+                  <span class="feed-when">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+                </div>
+                <p class="feed-change">
+                  {{ work_note.field_name }} changed from <s>{{ work_note.old_value|default:"None" }}</s> to <b>{{ work_note.new_value }}</b>
+                </p>
+              </div>
+            </li>
+            {% else %}
+            <li>
+              <span class="feed-dot">{% icon 'plus' %}</span>
+              <div>
+                <div class="feed-head">
+                  <span class="feed-who">{{ work_note.commented_by|display_name }}</span>
+                  <span class="feed-when">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
+                </div>
+                <p class="feed-change">Ticket created</p>
+              </div>
+            </li>
+            {% endif %}
+          {% empty %}
+            <li class="muted" style="display:block;">No activity yet.</li>
+          {% endfor %}
+        </ol>
       </div>
-    </div>
+    </section>
   </div>
 
-  <!-- Right: activity feed -->
-  <div class="col-md-5 mb-3">
-    <div class="card">
-      <div class="card-header"><div class="card-header-title">Activity</div></div>
-      <div class="card-body" style="padding: 12px !important;">
-        {% for work_note in ticket.work_note_list %}
-          {% if work_note.type == "Comment" %}
-          <div class="activity-item activity-comment">
-            <div class="activity-meta">
-              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }} {{ work_note.commented_by.last_name|capfirst }}</span>
-              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
-            </div>
-            <div style="color:var(--text);">{{ work_note.comment }}</div>
-          </div>
-
-          {% elif work_note.type == "Field" %}
-          <div class="activity-item activity-field">
-            <div class="activity-meta">
-              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }}</span>
-              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
-            </div>
-            <div style="color:var(--text-muted);font-size:12px;">
-              <strong style="color:var(--text);">{{ work_note.field_name }}</strong>
-              changed from
-              <span style="text-decoration:line-through;">{{ work_note.old_value|default:"None" }}</span>
-              → <strong style="color:var(--primary);">{{ work_note.new_value }}</strong>
-            </div>
-          </div>
-
-          {% else %}
-          <div class="activity-item activity-create">
-            <div class="activity-meta">
-              <span class="activity-author">{{ work_note.commented_by.first_name|capfirst }}</span>
-              <span class="activity-time">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
-            </div>
-            <div style="color:var(--text-muted);font-size:12px;">Ticket created</div>
-          </div>
+  <aside class="stack">
+    <section class="panel" aria-labelledby="details-title">
+      <div class="panel-head"><h2 id="details-title">Ticket Details</h2></div>
+      <div class="panel-body">
+        <dl class="facts">
+          <dt>Category</dt><dd>{{ ticket.category }}</dd>
+          <dt>Subcategory</dt><dd>{{ ticket.subcategory }}</dd>
+          {% if request.user.role != "Viewer" %}
+          <dt>Created By</dt>
+          <dd>{{ ticket.created_by|display_name }}<span class="sub">{{ ticket.created_by.email }}</span></dd>
           {% endif %}
-        {% empty %}
-          <div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px;">No activity yet.</div>
-        {% endfor %}
+          <dt>Assigned To</dt>
+          <dd>{% if ticket.assigned_to %}{{ ticket.assigned_to|display_name }}{% else %}<span class="muted">Unassigned</span>{% endif %}</dd>
+          <dt>Created</dt><dd>{{ ticket.get_created_at|date:"d M Y, H:i" }}</dd>
+          <dt>Last Updated</dt><dd>{{ ticket.get_updated_at|date:"d M Y, H:i" }}</dd>
+          {% if ticket.due_by %}
+          <dt>SLA Due By</dt>
+          <dd>{{ ticket.get_due_by|date:"d M Y, H:i" }}{% if ticket.is_sla_breached %}<span class="sub" style="color: var(--p1); font-weight: 700;">Breached</span>{% endif %}</dd>
+          {% endif %}
+          {% if ticket.first_response_time_hours %}
+          <dt>First Response Time</dt><dd>{{ ticket.first_response_time_hours }}h</dd>
+          {% endif %}
+          {% if ticket.resolution_time_hours %}
+          <dt>Resolution Time</dt><dd>{{ ticket.resolution_time_hours }}h</dd>
+          {% endif %}
+          {% if ticket.csat_rating and request.user.role != "Viewer" %}
+          <dt>CSAT Rating</dt>
+          <dd>
+            <span class="stars" role="img" aria-label="{{ ticket.csat_rating }} out of 5">
+              {% for i in "12345" %}{% if forloop.counter <= ticket.csat_rating %}{% icon 'star' 'is-on' %}{% else %}{% icon 'star' %}{% endif %}{% endfor %}
+            </span>
+          </dd>
+          {% endif %}
+        </dl>
       </div>
-    </div>
-  </div>
+    </section>
+  </aside>
 
-</div><!-- /row -->
-
-<!-- WhatsApp float (manager only) -->
-{% if request.user.role == "Manager" %}
-<div class="whatsapp_float">
-  <a href="{{ my_string }}" target="_blank">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp">
-  </a>
 </div>
-{% endif %}
 
 {% endblock %}

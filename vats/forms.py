@@ -1,6 +1,22 @@
 from django import forms
 from .models import Ticket, Category, Subcategory
 
+
+def _person_label(user):
+    """People are chosen by name; the model's own label is the email address."""
+    return user.get_full_name() or user.email
+
+
+def _name_choices(form):
+    """Readable placeholders and labels for the priority and people dropdowns."""
+    if 'priority' in form.fields:
+        form.fields['priority'].choices = [('', 'Choose a priority')] + list(Ticket.priority_choice)
+    if 'assigned_to' in form.fields:
+        form.fields['assigned_to'].empty_label = 'Choose a manager'
+        form.fields['assigned_to'].label_from_instance = _person_label
+    if 'created_by' in form.fields:
+        form.fields['created_by'].label_from_instance = _person_label
+
 class TicketForm(forms.ModelForm):
     
     class Meta:
@@ -9,6 +25,8 @@ class TicketForm(forms.ModelForm):
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['category'].empty_label = 'Choose a category'
+        self.fields['subcategory'].empty_label = 'Choose a subcategory'
 
 class TicketApproveForm(forms.ModelForm):
     
@@ -20,6 +38,7 @@ class TicketApproveForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['priority'].required = True
         self.fields['assigned_to'].required = True
+        _name_choices(self)
 
 class TicketRejectForm(forms.ModelForm):
     
@@ -45,6 +64,7 @@ class TicketUpdateForm(forms.ModelForm):
         self.fields['status'].disabled = True
         self.fields['assigned_to'].required = True
         self.fields['priority'].required = True
+        _name_choices(self)
 
 class CategoryForm(forms.ModelForm):
     
