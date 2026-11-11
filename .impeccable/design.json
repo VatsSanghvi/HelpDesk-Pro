@@ -1,0 +1,674 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T16:02:26Z",
+  "title": "Design System: HelpDesk Pro",
+  "extensions": {
+    "colorMeta": {
+      "green": {
+        "role": "primary",
+        "displayName": "Deep Action Green",
+        "canonical": "#0d5a41",
+        "tonalRamp": [
+          "oklch(15% 0.037 165)",
+          "oklch(27% 0.051 165)",
+          "oklch(39% 0.064 165)",
+          "oklch(51% 0.078 165)",
+          "oklch(63% 0.073 165)",
+          "oklch(75% 0.060 165)",
+          "oklch(86% 0.047 165)",
+          "oklch(95% 0.037 165)"
+        ]
+      },
+      "green-deep": {
+        "role": "primary",
+        "displayName": "Deep Action Green, hover",
+        "canonical": "#0a4634",
+        "tonalRamp": [
+          "oklch(15% 0.030 167)",
+          "oklch(27% 0.041 167)",
+          "oklch(39% 0.052 167)",
+          "oklch(51% 0.063 167)",
+          "oklch(63% 0.059 167)",
+          "oklch(75% 0.048 167)",
+          "oklch(86% 0.038 167)",
+          "oklch(95% 0.030 167)"
+        ]
+      },
+      "green-wash": {
+        "role": "primary",
+        "displayName": "Green Wash",
+        "canonical": "#e2f0e9",
+        "tonalRamp": [
+          "oklch(15% 0.008 165)",
+          "oklch(27% 0.011 165)",
+          "oklch(39% 0.014 165)",
+          "oklch(51% 0.017 165)",
+          "oklch(63% 0.016 165)",
+          "oklch(75% 0.013 165)",
+          "oklch(86% 0.010 165)",
+          "oklch(95% 0.008 165)"
+        ]
+      },
+      "room": {
+        "role": "secondary",
+        "displayName": "Theatre Green",
+        "canonical": "#d5e6dc",
+        "tonalRamp": [
+          "oklch(15% 0.010 160)",
+          "oklch(27% 0.014 160)",
+          "oklch(39% 0.018 160)",
+          "oklch(51% 0.021 160)",
+          "oklch(63% 0.020 160)",
+          "oklch(75% 0.016 160)",
+          "oklch(86% 0.013 160)",
+          "oklch(95% 0.010 160)"
+        ]
+      },
+      "room-deep": {
+        "role": "secondary",
+        "displayName": "Theatre Green, deep",
+        "canonical": "#bdd5c7",
+        "tonalRamp": [
+          "oklch(15% 0.015 160)",
+          "oklch(27% 0.020 160)",
+          "oklch(39% 0.025 160)",
+          "oklch(51% 0.030 160)",
+          "oklch(63% 0.029 160)",
+          "oklch(75% 0.023 160)",
+          "oklch(86% 0.019 160)",
+          "oklch(95% 0.015 160)"
+        ]
+      },
+      "room-edge": {
+        "role": "secondary",
+        "displayName": "Room Edge",
+        "canonical": "#a9c6b6",
+        "tonalRamp": [
+          "oklch(15% 0.017 161)",
+          "oklch(27% 0.024 161)",
+          "oklch(39% 0.030 161)",
+          "oklch(51% 0.036 161)",
+          "oklch(63% 0.034 161)",
+          "oklch(75% 0.028 161)",
+          "oklch(86% 0.022 161)",
+          "oklch(95% 0.017 161)"
+        ]
+      },
+      "room-ink": {
+        "role": "secondary",
+        "displayName": "Room Ink",
+        "canonical": "#17382b",
+        "tonalRamp": [
+          "oklch(15% 0.021 165)",
+          "oklch(27% 0.028 165)",
+          "oklch(39% 0.036 165)",
+          "oklch(51% 0.043 165)",
+          "oklch(63% 0.041 165)",
+          "oklch(75% 0.033 165)",
+          "oklch(86% 0.026 165)",
+          "oklch(95% 0.021 165)"
+        ]
+      },
+      "room-ink-2": {
+        "role": "secondary",
+        "displayName": "Room Ink 2",
+        "canonical": "#36574a",
+        "tonalRamp": [
+          "oklch(15% 0.020 167)",
+          "oklch(27% 0.028 167)",
+          "oklch(39% 0.035 167)",
+          "oklch(51% 0.042 167)",
+          "oklch(63% 0.040 167)",
+          "oklch(75% 0.032 167)",
+          "oklch(86% 0.026 167)",
+          "oklch(95% 0.020 167)"
+        ]
+      },
+      "p1": {
+        "role": "tertiary",
+        "displayName": "Triage Red",
+        "canonical": "#c5162a",
+        "tonalRamp": [
+          "oklch(15% 0.092 24)",
+          "oklch(27% 0.125 24)",
+          "oklch(39% 0.159 24)",
+          "oklch(51% 0.192 24)",
+          "oklch(63% 0.181 24)",
+          "oklch(75% 0.147 24)",
+          "oklch(86% 0.117 24)",
+          "oklch(95% 0.092 24)"
+        ]
+      },
+      "p1-wash": {
+        "role": "tertiary",
+        "displayName": "Red Wash",
+        "canonical": "#fdeaea",
+        "tonalRamp": [
+          "oklch(15% 0.009 18)",
+          "oklch(27% 0.013 18)",
+          "oklch(39% 0.016 18)",
+          "oklch(51% 0.020 18)",
+          "oklch(63% 0.018 18)",
+          "oklch(75% 0.015 18)",
+          "oklch(86% 0.012 18)",
+          "oklch(95% 0.009 18)"
+        ]
+      },
+      "p1-edge": {
+        "role": "tertiary",
+        "displayName": "Red Edge",
+        "canonical": "#f0b9b9",
+        "tonalRamp": [
+          "oklch(15% 0.029 19)",
+          "oklch(27% 0.039 19)",
+          "oklch(39% 0.050 19)",
+          "oklch(51% 0.060 19)",
+          "oklch(63% 0.057 19)",
+          "oklch(75% 0.046 19)",
+          "oklch(86% 0.037 19)",
+          "oklch(95% 0.029 19)"
+        ]
+      },
+      "p2": {
+        "role": "tertiary",
+        "displayName": "Triage Amber",
+        "canonical": "#e39a00",
+        "tonalRamp": [
+          "oklch(15% 0.071 75)",
+          "oklch(27% 0.096 75)",
+          "oklch(39% 0.122 75)",
+          "oklch(51% 0.148 75)",
+          "oklch(63% 0.139 75)",
+          "oklch(75% 0.113 75)",
+          "oklch(86% 0.090 75)",
+          "oklch(95% 0.071 75)"
+        ]
+      },
+      "p2-ink": {
+        "role": "tertiary",
+        "displayName": "Amber Ink",
+        "canonical": "#7a4c00",
+        "tonalRamp": [
+          "oklch(15% 0.045 70)",
+          "oklch(27% 0.061 70)",
+          "oklch(39% 0.078 70)",
+          "oklch(51% 0.094 70)",
+          "oklch(63% 0.088 70)",
+          "oklch(75% 0.072 70)",
+          "oklch(86% 0.057 70)",
+          "oklch(95% 0.045 70)"
+        ]
+      },
+      "p2-wash": {
+        "role": "tertiary",
+        "displayName": "Amber Wash",
+        "canonical": "#fff4d1",
+        "tonalRamp": [
+          "oklch(15% 0.021 93)",
+          "oklch(27% 0.029 93)",
+          "oklch(39% 0.037 93)",
+          "oklch(51% 0.044 93)",
+          "oklch(63% 0.042 93)",
+          "oklch(75% 0.034 93)",
+          "oklch(86% 0.027 93)",
+          "oklch(95% 0.021 93)"
+        ]
+      },
+      "p2-edge": {
+        "role": "tertiary",
+        "displayName": "Amber Edge",
+        "canonical": "#edd08a",
+        "tonalRamp": [
+          "oklch(15% 0.043 88)",
+          "oklch(27% 0.058 88)",
+          "oklch(39% 0.074 88)",
+          "oklch(51% 0.089 88)",
+          "oklch(63% 0.084 88)",
+          "oklch(75% 0.069 88)",
+          "oklch(86% 0.054 88)",
+          "oklch(95% 0.043 88)"
+        ]
+      },
+      "p3": {
+        "role": "tertiary",
+        "displayName": "Triage Green",
+        "canonical": "#22774a",
+        "tonalRamp": [
+          "oklch(15% 0.049 156)",
+          "oklch(27% 0.067 156)",
+          "oklch(39% 0.084 156)",
+          "oklch(51% 0.102 156)",
+          "oklch(63% 0.096 156)",
+          "oklch(75% 0.078 156)",
+          "oklch(86% 0.062 156)",
+          "oklch(95% 0.049 156)"
+        ]
+      },
+      "zone-warn": {
+        "role": "tertiary",
+        "displayName": "Clock Amber",
+        "canonical": "#ffe394",
+        "tonalRamp": [
+          "oklch(15% 0.047 91)",
+          "oklch(27% 0.064 91)",
+          "oklch(39% 0.080 91)",
+          "oklch(51% 0.097 91)",
+          "oklch(63% 0.092 91)",
+          "oklch(75% 0.075 91)",
+          "oklch(86% 0.059 91)",
+          "oklch(95% 0.047 91)"
+        ]
+      },
+      "zone-over": {
+        "role": "tertiary",
+        "displayName": "Clock Red",
+        "canonical": "#f4aaa5",
+        "tonalRamp": [
+          "oklch(15% 0.040 24)",
+          "oklch(27% 0.054 24)",
+          "oklch(39% 0.069 24)",
+          "oklch(51% 0.083 24)",
+          "oklch(63% 0.078 24)",
+          "oklch(75% 0.064 24)",
+          "oklch(86% 0.051 24)",
+          "oklch(95% 0.040 24)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Board Ink",
+        "canonical": "#0f211a",
+        "tonalRamp": [
+          "oklch(15% 0.013 167)",
+          "oklch(27% 0.017 167)",
+          "oklch(39% 0.022 167)",
+          "oklch(51% 0.026 167)",
+          "oklch(63% 0.025 167)",
+          "oklch(75% 0.020 167)",
+          "oklch(86% 0.016 167)",
+          "oklch(95% 0.013 167)"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink 2",
+        "canonical": "#3a4d44",
+        "tonalRamp": [
+          "oklch(15% 0.013 164)",
+          "oklch(27% 0.017 164)",
+          "oklch(39% 0.022 164)",
+          "oklch(51% 0.027 164)",
+          "oklch(63% 0.025 164)",
+          "oklch(75% 0.021 164)",
+          "oklch(86% 0.016 164)",
+          "oklch(95% 0.013 164)"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Ink 3",
+        "canonical": "#55675e",
+        "tonalRamp": [
+          "oklch(15% 0.012 164)",
+          "oklch(27% 0.016 164)",
+          "oklch(39% 0.020 164)",
+          "oklch(51% 0.025 164)",
+          "oklch(63% 0.023 164)",
+          "oklch(75% 0.019 164)",
+          "oklch(86% 0.015 164)",
+          "oklch(95% 0.012 164)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground",
+        "canonical": "#f3f8f5",
+        "tonalRamp": [
+          "oklch(15% 0.005 160)",
+          "oklch(27% 0.007 160)",
+          "oklch(39% 0.009 160)",
+          "oklch(51% 0.011 160)",
+          "oklch(63% 0.011 160)",
+          "oklch(75% 0.009 160)",
+          "oklch(86% 0.007 160)",
+          "oklch(95% 0.005 160)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Chart Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.005 160)",
+          "oklch(27% 0.007 160)",
+          "oklch(39% 0.009 160)",
+          "oklch(51% 0.011 160)",
+          "oklch(63% 0.011 160)",
+          "oklch(75% 0.009 160)",
+          "oklch(86% 0.007 160)",
+          "oklch(95% 0.005 160)"
+        ]
+      },
+      "row-hover": {
+        "role": "neutral",
+        "displayName": "Row Hover",
+        "canonical": "#f7fbf9",
+        "tonalRamp": [
+          "oklch(15% 0.005 165)",
+          "oklch(27% 0.007 165)",
+          "oklch(39% 0.009 165)",
+          "oklch(51% 0.011 165)",
+          "oklch(63% 0.011 165)",
+          "oklch(75% 0.009 165)",
+          "oklch(86% 0.007 165)",
+          "oklch(95% 0.005 165)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#d3e0d8",
+        "tonalRamp": [
+          "oklch(15% 0.008 159)",
+          "oklch(27% 0.011 159)",
+          "oklch(39% 0.014 159)",
+          "oklch(51% 0.017 159)",
+          "oklch(63% 0.016 159)",
+          "oklch(75% 0.013 159)",
+          "oklch(86% 0.010 159)",
+          "oklch(95% 0.008 159)"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "#b3c7bb",
+        "tonalRamp": [
+          "oklch(15% 0.012 159)",
+          "oklch(27% 0.017 159)",
+          "oklch(39% 0.021 159)",
+          "oklch(51% 0.026 159)",
+          "oklch(63% 0.024 159)",
+          "oklch(75% 0.020 159)",
+          "oklch(86% 0.016 159)",
+          "oklch(95% 0.012 159)"
+        ]
+      },
+      "field-edge": {
+        "role": "neutral",
+        "displayName": "Field Edge",
+        "canonical": "#78938a",
+        "tonalRamp": [
+          "oklch(15% 0.015 173)",
+          "oklch(27% 0.021 173)",
+          "oklch(39% 0.026 173)",
+          "oklch(51% 0.032 173)",
+          "oklch(63% 0.030 173)",
+          "oklch(75% 0.024 173)",
+          "oklch(86% 0.019 173)",
+          "oklch(95% 0.015 173)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The sign-in pitch only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "One sentence headline per page."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "The number in a figures row; fixed-width digits."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel headings and the brand name."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text; row titles are the same size at 700."
+      },
+      "body-sm": {
+        "displayName": "Body small",
+        "purpose": "Metadata lines, field labels, help text, status pills."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Table column heads, count chips, tooltip, timestamps. Sentence case."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-menu",
+        "value": "0 2px 6px rgb(15 33 26 / 0.08), 0 14px 28px -10px rgb(15 33 26 / 0.28)",
+        "purpose": "Floating: dropdown menus, the notification panel and the tooltip."
+      },
+      {
+        "name": "sheet",
+        "value": "0 12px 20px -12px rgb(15 33 26 / 0.3)",
+        "purpose": "The navigation sheet on small screens."
+      },
+      {
+        "name": "selected-segment",
+        "value": "0 1px 2px rgb(15 33 26 / 0.12)",
+        "purpose": "The chosen option in a segmented control."
+      },
+      {
+        "name": "field-focus",
+        "value": "0 0 0 3px rgb(13 90 65 / 0.18)",
+        "purpose": "Focus ring on form fields, with a green border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one easing curve: clock marker, meters, menu drop."
+      },
+      {
+        "name": "travel",
+        "value": "900ms ease-out, delayed 45ms per row",
+        "purpose": "Signature: the clock marker travels from the start of the track to its position once on load."
+      },
+      {
+        "name": "grow",
+        "value": "700ms ease-out, scaleX from the left",
+        "purpose": "Workload, priority and category meters fill on load."
+      },
+      {
+        "name": "drop",
+        "value": "160ms ease-out, 4px rise and 0.98 scale with fade",
+        "purpose": "A menu panel opening."
+      },
+      {
+        "name": "state",
+        "value": "150ms (controls), 120ms (rows)",
+        "purpose": "Colour transitions on hover and focus."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "all animation and transition durations 0.01ms",
+        "purpose": "Under prefers-reduced-motion everything is at rest immediately."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "columns",
+        "value": "72rem"
+      },
+      {
+        "name": "nav",
+        "value": "60rem"
+      },
+      {
+        "name": "small",
+        "value": "44rem"
+      },
+      {
+        "name": "container: ticket list drops Updated",
+        "value": "84rem"
+      },
+      {
+        "name": "container: ticket list stacks",
+        "value": "70rem"
+      },
+      {
+        "name": "container: dashboard table stacks",
+        "value": "36rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action of a view or panel.",
+      "html": "<button class=\"ds-btn ds-btn-primary\"><svg class=\"ds-i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Raise New Ticket</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.875rem; border-radius: var(--r); border: 1px solid transparent; background: none; font: 700 0.875rem/1 var(--font); white-space: nowrap; cursor: pointer; transition: background-color 150ms, border-color 150ms, color 150ms; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-btn-primary { background: var(--green); color: #fff; } .ds-btn-primary:hover { background: var(--green-deep); } .ds-i { width: 1.125rem; height: 1.125rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting actions beside a primary: export, cancel, edit.",
+      "html": "<button class=\"ds-btn ds-btn-secondary\">Export CSV</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.875rem; border-radius: var(--r); border: 1px solid transparent; background: none; font: 700 0.875rem/1 var(--font); white-space: nowrap; cursor: pointer; transition: background-color 150ms, border-color 150ms, color 150ms; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-btn-secondary { background: var(--paper); border-color: var(--rule-strong); color: var(--ink); } .ds-btn-secondary:hover { background: var(--green-wash); border-color: var(--room-edge); }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Low-emphasis action inside a row or panel foot.",
+      "html": "<button class=\"ds-btn ds-btn-quiet\">View ticket</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.875rem; border-radius: var(--r); border: 1px solid transparent; background: none; font: 700 0.875rem/1 var(--font); white-space: nowrap; cursor: pointer; transition: background-color 150ms, border-color 150ms, color 150ms; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-btn-quiet { color: var(--green); padding: 0 0.625rem; } .ds-btn-quiet:hover { background: var(--green-wash); color: var(--green-deep); }"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive or refusing actions: delete, reject.",
+      "html": "<button class=\"ds-btn ds-btn-danger\">Reject ticket</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.875rem; border-radius: var(--r); border: 1px solid transparent; background: none; font: 700 0.875rem/1 var(--font); white-space: nowrap; cursor: pointer; transition: background-color 150ms, border-color 150ms, color 150ms; } .ds-btn:active { transform: translateY(1px); } .ds-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-btn-danger { background: var(--paper); border-color: var(--p1-edge); color: var(--p1); } .ds-btn-danger:hover { background: var(--p1-wash); border-color: var(--p1); }"
+    },
+    {
+      "name": "Waiting Clock",
+      "kind": "custom",
+      "refersTo": "clock-track",
+      "description": "Signature. Where an open ticket stands in its SLA window: clear, amber for the last quarter, red for overtime. The marker travels in once on load.",
+      "html": "<div class=\"ds-clocks\"><span class=\"ds-clock ds-clock-ok\" tabindex=\"0\"><span class=\"ds-track\" aria-hidden=\"true\"><span class=\"ds-track-mark\" style=\"--at: 27%; --i: 0\"></span></span><span class=\"ds-clock-label\">2h 11m remaining</span></span><span class=\"ds-clock ds-clock-soon\" tabindex=\"0\"><span class=\"ds-track\" aria-hidden=\"true\"><span class=\"ds-track-mark\" style=\"--at: 62%; --i: 1\"></span></span><span class=\"ds-clock-label\">37m left</span></span><span class=\"ds-clock ds-clock-late\" tabindex=\"0\"><span class=\"ds-track\" aria-hidden=\"true\"><span class=\"ds-track-mark\" style=\"--at: 81%; --i: 2\"></span></span><span class=\"ds-clock-label\">Breached (+24m)</span></span></div>",
+      "css": ".ds-clocks { display: grid; gap: 0.75rem; font: 400 0.90625rem/1.5 var(--font); color: var(--ink); } .ds-clock { display: inline-grid; grid-template-columns: 7.5rem auto; align-items: center; gap: 0.6875rem; white-space: nowrap; font-variant-numeric: tabular-nums; border-radius: var(--r-sm); } .ds-clock:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-track { position: relative; display: block; height: 0.75rem; border: 1px solid var(--rule-strong); border-radius: 2px; background: linear-gradient(to right, var(--paper) 0 56.25%, var(--zone-warn) 56.25% 75%, var(--zone-over) 75% 100%); } .ds-track-mark { position: absolute; top: -4px; bottom: -4px; left: var(--at, 0%); width: 3px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); } .ds-clock-label { font-weight: 600; } .ds-clock-soon .ds-clock-label { color: var(--p2-ink); font-weight: 700; } .ds-clock-late .ds-clock-label { color: var(--p1); font-weight: 700; } @keyframes ds-travel { from { left: 0%; } } @media (prefers-reduced-motion: no-preference) { .ds-track-mark { animation: ds-travel 900ms var(--ease-out) both; animation-delay: calc(var(--i, 0) * 45ms); } }"
+    },
+    {
+      "name": "Priority Square",
+      "kind": "chip",
+      "refersTo": "priority-square-high",
+      "description": "Triage category as a numbered square; dashed and unfilled while untriaged.",
+      "html": "<div class=\"ds-prios\"><span class=\"ds-prio ds-prio-high\"><span class=\"ds-prio-sq\">1</span>High</span><span class=\"ds-prio ds-prio-moderate\"><span class=\"ds-prio-sq\">2</span>Moderate</span><span class=\"ds-prio ds-prio-low\"><span class=\"ds-prio-sq\">3</span>Low</span><span class=\"ds-prio ds-prio-none\"><span class=\"ds-prio-sq\" aria-hidden=\"true\">?</span>Untriaged</span></div>",
+      "css": ".ds-prios { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; font: 400 0.90625rem/1.5 var(--font); color: var(--ink); } .ds-prio { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; white-space: nowrap; } .ds-prio-sq { display: inline-grid; place-items: center; width: 1.625rem; height: 1.625rem; border-radius: var(--r-sm); font-size: 0.875rem; font-weight: 700; line-height: 1; } .ds-prio-high .ds-prio-sq { background: var(--p1); color: #fff; } .ds-prio-moderate .ds-prio-sq { background: var(--p2); color: var(--ink); } .ds-prio-low .ds-prio-sq { background: var(--p3); color: #fff; } .ds-prio-none { font-weight: 600; color: var(--ink-2); } .ds-prio-none .ds-prio-sq { border: 1.5px dashed var(--ink-3); color: var(--ink-3); }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Lifecycle status in ink: the dot fills in quarters; end states take an icon.",
+      "html": "<div class=\"ds-statuses\"><span class=\"ds-status\" style=\"--fill: 0\"><span class=\"ds-status-dot\"></span>Pending</span><span class=\"ds-status\" style=\"--fill: 25\"><span class=\"ds-status-dot\"></span>Assigned</span><span class=\"ds-status\" style=\"--fill: 50\"><span class=\"ds-status-dot\"></span>Scoping</span><span class=\"ds-status\" style=\"--fill: 75\"><span class=\"ds-status-dot\"></span>In Progress</span><span class=\"ds-status ds-status-completed\"><svg class=\"ds-status-i\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg>Completed</span></div>",
+      "css": ".ds-statuses { display: flex; flex-wrap: wrap; gap: 0.5rem; } .ds-status { display: inline-flex; align-items: center; gap: 0.4375rem; padding: 0.125rem 0.5625rem 0.125rem 0.4375rem; border-radius: 999px; border: 1px solid var(--rule-strong); background: var(--paper); font: 600 0.84375rem/1.5 var(--font); white-space: nowrap; color: var(--ink); } .ds-status-dot { width: 0.6875rem; height: 0.6875rem; border-radius: 50%; border: 1.5px solid var(--ink); background: conic-gradient(var(--ink) calc(var(--fill, 0) * 1%), transparent 0); } .ds-status-completed { border-color: var(--room-edge); background: var(--green-wash); color: var(--room-ink); } .ds-status-i { width: 0.875rem; height: 0.875rem; fill: none; stroke: var(--green); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }"
+    },
+    {
+      "name": "Top Band",
+      "kind": "nav",
+      "refersTo": "band",
+      "description": "Sticky room-green band: brand, navigation with open count, current page as a paper tile.",
+      "html": "<header class=\"ds-band\"><a class=\"ds-brand\" href=\"#\"><svg class=\"ds-mark\" viewBox=\"0 0 28 28\" aria-hidden=\"true\"><rect width=\"28\" height=\"28\" rx=\"7\" fill=\"currentColor\"/><path d=\"M7.5 8h13a2 2 0 0 1 2 2v1.9a2.1 2.1 0 0 0 0 4.2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-1.9a2.1 2.1 0 0 0 0-4.2V10a2 2 0 0 1 2-2z\" fill=\"#fff\"/><path d=\"M10.4 14.3l2.5 2.4 4.8-5.1\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg><span>HelpDesk Pro</span></a><nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#\" aria-current=\"page\">Dashboard</a><a class=\"ds-nav-link\" href=\"#\">Tickets <span class=\"ds-nav-count\">17</span></a><a class=\"ds-nav-link\" href=\"#\">Users</a><a class=\"ds-nav-link\" href=\"#\">Categories</a></nav></header>",
+      "css": ".ds-band { display: flex; align-items: center; gap: 2rem; height: 3.5rem; padding: 0 2rem; background: var(--room); color: var(--room-ink); border-bottom: 1px solid var(--room-edge); font: 400 0.90625rem/1.5 var(--font); } .ds-brand { display: inline-flex; align-items: center; gap: 0.625rem; color: var(--room-ink); text-decoration: none; font-weight: 700; font-size: 1.0625rem; letter-spacing: -0.005em; white-space: nowrap; } .ds-mark { width: 1.75rem; height: 1.75rem; color: var(--green); flex: none; } .ds-nav { display: flex; align-items: center; gap: 0.25rem; } .ds-nav-link { display: inline-flex; align-items: center; gap: 0.5rem; height: 2.25rem; padding: 0 0.75rem; border-radius: var(--r); color: var(--room-ink); text-decoration: none; font-weight: 500; white-space: nowrap; transition: background-color 150ms; } .ds-nav-link:hover { background: rgb(255 255 255 / 0.5); } .ds-nav-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-nav-link[aria-current=\"page\"] { background: var(--paper); font-weight: 700; } .ds-nav-count { font-size: 0.78125rem; font-weight: 700; line-height: 1.25rem; padding: 0 0.4rem; border-radius: var(--r-sm); background: var(--room-deep); font-variant-numeric: tabular-nums; } .ds-nav-link[aria-current=\"page\"] .ds-nav-count { background: var(--room); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Label above, field-edge border, green focus ring, help text beneath.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-subject\">Subject</label><input class=\"ds-input\" id=\"ds-subject\" type=\"text\" placeholder=\"One line that says what is wrong\"><p class=\"ds-field-help\">Shown in the queue and in notifications.</p></div>",
+      "css": ".ds-field { max-width: 24rem; font: 400 0.90625rem/1.5 var(--font); color: var(--ink); } .ds-field-label { display: block; margin-bottom: 0.3125rem; font-weight: 600; font-size: 0.84375rem; } .ds-input { display: block; width: 100%; height: 2.5rem; padding: 0 0.75rem; border: 1px solid var(--field-edge); border-radius: var(--r); background: var(--paper); color: var(--ink); font: inherit; transition: border-color 150ms, box-shadow 150ms; } .ds-input::placeholder { color: var(--ink-3); opacity: 1; } .ds-input:hover { border-color: var(--ink-3); } .ds-input:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgb(13 90 65 / 0.18); } .ds-field-help { margin: 0.3125rem 0 0; font-size: 0.84375rem; color: var(--ink-3); }"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Flat paper surface with a hairline border; head with title and count, rows divided by hairlines.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><h2>Waiting for triage</h2><span class=\"ds-panel-count\">5</span></div><ul class=\"ds-rows\"><li><a class=\"ds-row-link\" href=\"#\"><span class=\"ds-row-title\">New employee cannot connect to VPN</span><span class=\"ds-row-meta\">TKT000027 · James Wilson · 21 h ago</span></a></li><li><a class=\"ds-row-link\" href=\"#\"><span class=\"ds-row-title\">Request for read access to Policy Admin database</span><span class=\"ds-row-meta\">TKT000023 · Robert Patel · 2 h ago</span></a></li></ul></section>",
+      "css": ".ds-panel { max-width: 22rem; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--r-lg); overflow: hidden; font: 400 0.90625rem/1.5 var(--font); color: var(--ink); } .ds-panel-head { display: flex; align-items: baseline; gap: 0.25rem 0.75rem; padding: 0.875rem 1.125rem; } .ds-panel-head h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; line-height: 1.3; } .ds-panel-count { font-size: 0.78125rem; font-weight: 700; line-height: 1.3125rem; padding: 0 0.45rem; border-radius: var(--r-sm); background: var(--room); color: var(--room-ink); } .ds-rows { margin: 0; padding: 0; list-style: none; } .ds-rows > li { border-top: 1px solid var(--rule); } .ds-row-link { display: block; padding: 0.625rem 1.125rem; color: var(--ink); text-decoration: none; transition: background-color 120ms; } .ds-row-link:hover { background: #f7fbf9; } .ds-row-link:hover .ds-row-title { color: var(--green); text-decoration: underline; } .ds-row-link:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; } .ds-row-title { display: block; font-weight: 700; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-row-meta { display: block; font-size: 0.84375rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Triage Board",
+    "overview": "HelpDesk Pro looks like the board in an emergency department, applied to IT tickets. The room is a calm, pale theatre green so that red is unmissable. Priority is a triage category drawn as a numbered square, and every open ticket carries a clock against its SLA. The working surfaces are white chart paper divided by green-grey hairlines; deep green is reserved for the action you take next.\n\nThe system is dense and quiet. One typeface carries every voice. Depth is carried by tone and hairline, and the only things that float are menus and the tooltip. Colour is spent on urgency: red, amber and green belong to the triage scale and the clock zones, and ticket status is deliberately drawn in ink so it never competes with them. Page headings are sentences that state what is late and what is waiting.\n\nThe owner chose this direction and rejected four things by name: looking like a stock admin template (dark sidebar, white KPI cards, coloured icon tiles), being playful, needing training, and resembling Zendesk or Jira. Navigation sits in a top band at the owner's request.",
+    "keyCharacteristics": [
+      "A pale green room with white paper surfaces and green-grey hairlines.",
+      "Priority as a numbered square: 1 High, 2 Moderate, 3 Low, dashed for Untriaged.",
+      "A waiting clock on every open ticket: banded track, ink marker, plain-words label.",
+      "Status in ink only: a pill whose dot fills in quarters.",
+      "One typeface, Atkinson Hyperlegible Next, with fixed-width figures wherever numbers line up.",
+      "Flat surfaces; one shadow, for things that float.",
+      "One authored motion: each clock's marker travels to its position once on load."
+    ],
+    "rules": [
+      {
+        "name": "The Quiet Room Rule",
+        "body": "Red, amber and triage green mean urgency or outcome. They are never used for categories, charts of neutral data, avatars or emphasis. Avatar tints and neutral bars stay in the room's green-to-stone range.",
+        "section": "colors"
+      },
+      {
+        "name": "The Number Carries It Rule",
+        "body": "No state depends on colour alone. The priority square holds its rank as a digit, the clock has a written label, status has a dot fill or an icon, and Untriaged is dashed and unfilled.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Status Rule",
+        "body": "A ticket in progress shows its status in ink on paper. Only an end state changes the pill: Completed takes the green wash and a tick, Cancelled and Rejected sit on the ground tint with an icon.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Where It Lines Up Rule",
+        "body": "Fixed-width figures are switched on only where numbers align or change in place: tables, figures, clocks, ticket numbers, counts, pagers, timestamps. Running text keeps proportional figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Head Rule",
+        "body": "Headings say what is true (\"2 tickets are past their SLA deadline\"), in sentence case. Nothing is set in capitals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Paper Stays Down Rule",
+        "body": "Panels, tables, figures and alerts are flat. Do not add a resting or hover shadow to a surface that is part of the page.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do put a waiting clock on every open, triaged ticket wherever it is listed, and a verdict on every closed one.",
+      "Do show priority as the numbered square with its name. Use the dashed, unfilled treatment for anything Untriaged.",
+      "Do keep red, amber and triage green for urgency and outcome, and pair each with a digit, word or icon.",
+      "Do write page headings as sentences that state the situation, with counts.",
+      "Do group related summaries in one panel divided by hairlines.",
+      "Do use Amber Ink for amber words on a light surface; Triage Amber is for fills.",
+      "Do switch on fixed-width figures for any new column or counter where numbers line up.",
+      "Do give every hover explanation a keyboard-focus equivalent, and honour reduced motion.",
+      "Do keep assets self-hosted: the font, Chart.js and the icon sprite ship with the app, which makes no outside requests.",
+      "Do keep the role names Admin, Manager and Viewer and the existing labels as written."
+    ],
+    "donts": [
+      "Don't build a dark sidebar, a row of separate white KPI cards, or coloured icon tiles. The owner rejected the stock admin template look.",
+      "Don't make it playful: no illustration, mascots or celebratory motion.",
+      "Don't borrow the look of Zendesk or Jira.",
+      "Don't colour the status of a ticket in progress; the dot fill carries it.",
+      "Don't use the triage colours for categories, avatars or neutral charts.",
+      "Don't add shadows to panels, tables or figures.",
+      "Don't add a second typeface, capitals or letter-spaced labels.",
+      "Don't animate anything on load beyond the clock marker and the meters.",
+      "Don't show a blank where a value is missing; say what is missing and why."
+    ]
+  }
+}

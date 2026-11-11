@@ -51,8 +51,9 @@ and Excel export, a REST API, and a Power BI report.
 
 ## Capabilities and Constraints
 
-- Django 5.1 server-rendered templates, Bootstrap 4, Chart.js 4, plain CSS in
-  `static/css/main.css`. No JS build step.
+- Django 5.1 server-rendered templates and plain CSS in `static/css/main.css`,
+  with no CSS framework and no JS build step. Fonts, icons and Chart.js 4 ship
+  with the app; pages make no outside requests.
 - Role-based access: each role sees a different queryset and navigation.
 - Dashboard KPIs and charts load from `/api/v1/analytics/dashboard/` after
   page load.
