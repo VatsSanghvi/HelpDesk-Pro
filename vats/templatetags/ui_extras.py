@@ -163,3 +163,9 @@ def ago(moment):
         return f"{round(hours)}\u00a0h ago"
     days = round(hours / 24)
     return "yesterday" if days == 1 else f"{days}\u00a0days ago"
+
+
+@register.filter
+def is_unset(value):
+    """True for the ways the audit trail records "there was no value before"."""
+    return value in (None, "", "None")

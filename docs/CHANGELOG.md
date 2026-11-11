@@ -29,8 +29,11 @@ tinted icon tiles) and said neither.
   queries, and the navigation collapses into a menu.
 - The seed command now dates tickets relative to now (`seed_data --retime`),
   so a demo shows a working desk rather than 12 tickets a month overdue.
-- Added a test suite (22 tests): the SLA clock, the dashboard summary, and
-  every screen for every role.
+- The ticket list now opens in order of urgency: tickets on the clock by
+  deadline, then untriaged ones longest-waiting first, then closed ones. It
+  used to be newest-first, which buried breached tickets mid-page.
+- Added a test suite (27 tests): the SLA clock, the dashboard summary, the
+  list order, and every screen for every role.
 - Fixed along the way: deleting a subcategory crashed on redirect; the SLA
   due time was shown in a different time offset from created and updated;
   assignee dropdowns listed email addresses instead of names.

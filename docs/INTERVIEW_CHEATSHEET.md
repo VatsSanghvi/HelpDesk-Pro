@@ -224,7 +224,7 @@ been working on lately.
   ticket showing how much of its SLA window is used. The dashboard leads with
   a sentence instead of KPI tiles, employees get a progress line per ticket,
   and navigation moved to a top bar. Removed Bootstrap, jQuery and all CDNs,
-  so the app makes no outside requests. Added 22 tests. Write-up in
+  so the app makes no outside requests. Added 27 tests. Write-up in
   `docs/UI_PRODUCT_REDESIGN.md`.
 
 - **2026-09-09** — Full UI redesign. Rebuilt the badge matrix so status and

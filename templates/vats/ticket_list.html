@@ -112,7 +112,7 @@
               {% endif %}
             </td>
             <td class="c-date hide-md nowrap muted">{{ ticket.get_updated_at|date:"d M, H:i" }}</td>
-            <td class="c-sla">{% include 'partials/clock.html' with ticket=ticket index=forloop.counter0 %}</td>
+            <td class="c-sla">{% include 'partials/clock.html' with ticket=ticket focusable=True index=forloop.counter0 %}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -171,10 +171,10 @@
 {# Real aggregates over the role-scoped set, so a Manager sees their own numbers. #}
 <div class="figures figures-4 section-gap" aria-label="Queue figures">
   <div class="figure"><b>{{ stats.unassigned }}</b><span>unassigned backlog</span></div>
-  <div class="figure{% if stats.breached %} is-alert{% endif %}"><b>{{ stats.breached }}</b><span>SLA breached</span></div>
+  <div class="figure{% if stats.breached %} is-alert{% endif %}"><b>{{ stats.breached }}</b><span>past SLA deadline</span></div>
   <div class="figure{% if not stats.avg_response %} is-empty{% endif %}">
-    <b>{% if stats.avg_response %}{{ stats.avg_response }} hrs{% else %}–{% endif %}</b>
-    <span>avg first response{% if not stats.avg_response %}, none recorded yet{% endif %}</span>
+    <b>{% if stats.avg_response %}{{ stats.avg_response }} h{% else %}–{% endif %}</b>
+    <span>average first response{% if not stats.avg_response %}, none yet{% endif %}</span>
   </div>
   <div class="figure{% if not stats.resolution_rate %} is-empty{% endif %}">
     <b>{% if stats.resolution_rate %}{{ stats.resolution_rate }}%{% else %}–{% endif %}</b><span>resolution rate</span>

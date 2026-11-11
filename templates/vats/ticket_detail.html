@@ -143,7 +143,8 @@
                   <span class="feed-when">{{ work_note.get_created_at|date:"d M, H:i" }}</span>
                 </div>
                 <p class="feed-change">
-                  {{ work_note.field_name }} changed from <s>{{ work_note.old_value|default:"None" }}</s> to <b>{{ work_note.new_value }}</b>
+                  {% if work_note.old_value|is_unset %}{{ work_note.field_name }} set to <b>{{ work_note.new_value }}</b>
+                  {% else %}{{ work_note.field_name }} changed from <s>{{ work_note.old_value }}</s> to <b>{{ work_note.new_value }}</b>{% endif %}
                 </p>
               </div>
             </li>

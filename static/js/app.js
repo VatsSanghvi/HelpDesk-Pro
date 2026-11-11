@@ -141,9 +141,16 @@
     tip.hidden = false;
     var box = el.getBoundingClientRect();
     var own = tip.getBoundingClientRect();
-    var left = Math.min(Math.max(8, box.left), window.innerWidth - own.width - 8);
-    var top = box.top - own.height - 8;
-    if (top < 8) top = box.bottom + 8;
+    // Beside the element when there is room, so the tip covers part of its
+    // own row instead of the row above or below; otherwise above, then below.
+    var left = box.left - own.width - 10;
+    var top = box.top + (box.height - own.height) / 2;
+    if (left < 8) {
+      left = Math.min(Math.max(8, box.left), window.innerWidth - own.width - 8);
+      top = box.top - own.height - 8;
+      if (top < 8) top = box.bottom + 8;
+    }
+    top = Math.min(Math.max(8, top), window.innerHeight - own.height - 8);
     tip.style.left = left + 'px';
     tip.style.top = top + 'px';
   }

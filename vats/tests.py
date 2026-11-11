@@ -129,6 +129,17 @@ class DashboardTests(Fixture):
         self.assertEqual([t.title for t in context["board"]], ["Mine"])
         self.assertEqual(context["headline"], "Your one open ticket is on time")
 
+    def test_manager_headline_reads_correctly_for_one_late_ticket(self):
+        self.ticket("Overdue", used=1.5)
+        self.ticket("Fine", used=0.2)
+        self.assertEqual(build_dashboard(self.manager)["headline"], "1 of your tickets is past its SLA deadline")
+
+    def test_admin_sentences_link_to_the_queues_they_describe(self):
+        self.ticket("Overdue", used=1.5)
+        self.ticket("New", status="Pending")
+        urls = [part.get("url") for part in build_dashboard(self.admin)["lede_parts"]]
+        self.assertEqual(urls, [reverse("ticket_list_status", args=["Pending"]), reverse("ticket_list")])
+
     def test_viewer_sees_their_open_tickets(self):
         self.ticket("Mine", used=0.2)
         context = build_dashboard(self.viewer)
@@ -221,6 +232,26 @@ class ScreenTests(Fixture):
         self.assertContains(response, "clock-soon")
         self.assertContains(response, "Open ticket")
         self.assertContains(response, "waiting for triage")
+
+    def test_ticket_list_puts_what_needs_attention_first(self):
+        self.ticket("Due later", status="Assigned", priority="Low", used=0.1)
+        self.ticket("Overdue", status="Assigned", used=1.5)
+        self.client.force_login(self.admin)
+        titles = [t.title for t in self.client.get(reverse("ticket_list")).context["tickets"]]
+        # On the clock by deadline, then untriaged, then closed.
+        self.assertEqual(titles, ["Overdue", "Open ticket", "Due later", "New ticket", "Done ticket"])
+
+    def test_employee_dashboard_shows_when_a_ticket_is_due(self):
+        self.client.force_login(self.viewer)
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, 'class="clock clock-soon"')
+        self.assertContains(response, "Its deadline is set then.")
+
+    def test_triage_form_says_what_to_choose(self):
+        self.client.force_login(self.admin)
+        response = self.client.post(reverse("ticket_approve", args=[self.new.id]), {})
+        self.assertContains(response, "Choose a priority.")
+        self.assertContains(response, "Choose a manager.")
 
     def test_deleting_a_subcategory_returns_to_its_list(self):
         spare = Subcategory.objects.create(category=self.category, name="Spare")

@@ -7,7 +7,7 @@
   <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
   <link rel="preload" href="{% static 'fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
   {# ?v= is a cache buster: bump it when main.css or app.js changes. #}
-  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=5">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}?v=6">
   {% block css %}{% endblock %}
 </head>
 <body>
@@ -35,7 +35,7 @@
 
     <div class="band-actions">
       {% if request.user.role == "Viewer" %}
-      <a class="btn btn-primary" href="{% url 'ticket_create' %}">{% icon 'plus' %}<span class="hide-sm">Raise New Ticket</span><span class="visually-hidden">Raise New Ticket</span></a>
+      <a class="btn btn-primary" href="{% url 'ticket_create' %}" aria-label="Raise New Ticket">{% icon 'plus' %}<span class="hide-sm" aria-hidden="true">Raise New Ticket</span></a>
       {% endif %}
 
       {# Real notifications, created from ticket events. An empty bell means nothing has happened. #}
@@ -104,7 +104,7 @@
 {% block body %}{% endblock %}
 </main>
 
-<script src="{% static 'js/app.js' %}?v=5" defer></script>
+<script src="{% static 'js/app.js' %}?v=6" defer></script>
 {% block js %}{% endblock %}
 </body>
 </html>

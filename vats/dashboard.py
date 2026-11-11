@@ -7,6 +7,7 @@ not a widget that loads afterwards. Only the charts further down the page are
 fetched from the analytics API.
 """
 from django.db.models import Count
+from django.urls import reverse
 
 from registration.models import User
 from .models import Ticket
@@ -14,7 +15,7 @@ from .models import Ticket
 OPEN_STATUSES = ('Pending', 'Assigned', 'Scoping', 'In Progress')
 CLOSED_STATUSES = ('Completed', 'Cancelled', 'Rejected')
 
-BOARD_ROWS = 8      # open tickets shown before "All tickets"
+BOARD_ROWS = 7      # open tickets shown before "All tickets"; keeps the figures row in the first screen
 TRIAGE_ROWS = 4     # untriaged tickets shown before "and N more"
 
 
@@ -31,26 +32,27 @@ def _scoped(user):
     return base.filter(created_by=user)
 
 
-def _headline(late, soon, untriaged, open_count, whose):
+def _headline(late, soon, untriaged, open_count, mine=False):
     """
-    One sentence, worst news first. `whose` is '' for the whole desk or
-    'your ' for a personal queue.
+    One sentence, worst news first. `mine` words it for a personal queue
+    ("2 of your tickets") instead of the whole desk ("2 tickets").
     """
+    def subject(count):
+        return f"{count} of your tickets" if mine else f"{count} {_plural(count, 'ticket')}"
+
     if late:
-        verb = 'is' if late == 1 else 'are'
-        its = 'its' if late == 1 else 'their'
-        return f"{late} {'of ' + whose if whose else ''}{_plural(late, 'ticket')} {verb} past {its} SLA deadline"
+        verb, its = ('is', 'its') if late == 1 else ('are', 'their')
+        return f"{subject(late)} {verb} past {its} SLA deadline"
     if untriaged:
         verb = 'is' if untriaged == 1 else 'are'
         return f"{untriaged} new {_plural(untriaged, 'ticket')} {verb} waiting for triage"
     if soon:
-        verb = 'is' if soon == 1 else 'are'
-        its = 'its' if soon == 1 else 'their'
-        return f"{soon} {'of ' + whose if whose else ''}{_plural(soon, 'ticket')} {verb} close to {its} SLA deadline"
+        verb, its = ('is', 'its') if soon == 1 else ('are', 'their')
+        return f"{subject(soon)} {verb} close to {its} SLA deadline"
+    if open_count == 1:
+        return "Your one open ticket is on time" if mine else "The one open ticket is on time"
     if open_count:
-        if open_count == 1:
-            return f"{whose.capitalize() or 'The '}one open ticket is on time"
-        return f"All {open_count} {'of ' + whose if whose else ''}open tickets are on time"
+        return f"All {open_count} of your open tickets are on time" if mine else f"All {open_count} open tickets are on time"
     return "No open tickets"
 
 
@@ -86,16 +88,24 @@ def build_dashboard(user):
     }
 
     if user.role == 'Admin':
-        context['headline'] = _headline(len(late), len(soon), len(untriaged), len(open_tickets), '')
+        context['headline'] = _headline(len(late), len(soon), len(untriaged), len(open_tickets))
+        # The sentences under the headline are also the shortcuts: on a phone
+        # the triage panel is a long scroll away, the sentence about it is not.
         parts = []
         if late and untriaged:
             verb = 'is' if len(untriaged) == 1 else 'are'
-            parts.append(f"{len(untriaged)} new {_plural(len(untriaged), 'ticket')} {verb} waiting for triage.")
+            parts.append({
+                'text': f"{len(untriaged)} new {_plural(len(untriaged), 'ticket')} {verb} waiting for triage.",
+                'url': reverse('ticket_list_status', args=['Pending']),
+            })
         if open_tickets:
-            parts.append(f"{len(open_tickets)} {'is' if len(open_tickets) == 1 else 'are'} open in total.")
+            parts.append({
+                'text': f"{len(open_tickets)} {'is' if len(open_tickets) == 1 else 'are'} open in total.",
+                'url': reverse('ticket_list'),
+            })
         else:
-            parts.append("New tickets appear here as soon as someone raises one.")
-        context['lede'] = ' '.join(parts)
+            parts.append({'text': "New tickets appear here as soon as someone raises one."})
+        context['lede_parts'] = parts
         context['untriaged'] = untriaged[:TRIAGE_ROWS]
         context['untriaged_more'] = max(0, len(untriaged) - TRIAGE_ROWS)
 
@@ -113,14 +123,17 @@ def build_dashboard(user):
         context['team'] = sorted(team, key=lambda m: -m['open'])
 
     elif user.role == 'Manager':
-        context['headline'] = _headline(len(late), len(soon), 0, len(open_tickets), 'your ')
+        context['headline'] = _headline(len(late), len(soon), 0, len(open_tickets), mine=True)
         if open_tickets:
-            context['lede'] = (
-                f"{len(open_tickets)} {_plural(len(open_tickets), 'ticket')} "
-                f"{'is' if len(open_tickets) == 1 else 'are'} assigned to you and still open."
-            )
+            context['lede_parts'] = [{
+                'text': (
+                    f"{len(open_tickets)} {_plural(len(open_tickets), 'ticket')} "
+                    f"{'is' if len(open_tickets) == 1 else 'are'} assigned to you and still open."
+                ),
+                'url': reverse('my_tickets'),
+            }]
         else:
-            context['lede'] = "Tickets appear here when an Admin assigns them to you."
+            context['lede_parts'] = [{'text': "Tickets appear here when an Admin assigns them to you."}]
         by_status = dict(
             scoped.filter(status__in=OPEN_STATUSES)
                   .values_list('status').annotate(n=Count('id')).values_list('status', 'n')
@@ -136,10 +149,10 @@ def build_dashboard(user):
         count = len(mine_open)
         if count:
             context['headline'] = f"You have {count} open {_plural(count, 'ticket')}"
-            context['lede'] = "Each one shows where it stands. You will get an email when its status changes."
+            context['lede_parts'] = [{'text': "Each one shows where it stands and when it is due. You will get an email when its status changes."}]
         else:
             context['headline'] = "You have no open tickets"
-            context['lede'] = "Something not working? Raise a ticket and the IT team will pick it up."
+            context['lede_parts'] = [{'text': "Something not working? Raise a ticket and the IT team will pick it up."}]
         context['my_open'] = mine_open
         context['my_closed'] = list(
             scoped.filter(status__in=CLOSED_STATUSES).order_by('-updated_at')[:5]

@@ -7,7 +7,7 @@
 <div class="page-head">
   <div>
     <h1>{{ headline }}</h1>
-    <p class="lede">{{ lede }}</p>
+    <p class="lede">{% for part in lede_parts %}{% if part.url %}<a href="{{ part.url }}">{{ part.text }}</a>{% else %}{{ part.text }}{% endif %} {% endfor %}</p>
   </div>
 </div>
 
@@ -28,9 +28,14 @@
             <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
             <span class="t-meta">{{ ticket.number }} · {{ ticket.category }} · raised {{ ticket.get_created_at|date:"d M, H:i" }}</span>
           </div>
-          <span class="t-meta nowrap">
-            {% if ticket.assigned_to %}With {{ ticket.assigned_to|display_name }}{% else %}Waiting for triage{% endif %}
-          </span>
+          <div class="progress-due">
+            {% if ticket.status == "Pending" %}
+            <span class="t-meta">Waiting for triage. Its deadline is set then.</span>
+            {% else %}
+            {% include 'partials/clock.html' with ticket=ticket focusable=True index=forloop.counter0 %}
+            <span class="t-meta">{% if ticket.assigned_to %}With {{ ticket.assigned_to|display_name }}{% else %}Unassigned{% endif %}</span>
+            {% endif %}
+          </div>
         </div>
         {% lifecycle ticket as steps %}
         <ol class="steps" aria-label="Progress of {{ ticket.number }}">
@@ -130,7 +135,7 @@
       {% endif %}
     </section>
 
-    <div class="figures" aria-label="Service figures">
+    <div class="figures figures-6" aria-label="Service figures">
       <div class="figure"><b>{{ open_count }}</b><span>open</span></div>
       <div class="figure{% if late_count %} is-alert{% endif %}"><b>{{ late_count }}</b><span>past SLA deadline</span></div>
       {% if request.user.role == "Admin" %}
@@ -143,11 +148,11 @@
       </div>
       <div class="figure{% if avg_first_response is None %} is-empty{% endif %}">
         <b>{% if avg_first_response is None %}–{% else %}{{ avg_first_response }} h{% endif %}</b>
-        <span>average first response{% if avg_first_response is None %}, none recorded yet{% endif %}</span>
+        <span>average first response{% if avg_first_response is None %}, none yet{% endif %}</span>
       </div>
       <div class="figure{% if avg_csat is None %} is-empty{% endif %}">
         <b>{% if avg_csat is None %}–{% else %}{{ avg_csat }} / 5{% endif %}</b>
-        <span>CSAT rating{% if avg_csat is None %}, no tickets rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
+        <span>CSAT rating{% if avg_csat is None %}, none rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
       </div>
     </div>
   </div>
@@ -217,29 +222,29 @@
   </aside>
 </div>
 
-<div class="trio section-gap">
-  <section class="panel" aria-labelledby="volume-title">
+<section class="panel split section-gap" aria-label="Volume and breakdown">
+  <div class="split-col">
     <div class="panel-head"><h2 id="volume-title">Ticket volume, last 7 days</h2><span class="panel-note">By current status</span></div>
     <div class="panel-body">
       <div class="chart-legend" aria-hidden="true">
-        <span><i style="--swatch: #0d5a41"></i>Open</span>
+        <span><i style="--swatch: var(--green)"></i>Open</span>
         <span><i style="--swatch: #8fbfa8"></i>Resolved</span>
-        <span><i style="--swatch: #c9d6ce"></i>Pending</span>
+        <span><i class="is-outline"></i>Pending</span>
       </div>
       <div class="chart-box"><canvas id="volumeChart" role="img" aria-label="Tickets raised on each of the last seven days, by current status"></canvas></div>
     </div>
-  </section>
+  </div>
 
-  <section class="panel" aria-labelledby="priority-title">
+  <div class="split-col">
     <div class="panel-head"><h2 id="priority-title">Priority breakdown</h2><span class="panel-note">All tickets</span></div>
     <div class="panel-body"><div class="bars" id="priority-bars"><p class="muted">Loading…</p></div></div>
-  </section>
+  </div>
 
-  <section class="panel" aria-labelledby="category-title">
+  <div class="split-col">
     <div class="panel-head"><h2 id="category-title">Tickets by category</h2><span class="panel-note">All tickets</span></div>
     <div class="panel-body"><div class="bars" id="category-bars"><p class="muted">Loading…</p></div></div>
-  </section>
-</div>
+  </div>
+</section>
 {% endif %}
 
 {% endblock %}
@@ -302,7 +307,11 @@ document.addEventListener('DOMContentLoaded', function () {
         type: 'bar',
         data: {
           labels: days.map(function (day) { return day.date; }),
-          datasets: [series('open', 'Open', '#0d5a41'), series('resolved', 'Resolved', '#8fbfa8'), series('pending', 'Pending', '#c9d6ce')]
+          datasets: [
+            series('open', 'Open', token('--green')),
+            series('resolved', 'Resolved', '#8fbfa8'),
+            Object.assign(series('pending', 'Pending', token('--paper')), { borderColor: token('--ink-3'), borderWidth: 1.5, borderSkipped: false })
+          ]
         },
         options: {
           responsive: true, maintainAspectRatio: false,

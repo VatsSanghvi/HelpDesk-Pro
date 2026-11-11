@@ -62,8 +62,9 @@ filters. The filters ("My Tickets", "Pending", "Assigned", "In Progress")
 became controls on the ticket page, which leaves four destinations in a top
 bar and gives the ticket table the full width.
 
-**Ticket list.** Category moved into the summary line under the title, which
-gave the subject column room. Status became a pill whose dot fills as the
+**Ticket list.** It now opens in order of urgency (on the clock by deadline,
+then untriaged, then closed) instead of newest first. Category moved into the
+summary line under the title, which gave the subject column room. Status became a pill whose dot fills as the
 ticket advances, so status and priority never look alike and neither relies on
 colour.
 

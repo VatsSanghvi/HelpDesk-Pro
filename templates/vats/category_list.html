@@ -34,9 +34,11 @@
           <td><a href="{% url 'subcategory_list' category.id %}">View {{ category.subcategory_set.count }} subcategories</a></td>
           <td>{{ category.ticket_set.count }} tickets</td>
           <td class="col-end col-tight">
-            <a class="btn btn-secondary btn-sm" href="{% url 'subcategory_create' category.id %}">{% icon 'plus' 'i-sm' %}Sub</a>
-            <a class="btn btn-danger btn-sm" href="{% url 'category_delete' category.id %}"
-               data-confirm="Delete category {{ category.name }}? Its {{ category.ticket_set.count }} tickets and its subcategories are deleted with it.">Delete</a>
+            <span class="row-actions">
+              <a class="btn btn-secondary btn-sm" href="{% url 'subcategory_create' category.id %}">{% icon 'plus' 'i-sm' %}Sub</a>
+              <a class="btn btn-danger btn-sm" href="{% url 'category_delete' category.id %}"
+                 data-confirm="Delete category {{ category.name }}? Its {{ category.ticket_set.count }} tickets and its subcategories are deleted with it.">Delete</a>
+            </span>
           </td>
         </tr>
         {% endfor %}

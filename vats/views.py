@@ -16,7 +16,7 @@ from registration.decorators import adminnotallowed, manager_required, viewer_re
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Avg
+from django.db.models import Q, Count, Avg, Case, When, Value, IntegerField, F
 from django.utils.http import url_has_allowed_host_and_scheme
 
 def work_note_update(request, ticket_id, field_name, old_value, new_value):
@@ -121,7 +121,21 @@ def ticket_list_context(request, tickets, status=None, page_title=None, my_view=
     total = scoped.count()
     closed = scoped.filter(status__in=closed_statuses).count()
 
-    tickets = tickets.order_by('-created_at')
+    # What needs attention next comes first: tickets on the clock by deadline,
+    # then untriaged ones longest-waiting first, then closed ones newest first.
+    tickets = tickets.annotate(
+        urgency=Case(
+            When(status__in=closed_statuses, then=Value(2)),
+            When(due_by__isnull=True, then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        ),
+    ).order_by(
+        'urgency',
+        Case(When(urgency=0, then=F('due_by'))),
+        Case(When(urgency=1, then=F('created_at'))),
+        '-created_at',
+    )
     paginator = Paginator(tickets, 15)
     page_obj = paginator.get_page(request.GET.get('page'))
 
