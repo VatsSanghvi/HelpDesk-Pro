@@ -18,7 +18,7 @@
   <section class="panel" aria-labelledby="ticket-form-title">
     <div class="panel-head"><h2 id="ticket-form-title">Ticket Information</h2></div>
     <div class="panel-body">
-      <form method="POST" class="form" data-subcategory-url="{% url 'ajax_load_subcategories' %}">
+      <form method="POST" class="form" data-subcategory-url="{% url 'ajax_load_subcategories' %}" data-detail-url="{% url 'ajax_load_details' %}">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -38,11 +38,17 @@
           </div>
         </div>
 
+        <div class="field">
+          <label for="id_detail">Detail</label>
+          {{ form.detail }}
+          <p class="field-help">Optional. Narrows the subcategory further where your IT team has set it up.</p>
+        </div>
+
         <div class="field{% if form.title.errors %} has-error{% endif %}">
           <label for="id_title">Title <span class="req" aria-hidden="true">*</span></label>
           {{ form.title }}
           {% if form.title.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ form.title.errors.0 }}</p>
-          {% else %}<p class="field-help">Brief one-line description of the issue, up to 50 characters.</p>{% endif %}
+          {% else %}<p class="field-help">Brief one-line description of the issue, up to 150 characters.</p>{% endif %}
         </div>
 
         <div class="field{% if form.problem_descp.errors %} has-error{% endif %}">

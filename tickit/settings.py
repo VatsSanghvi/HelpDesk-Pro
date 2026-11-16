@@ -27,6 +27,20 @@ SLA_HOURS = {
     'Low':      env('SLA_LOW_HOURS'),
 }
 
+# Working hours for turnaround time (TAT). Time outside them is not counted.
+WORK_START_HOUR = env.int('WORK_START_HOUR', default=9)
+WORK_END_HOUR   = env.int('WORK_END_HOUR', default=18)
+WORK_DAYS       = tuple(int(d) for d in env('WORK_DAYS', default='0,1,2,3,4').split(','))  # 0 = Monday
+
+# Support mailbox: emails sent here become tickets (python manage.py fetch_mail)
+SUPPORT_IMAP_HOST     = env('SUPPORT_IMAP_HOST', default='imap.gmail.com')
+SUPPORT_IMAP_USER     = env('SUPPORT_IMAP_USER', default='')
+SUPPORT_IMAP_PASSWORD = env('SUPPORT_IMAP_PASSWORD', default='')
+# Only senders from these domains raise tickets directly (comma-separated,
+# e.g. "atulauto.co.in"). Empty means any known user. Everyone else is held
+# for an Admin to review.
+SUPPORT_ALLOWED_DOMAINS = [d.strip().lower() for d in env('SUPPORT_ALLOWED_DOMAINS', default='').split(',') if d.strip()]
+
 # Twilio — read from .env (no longer hardcoded in models.py)
 TWILIO_ACCOUNT_SID = env('TWILIO_ACCOUNT_SID', default='')
 TWILIO_AUTH_TOKEN  = env('TWILIO_AUTH_TOKEN',  default='')

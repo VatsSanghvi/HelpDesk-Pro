@@ -26,7 +26,7 @@
         <div class="progress-head">
           <div>
             <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
-            <span class="t-meta">{{ ticket.number }} · {{ ticket.category }} · raised {{ ticket.get_created_at|date:"d M, H:i" }}</span>
+            <span class="t-meta">{{ ticket.number }} · {{ ticket.category|default:"No category yet" }} · raised {{ ticket.get_created_at|date:"d M, H:i" }}</span>
           </div>
           <div class="progress-due">
             {% if ticket.status == "Pending" %}
@@ -113,7 +113,7 @@
               <td class="col-tight c-prio">{% include 'partials/priority.html' with priority=ticket.priority %}</td>
               <td class="c-main">
                 <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
-                <span class="t-meta">{{ ticket.number }} · {{ ticket.category }} · {{ ticket.status }}</span>
+                <span class="t-meta">{{ ticket.number }} · {{ ticket.category|default:"No category yet" }} · {{ ticket.status }}</span>
               </td>
               {% if request.user.role == "Admin" %}
               <td class="c-person hide-sm nowrap">{{ ticket.assigned_to|display_name|default:"Unassigned" }}</td>
@@ -143,8 +143,8 @@
       {% else %}
       <div class="figure"><b>{{ resolved_count }}</b><span>resolved</span></div>
       {% endif %}
-      <div class="figure{% if avg_resolution is None %} is-empty{% endif %}">
-        <b>{% if avg_resolution is None %}–{% else %}{{ avg_resolution }} h{% endif %}</b><span>average resolution</span>
+      <div class="figure{% if avg_turnaround is None %} is-empty{% endif %}">
+        <b>{% if avg_turnaround is None %}–{% else %}{{ avg_turnaround }}{% endif %}</b><span>average turnaround{% if avg_turnaround is None %}, none completed yet{% endif %}</span>
       </div>
       <div class="figure{% if avg_first_response is None %} is-empty{% endif %}">
         <b>{% if avg_first_response is None %}–{% else %}{{ avg_first_response }} h{% endif %}</b>
@@ -155,6 +155,32 @@
         <span>CSAT rating{% if avg_csat is None %}, none rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
       </div>
     </div>
+
+    {% if request.user.role == "Admin" %}
+    <section class="panel" aria-labelledby="team-title">
+      <div class="panel-head"><h2 id="team-title">Team workload</h2><span class="panel-note">Tickets per person. Avg TAT is working time from assignment to completion.</span></div>
+      {% if team %}
+      <div class="table-wrap">
+        <table class="table team-table">
+          <thead><tr><th>Person</th><th class="col-end">Open</th><th class="col-end">Resolved</th><th class="col-end">Total</th><th class="col-end">Avg TAT</th></tr></thead>
+          <tbody>
+            {% for member in team %}
+            <tr>
+              <td><span class="load-name">{{ member.user|display_name }}</span>{% if member.late %}<span class="load-late">{{ member.late }} late</span>{% endif %}</td>
+              <td class="col-end">{{ member.open }}</td>
+              <td class="col-end">{{ member.resolved }}</td>
+              <td class="col-end">{{ member.total }}</td>
+              <td class="col-end nowrap">{{ member.turnaround|default:"–" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty-inline">No managers yet. <a href="{% url 'user_create' %}">Add a user</a> with the Manager role to assign tickets.</p>
+      {% endif %}
+    </section>
+    {% endif %}
   </div>
 
   <aside class="stack">
@@ -182,22 +208,8 @@
       {% else %}
       <p class="empty-inline">Nothing is waiting. Every ticket raised so far has a priority and an owner.</p>
       {% endif %}
-    </section>
-
-    <section class="panel" aria-labelledby="team-title">
-      <div class="panel-head"><h2 id="team-title">Team workload</h2></div>
-      {% if team %}
-      <div class="rows">
-        {% for member in team %}
-        <div class="row load">
-          <span><span class="load-name">{{ member.user|display_name }}</span>{% if member.late %}<span class="load-late">{{ member.late }} late</span>{% endif %}</span>
-          <span class="load-open">{{ member.open }} open</span>
-          <span class="meter" aria-hidden="true"><i style="--share: {{ member.share }}%"></i></span>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <p class="empty-inline">No managers yet. <a href="{% url 'user_create' %}">Add a user</a> with the Manager role to assign tickets.</p>
+      {% if held_count %}
+      <a class="row-more" href="{% url 'inbound_list' %}" style="border-top: 1px solid var(--rule); color: var(--green); font-weight: 700;">{{ held_count }} email{{ held_count|pluralize }} from unknown senders to review</a>
       {% endif %}
     </section>
 
@@ -238,11 +250,39 @@
   <div class="split-col">
     <div class="panel-head"><h2 id="priority-title">Priority breakdown</h2><span class="panel-note">All tickets</span></div>
     <div class="panel-body"><div class="bars" id="priority-bars"><p class="muted">Loading…</p></div></div>
+    <div class="panel-head" style="border-top: 1px solid var(--rule);"><h2>Tickets by status</h2></div>
+    <div class="panel-body">
+      <ul class="sla-key">
+        {% for row in statuses %}
+        <li><a href="{% url 'ticket_list_status' row.status %}" style="text-decoration: none;">{% include 'partials/status.html' with status=row.status %}</a><span class="stage-n" style="font-size: inherit;">{{ row.count }}</span></li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 
   <div class="split-col">
-    <div class="panel-head"><h2 id="category-title">Tickets by category</h2><span class="panel-note">All tickets</span></div>
-    <div class="panel-body"><div class="bars" id="category-bars"><p class="muted">Loading…</p></div></div>
+    <div class="panel-head"><h2 id="category-title">Tickets by category</h2><span class="panel-note">All {{ total_count }} tickets. Open a row for its subcategories.</span></div>
+    <div class="panel-body tree">
+      {% for cat in category_tree %}
+      <details>
+        <summary><span>{{ cat.name }}</span><span class="tree-n">{{ cat.count }}</span></summary>
+        <div class="tree-kids">
+          {% for sub in cat.subs %}
+          {% if sub.details %}
+          <details>
+            <summary><span>{{ sub.name }}</span><span class="tree-n">{{ sub.count }}</span></summary>
+            <div class="tree-kids">{% for name, count in sub.details %}<div class="tree-leaf"><span>{{ name }}</span><span class="tree-n">{{ count }}</span></div>{% endfor %}</div>
+          </details>
+          {% else %}
+          <div class="tree-leaf"><span>{{ sub.name }}</span><span class="tree-n">{{ sub.count }}</span></div>
+          {% endif %}
+          {% empty %}<div class="tree-leaf"><span>No subcategory set</span></div>
+          {% endfor %}
+        </div>
+      </details>
+      {% empty %}<p class="muted">No tickets yet.</p>
+      {% endfor %}
+    </div>
   </div>
 </section>
 {% endif %}
@@ -294,7 +334,6 @@ document.addEventListener('DOMContentLoaded', function () {
         { name: 'Untriaged', count: dist['null'] || dist.None || 0, cls: 'bar-none' }
       ].filter(function (row) { return row.count; }), 'No tickets yet.');
 
-      bars('category-bars', charts.category_breakdown, 'No category data yet.');
 
       Chart.defaults.font.family = token('--font');
       Chart.defaults.font.size = 12.5;
@@ -327,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     })
     .catch(function () {
-      ['priority-bars', 'category-bars'].forEach(function (id) {
+      ['priority-bars'].forEach(function (id) {
         document.getElementById(id).innerHTML = '<p class="muted">Could not load this chart. Reload the page to try again.</p>';
       });
       document.querySelector('.chart-box').innerHTML = '<p class="muted">Could not load this chart. Reload the page to try again.</p>';

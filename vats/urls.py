@@ -35,5 +35,12 @@ urlpatterns = [
     path('subcategory_delete/<int:id>', views.subcategory_delete, name='subcategory_delete'),
     
     # API
+    path('ticket_transfer/<int:id>', views.ticket_transfer, name='ticket_transfer'),
+    path('inbox/', views.inbound_list, name='inbound_list'),
+    path('inbox/<int:id>', views.inbound_decide, name='inbound_decide'),
+    path('detail_list/<int:id>', views.detail_list, name='detail_list'),
+    path('detail_create/<int:id>', views.detail_create, name='detail_create'),
+    path('detail_delete/<int:id>', views.detail_delete, name='detail_delete'),
+    path('ajax/load-details/', views.load_details, name='ajax_load_details'),
     path('ajax/load-subcategories/', views.load_subcategories, name='ajax_load_subcategories'),
 ]

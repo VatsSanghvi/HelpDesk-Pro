@@ -17,7 +17,11 @@ A full-stack IT helpdesk and ticket management system built with **Django**, wit
 - **Ticket Lifecycle Management** — 7 stages: Pending → Assigned → Scoping → In Progress → Completed (plus Cancelled, Rejected)
 - **Work Notes & Audit Trail** — every status change and field update logged with actor and timestamp
 - **Automated SLA Tracking** — `due_by` calculated from priority on creation (High 4h / Moderate 24h / Low 72h); breach flagged automatically
-- **Email & WhatsApp Notifications** — Gmail SMTP and Twilio on creation and status change
+- **Email notifications** — to the requester when a ticket is raised, assigned, moved, transferred, rejected, cancelled or completed, and to the assignee when a ticket is assigned or transferred to them
+- **Tickets by email** — an email to the support mailbox becomes a ticket; a reply with the ticket number in its subject is added to that ticket; unknown senders wait for an Admin to accept or dismiss
+- **Transfer** — the owner of a ticket (or an Admin) hands it to another Manager with an optional reason; the handover is recorded and emailed
+- **Three category levels** — Category, Subcategory and an optional Detail, with counts at every level on the dashboard
+- **Turnaround time (TAT)** — working time from assignment to completion, per ticket and averaged per person
 
 ### Analytics
 - **In-app dashboard** — KPI cards, 7-day volume chart, priority donut, category progress bars, team workload
@@ -154,7 +158,20 @@ python manage.py seed_data
 ```
 Creates a fictional company with 5 categories, 9 users and about 30 tickets, dated relative to now so the SLA clocks show a realistic mix of on-time, close and late. Run it again with `--retime` before a demo to refresh the dates.
 
-### 7. Tests
+### 7. Test accounts with real inboxes (optional)
+```bash
+python manage.py create_test_users --password "ChooseOne#2026"
+```
+Creates one Admin, three Managers and one Viewer. Pass your own addresses with `--admin`, `--managers` and `--viewer`; only use addresses you own, because real email is sent to them.
+
+### 8. Tickets by email (optional)
+Fill in `SUPPORT_IMAP_USER` and `SUPPORT_IMAP_PASSWORD` in `.env` (a Gmail address with IMAP on and a Google App Password), then keep this running beside the server:
+```bash
+python manage.py fetch_mail --every 60
+```
+Set `SUPPORT_ALLOWED_DOMAINS` to your company domain to accept tickets only from it.
+
+### 9. Tests
 ```bash
 python manage.py test
 ```

@@ -769,6 +769,18 @@ input[type="checkbox"], input[type="radio"] { width: 1rem; height: 1rem; margin:
 .composer { margin-bottom: 1.5rem; }
 .profile-head { display: flex; align-items: center; gap: 1rem; }
 
+.held-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem 1.5rem; flex-wrap: wrap; padding: 0.875rem 1.125rem; }
+.held-body { margin-top: 0.375rem; color: var(--ink-2); max-width: 68ch; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tree summary { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; cursor: pointer; padding: 0.3125rem 0; font-weight: 600; list-style: none; }
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary::before { content: '+'; width: 1rem; color: var(--ink-3); font-weight: 700; flex: none; }
+.tree details[open] > summary::before { content: '\2212'; }
+.tree summary > span:first-of-type { flex: 1; }
+.tree .tree-n { color: var(--ink-2); font-weight: 400; font-variant-numeric: tabular-nums; }
+.tree .tree-kids { margin: 0 0 0.375rem 1rem; padding-left: 0.75rem; border-left: 1px solid var(--rule); }
+.tree .tree-leaf { display: flex; justify-content: space-between; gap: 1rem; padding: 0.1875rem 0; color: var(--ink-2); }
+.team-table td, .team-table th { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+
 /* ── 20. Motion ─────────────────────────────────────────────────── */
 /* One authored moment: on load each clock's marker travels from the start of
    its window to where the ticket stands. Everything else is state feedback. */

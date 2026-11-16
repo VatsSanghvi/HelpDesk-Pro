@@ -3,6 +3,33 @@
 Every entry here is written for interview storytelling, not just as a commit
 log: what changed, why it mattered, and what problem it solved. Newest first.
 
+## [v3.1] — 2026-11-16 — Stakeholder round one: email, transfer, TAT, third category level
+
+**Why:** First review by the stakeholder. The requests were about the
+basics of running a desk: get tickets in by email, tell people when a
+ticket is assigned, let it move between people, and measure how long the
+work took.
+
+- **Tickets by email.** `fetch_mail` reads the support mailbox. A known
+  sender's email becomes a Pending ticket and is confirmed by email; a reply
+  carrying the ticket number becomes a note; anyone else is held for an
+  Admin. The category is read from the email's wording when it names one.
+- **Assignment emails** to the assignee and the requester, plus emails on
+  transfer, rejection and cancellation. All ticket email now goes through
+  one template and one helper.
+- **Transfer** as its own action with an optional reason. Only the owner or
+  an Admin can do it, and a Manager can no longer edit someone else's ticket.
+- **Turnaround time** measured from assignment to completion in working
+  hours (09:00 to 18:00, Monday to Friday, configurable), shown in minutes.
+- **Third category level** (Detail), optional, with a category tree on the
+  dashboard. The Admin can now set or correct the category at triage.
+- **Dashboard:** per-person open, resolved, total and average TAT; tickets
+  by status.
+- Rejections are now recorded in the ticket history.
+- 43 tests.
+
+---
+
 ## [v3.0] — 2026-11-11 — Product redesign: the triage board
 
 **Why:** The goal changed from "a portfolio project" to "something a business

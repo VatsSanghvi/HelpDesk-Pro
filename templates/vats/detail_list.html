@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load ui_extras %}
+{% block title %}Details · {{ subcategory.name }}{% endblock %}
+{% block page_class %}page-mid{% endblock %}
+
+{% block body %}
+
+<a class="back" href="{% url 'subcategory_list' subcategory.category_id %}">{% icon 'arrow-left' 'i-sm' %}{{ subcategory.category.name }}</a>
+
+<div class="page-head">
+  <div>
+    <h1>{{ subcategory.name }}</h1>
+    <p class="lede">Details: the third category level, for example MM and FI under SAP.</p>
+  </div>
+</div>
+
+<section class="panel" aria-label="Details of {{ subcategory.name }}">
+  <form method="POST" action="{% url 'detail_create' subcategory.id %}" class="bulk">
+    {% csrf_token %}
+    <label class="bulk-label" for="id_name">Add a detail</label>
+    <input type="text" name="name" id="id_name" maxlength="50" required style="width: 16rem; height: 2rem;">
+    <button type="submit" class="btn btn-primary btn-sm">{% icon 'plus' 'i-sm' %}Add</button>
+  </form>
+  {% if details %}
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Detail Name</th><th>Total Tickets</th><th class="col-end"><span class="visually-hidden">Actions</span></th></tr></thead>
+      <tbody>
+        {% for detail in details %}
+        <tr>
+          <td><span class="t-title">{{ detail.name }}</span></td>
+          <td>{{ detail.ticket_set.count }} tickets</td>
+          <td class="col-end col-tight">
+            <a class="btn btn-danger btn-sm" href="{% url 'detail_delete' detail.id %}" data-confirm="Delete {{ detail.name }}? Its tickets stay, without this detail.">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty">
+    <h3>No details yet</h3>
+    <p>Details are optional. Add them where you want ticket counts one level deeper than {{ subcategory.name }}.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

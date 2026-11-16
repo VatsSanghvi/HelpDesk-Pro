@@ -49,6 +49,21 @@ class Subcategory(models.Model):
         return reverse("Subcategory_detail", kwargs={"id": self.id})
 
 
+class Detail(models.Model):
+    """Third category level, under a subcategory: SAP -> MM, Microsoft -> Excel."""
+
+    subcategory = models.ForeignKey("vats.Subcategory", related_name="details", on_delete=models.CASCADE)
+    name = models.CharField(_("Name"), max_length=50)
+
+    class Meta:
+        verbose_name = _("Detail")
+        verbose_name_plural = _("Details")
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Ticket(models.Model):
     # ── Status choices (UNCHANGED) ────────────────────────────────────────────
     status_choice = (
@@ -70,9 +85,16 @@ class Ticket(models.Model):
 
     # ── Original fields (ALL UNCHANGED) ──────────────────────────────────────
     number       = models.CharField(_("Number"), max_length=50, null=True, blank=True)
-    category     = models.ForeignKey("vats.Category", on_delete=models.CASCADE)
-    subcategory  = models.ForeignKey("vats.Subcategory", on_delete=models.CASCADE)
-    title        = models.CharField(_("Title"), max_length=50)
+    # Category and subcategory are optional in the database because a ticket
+    # raised by email arrives without them; the web form still requires both.
+    category     = models.ForeignKey("vats.Category", on_delete=models.CASCADE, null=True, blank=True)
+    subcategory  = models.ForeignKey("vats.Subcategory", on_delete=models.CASCADE, null=True, blank=True)
+    detail       = models.ForeignKey(
+        "vats.Detail", verbose_name=_("Detail"), on_delete=models.SET_NULL, null=True, blank=True,
+        help_text="Optional third category level.",
+    )
+    # 150 so an email subject fits.
+    title        = models.CharField(_("Title"), max_length=150)
     problem_descp = models.TextField(_("Problem Description"), max_length=500)
     created_by   = models.ForeignKey(
         "registration.User", related_name=_("Issues"), on_delete=models.CASCADE
@@ -113,6 +135,14 @@ class Ticket(models.Model):
     csat_feedback = models.TextField(
         _("CSAT Feedback"), max_length=500, null=True, blank=True,
         help_text="Optional free-text feedback submitted alongside the CSAT rating."
+    )
+
+    assigned_at  = models.DateTimeField(
+        _("Assigned At"), null=True, blank=True,
+        help_text="When an Admin first assigned the ticket. Turnaround time is measured from here.",
+    )
+    source       = models.CharField(
+        _("Source"), max_length=10, default="Web", choices=(("Web", "Web"), ("Email", "Email")),
     )
 
     class Meta:
@@ -185,6 +215,33 @@ class Ticket(models.Model):
     def get_updated_at(self):
         date = self.updated_at + timedelta(days=0, hours=5, minutes=30)
         return date
+
+    def get_assigned_at(self):
+        return self.assigned_at + timedelta(hours=5, minutes=30) if self.assigned_at else None
+
+    def get_started_at(self):
+        """Start time: when a Manager first began working on the ticket."""
+        return self.first_response_at + timedelta(hours=5, minutes=30) if self.first_response_at else None
+
+    @property
+    def turnaround_seconds(self):
+        """
+        Turnaround time (TAT): working time from assignment to completion.
+        Hours outside the working day and non-working days are not counted.
+        None until a ticket is Completed.
+        """
+        if self.status != 'Completed' or not self.assigned_at or not self.resolved_at:
+            return None
+        from .worktime import working_seconds
+        return working_seconds(self.assigned_at, self.resolved_at)
+
+    @property
+    def turnaround_text(self):
+        seconds = self.turnaround_seconds
+        if seconds is None:
+            return ''
+        from .worktime import duration_text
+        return duration_text(seconds)
 
     def get_due_by(self):
         """The SLA deadline in the same display offset as the other timestamps,
@@ -458,3 +515,31 @@ def notify(recipient, text, kind="Status", ticket=None, actor=None):
     return Notification.objects.create(
         recipient=recipient, actor=actor, kind=kind, text=text, ticket=ticket
     )
+
+
+class InboundEmail(models.Model):
+    """
+    An email to the support mailbox that could not become a ticket on its own:
+    the sender has no account, or is outside the allowed company domain. It
+    waits here for an Admin to accept (create the ticket) or dismiss.
+    """
+    status_choice = (("Held", "Held"), ("Accepted", "Accepted"), ("Dismissed", "Dismissed"))
+
+    message_id  = models.CharField(max_length=255, unique=True)
+    sender      = models.EmailField()
+    sender_name = models.CharField(max_length=100, blank=True)
+    subject     = models.CharField(max_length=255, blank=True)
+    body        = models.TextField(blank=True)
+    reason      = models.CharField(max_length=100, blank=True)
+    status      = models.CharField(max_length=10, choices=status_choice, default="Held")
+    ticket      = models.ForeignKey("vats.Ticket", null=True, blank=True, on_delete=models.SET_NULL)
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-received_at"]
+
+    def __str__(self):
+        return f"{self.sender}: {self.subject[:40]}"
+
+    def get_received_at(self):
+        return self.received_at + timedelta(hours=5, minutes=30)

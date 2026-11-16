@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load ui_extras %}
+{% block title %}Transfer {{ ticket.number }}{% endblock %}
+{% block page_class %}page-narrow{% endblock %}
+
+{% block body %}
+
+<a class="back" href="{% url 'ticket_detail' ticket.id %}">{% icon 'arrow-left' 'i-sm' %}Back</a>
+
+<div class="page-head">
+  <div>
+    <h1>Transfer Ticket</h1>
+    <p class="lede">{{ ticket.number }} · {{ ticket.title }}</p>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel-body panel-body-top">
+    <form method="POST" class="form">
+      {% csrf_token %}
+      <p class="aside-note">Currently with {{ ticket.assigned_to|display_name|default:"nobody" }}. After the transfer the ticket leaves their queue, and the new owner and the requester are emailed. The SLA deadline does not change.</p>
+      {% for field in form %}
+      <div class="field{% if field.errors %} has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req" aria-hidden="true">*</span>{% endif %}</label>
+        {{ field }}
+        {% if field.errors %}<p class="field-error">{% icon 'circle-alert' 'i-sm' %}{{ field.errors.0 }}</p>{% endif %}
+      </div>
+      {% endfor %}
+      <div class="form-foot">
+        <a class="btn btn-secondary" href="{% url 'ticket_detail' ticket.id %}">Cancel</a>
+        <button type="submit" class="btn btn-primary">Transfer Ticket</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

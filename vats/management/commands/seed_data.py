@@ -609,7 +609,12 @@ class Command(BaseCommand):
             elif ticket.status in ('Completed', 'Cancelled', 'Rejected'):
                 i = counters['closed']
                 counters['closed'] += 1
-                created = now - timedelta(days=2 + (i * 5) % 27, hours=(i * 7) % 9)
+                created = now - timedelta(days=2 + (i * 5) % 27)
+                # Raised mid-morning on a working day (10:00 on the app's clock
+                # is 04:30 UTC), so turnaround times look like real ones.
+                created = created.replace(hour=4, minute=30, second=0, microsecond=0) + timedelta(minutes=(i * 37) % 180)
+                while created.weekday() > 4:
+                    created -= timedelta(days=1)
                 resolved = created + window * self.CLOSED_USED[i % len(self.CLOSED_USED)]
                 due = created + window if ticket.priority else None
                 last_touch = resolved
@@ -626,9 +631,15 @@ class Command(BaseCommand):
             if responded:
                 responded = created + (responded - ticket.created_at)
 
+            # Triage happens shortly after a ticket is raised; turnaround time
+            # is measured from here.
+            assigned = None
+            if ticket.status != 'Pending' and ticket.assigned_to_id:
+                assigned = created + min(timedelta(minutes=12), (last_touch - created) * 0.1)
+
             Ticket.objects.filter(pk=ticket.pk).update(
                 created_at=created, due_by=due, resolved_at=resolved, updated_at=last_touch,
-                first_response_at=responded,
+                first_response_at=responded, assigned_at=assigned,
             )
 
             # Spread the audit trail between creation and the last touch, so

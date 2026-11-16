@@ -1,0 +1,4 @@
+<option value="">None</option>
+{% for detail in details %}
+<option value="{{ detail.pk }}">{{ detail.name }}</option>
+{% endfor %}

@@ -22,12 +22,13 @@
   <div class="table-wrap">
     <table class="table">
       <thead>
-        <tr><th>Subcategory Name</th><th class="col-end"><span class="visually-hidden">Actions</span></th></tr>
+        <tr><th>Subcategory Name</th><th>Details</th><th class="col-end"><span class="visually-hidden">Actions</span></th></tr>
       </thead>
       <tbody>
         {% for sub in subcategories %}
         <tr>
           <td><span class="t-title">{{ sub.name }}</span></td>
+          <td><a href="{% url 'detail_list' sub.id %}">View {{ sub.details.count }} details</a></td>
           <td class="col-end col-tight">
             <a class="btn btn-danger btn-sm" href="{% url 'subcategory_delete' sub.id %}"
                data-confirm="Delete subcategory {{ sub.name }}? Tickets filed under it are deleted with it.">Delete</a>

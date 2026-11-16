@@ -101,7 +101,7 @@
             <td class="c-prio">{% include 'partials/priority.html' with priority=ticket.priority %}</td>
             <td class="c-main">
               <a class="t-title" href="{% url 'ticket_detail' ticket.id %}">{{ ticket.title }}</a>
-              <span class="t-meta t-meta-clip"><span class="t-id">{{ ticket.number }}</span> · {{ ticket.category }} · {{ ticket.problem_descp|truncatechars:90 }}</span>
+              <span class="t-meta t-meta-clip"><span class="t-id">{{ ticket.number }}</span> · {{ ticket.category|default:"No category yet" }} · {{ ticket.problem_descp|truncatechars:90 }}</span>
             </td>
             <td class="c-status">{% include 'partials/status.html' with status=ticket.status %}</td>
             <td class="c-person hide-sm">

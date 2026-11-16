@@ -17,10 +17,10 @@
 <div class="cols cols-even">
   <section class="panel" aria-labelledby="update-title">
     <div class="panel-head">
-      <h2 id="update-title">{% if update_type == "Assign" %}Set Priority &amp; Assignee{% else %}Update Fields{% endif %}</h2>
+      <h2 id="update-title">{% if update_type == "Assign" %}Set Category, Priority &amp; Assignee{% else %}Update Fields{% endif %}</h2>
     </div>
     <div class="panel-body">
-      <form method="POST" class="form">
+      <form method="POST" class="form"{% if update_type == "Assign" %} data-subcategory-url="{% url 'ajax_load_subcategories' %}" data-detail-url="{% url 'ajax_load_details' %}"{% endif %}>
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -51,7 +51,7 @@
       <div class="panel-body panel-body-top">
         <h2>What the ticket says</h2>
         <p class="prose" style="font-size: var(--fs-sm);">{{ form.instance.problem_descp }}</p>
-        <p style="margin-top: 0.625rem;">Raised by {{ form.instance.created_by|display_name }} in {{ form.instance.category }}, {{ form.instance.created_at|ago }}.</p>
+        <p style="margin-top: 0.625rem;">Raised by {{ form.instance.created_by|display_name }}{% if form.instance.source == "Email" %} by email{% endif %}, {{ form.instance.created_at|ago }}.{% if form.instance.source == "Email" %} Check the category: it was read from the email's wording.{% endif %}</p>
       </div>
     </section>
     {% endif %}

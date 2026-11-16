@@ -258,3 +258,161 @@ class ScreenTests(Fixture):
         self.client.force_login(self.admin)
         response = self.client.get(reverse("subcategory_delete", args=[spare.id]))
         self.assertRedirects(response, reverse("subcategory_list", args=[self.category.id]))
+
+
+# ── Assignment emails, transfer, turnaround time, email-to-ticket ─────────
+from datetime import datetime, timezone as dt_timezone
+from email.message import EmailMessage as RawEmail
+
+from django.core import mail
+from django.test import override_settings
+
+from vats.inbound import guess_category, process_message
+from vats.models import Detail, InboundEmail
+from vats.worktime import duration_text, working_seconds
+
+
+def utc(day, hour, minute=0):
+    """A UTC time in November 2026. The working day (09:00-18:00 at +5:30) is 03:30-12:30 UTC."""
+    return datetime(2026, 11, day, hour, minute, tzinfo=dt_timezone.utc)
+
+
+class WorkingTimeTests(TestCase):
+
+    def test_ten_minutes_inside_the_working_day(self):
+        self.assertEqual(working_seconds(utc(16, 4, 0), utc(16, 4, 10)), 600)   # Monday
+
+    def test_overnight_counts_only_working_hours(self):
+        # Monday 17:50 local to Tuesday 09:10 local: 10 minutes + 10 minutes.
+        self.assertEqual(working_seconds(utc(16, 12, 20), utc(17, 3, 40)), 1200)
+
+    def test_weekend_is_not_counted(self):
+        # Friday 17:00 local to Monday 10:00 local: 1 hour + 1 hour.
+        self.assertEqual(working_seconds(utc(13, 11, 30), utc(16, 4, 30)), 7200)
+
+    def test_duration_reads_in_minutes_and_hours(self):
+        self.assertEqual(duration_text(600), '10 min')
+        self.assertEqual(duration_text(8100), '2 h 15 min')
+        self.assertEqual(duration_text(20), 'under 1 min')
+
+
+class AssignmentAndTransferTests(Fixture):
+
+    def setUp(self):
+        self.other = make_user("other@example.com", "Manager", "Priya", "Nair")
+        self.new = self.ticket("Printer jam", status="Pending")
+        mail.outbox = []
+
+    def approve(self):
+        self.client.force_login(self.admin)
+        return self.client.post(reverse("ticket_approve", args=[self.new.id]), {
+            "category": self.category.id, "subcategory": self.subcategory.id,
+            "priority": "High", "assigned_to": self.manager.id,
+        })
+
+    def test_assignment_emails_the_assignee_and_the_requester(self):
+        self.approve()
+        self.new.refresh_from_db()
+        self.assertIsNotNone(self.new.assigned_at)
+        sent = {(m.to[0], m.subject) for m in mail.outbox}
+        self.assertIn(("manager@example.com", f"[{self.new.number}] Ticket assigned to you"), sent)
+        self.assertIn(("viewer@example.com", f"[{self.new.number}] Your ticket has been assigned"), sent)
+
+    def test_transfer_moves_the_ticket_and_tells_everyone(self):
+        self.approve()
+        mail.outbox = []
+        self.client.force_login(self.manager)
+        self.client.post(reverse("ticket_transfer", args=[self.new.id]),
+                         {"assigned_to": self.other.id, "reason": "Needs network access"})
+        self.new.refresh_from_db()
+        self.assertEqual(self.new.assigned_to, self.other)
+        self.assertEqual({m.to[0] for m in mail.outbox}, {"other@example.com", "viewer@example.com"})
+        notes = list(self.new.Worknotes.values_list("field_name", "old_value", "new_value", "comment"))
+        self.assertIn(("Assigned to", "Sarah Chen", "Priya Nair", ""), notes)
+        self.assertTrue(any("Needs network access" in n[3] for n in notes))
+        # The previous owner no longer has the ticket in their queue.
+        self.assertNotContains(self.client.get(reverse("ticket_list")), "Printer jam")
+
+    def test_only_the_owner_or_an_admin_can_transfer_or_edit(self):
+        self.approve()
+        self.client.force_login(self.other)
+        self.client.post(reverse("ticket_transfer", args=[self.new.id]), {"assigned_to": self.other.id})
+        self.new.refresh_from_db()
+        self.assertEqual(self.new.assigned_to, self.manager)
+        self.assertEqual(self.client.get(reverse("ticket_update", args=[self.new.id])).status_code, 302)
+
+    def test_rejection_is_recorded_and_emailed(self):
+        self.client.force_login(self.admin)
+        self.client.get(reverse("ticket_reject", args=[self.new.id]))
+        self.assertTrue(self.new.Worknotes.filter(field_name="Status", new_value="Rejected").exists())
+        self.assertEqual(mail.outbox[-1].to, ["viewer@example.com"])
+
+    def test_turnaround_runs_from_assignment_to_completion(self):
+        ticket = self.ticket("Done", status="Completed")
+        Ticket.objects.filter(pk=ticket.pk).update(assigned_at=utc(16, 4, 5), resolved_at=utc(16, 4, 15))
+        ticket.refresh_from_db()
+        self.assertEqual(ticket.turnaround_text, "10 min")
+
+
+def raw_email(sender, subject, body, message_id="<m1@mail>", **headers):
+    message = RawEmail()
+    message["From"], message["To"], message["Subject"], message["Message-ID"] = sender, "support@example.com", subject, message_id
+    for key, value in headers.items():
+        message[key.replace("_", "-")] = value
+    message.set_content(body)
+    return message.as_bytes()
+
+
+class EmailToTicketTests(Fixture):
+
+    def setUp(self):
+        mail.outbox = []
+
+    def test_email_from_a_known_user_becomes_a_ticket_and_is_confirmed(self):
+        outcome, ticket = process_message(raw_email("James <viewer@example.com>", "Laptop & Desktop will not start", "It is dead."))
+        self.assertEqual(outcome, "ticket")
+        self.assertEqual((ticket.title, ticket.status, ticket.source), ("Laptop & Desktop will not start", "Pending", "Email"))
+        # The category was read from the wording.
+        self.assertEqual((ticket.category, ticket.subcategory), (self.category, self.subcategory))
+        self.assertEqual(mail.outbox[0].to, ["viewer@example.com"])
+        self.assertIn(ticket.number, mail.outbox[0].subject)
+
+    def test_email_that_names_no_category_is_left_for_triage(self):
+        _, ticket = process_message(raw_email("viewer@example.com", "Something is wrong", "Please help."))
+        self.assertIsNone(ticket.category)
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(reverse("ticket_detail", args=[ticket.id])).status_code, 200)
+        self.assertEqual(self.client.get(reverse("home")).status_code, 200)
+
+    def test_reply_with_the_ticket_number_adds_a_note_without_the_quote(self):
+        ticket = self.ticket("Existing")
+        body = "Still broken today.\n\nOn Mon, someone wrote:\n> earlier text"
+        outcome, _ = process_message(raw_email("viewer@example.com", f"Re: [{ticket.number}] Ticket status updated", body))
+        self.assertEqual(outcome, "note")
+        self.assertEqual(ticket.Worknotes.filter(type="Comment").last().comment, "Still broken today.")
+
+    def test_unknown_sender_waits_for_an_admin_who_can_accept(self):
+        outcome, held = process_message(raw_email("New Person <stranger@elsewhere.com>", "Need help", "Hello."))
+        self.assertEqual((outcome, held.status), ("held", "Held"))
+        self.assertEqual(Ticket.objects.count(), 0)
+        self.client.force_login(self.admin)
+        self.assertContains(self.client.get(reverse("inbound_list")), "stranger@elsewhere.com")
+        self.client.post(reverse("inbound_decide", args=[held.id]), {"decision": "accept"})
+        ticket = Ticket.objects.get()
+        self.assertEqual((ticket.created_by.email, ticket.created_by.role), ("stranger@elsewhere.com", "Viewer"))
+
+    @override_settings(SUPPORT_ALLOWED_DOMAINS=["company.com"])
+    def test_sender_outside_the_company_domain_is_held(self):
+        outcome, held = process_message(raw_email("viewer@example.com", "Need help", "Hello."))
+        self.assertEqual((outcome, held.reason), ("held", "Sender is outside the company domain"))
+
+    def test_automatic_and_duplicate_emails_are_skipped(self):
+        self.assertEqual(process_message(raw_email("viewer@example.com", "Out of office", "Away.", Auto_Submitted="auto-replied"))[0], "skipped")
+        process_message(raw_email("viewer@example.com", "One", "Body", message_id="<dup@mail>"))
+        self.assertEqual(process_message(raw_email("viewer@example.com", "One", "Body", message_id="<dup@mail>"))[0], "skipped")
+
+    def test_the_most_specific_category_level_wins(self):
+        detail = Detail.objects.create(subcategory=self.subcategory, name="Docking station")
+        self.assertEqual(guess_category("My laptop & desktop docking station is dead")[2], detail)
+        self.assertEqual(guess_category("General hardware question"), (self.category, None, None))
+        self.assertEqual(guess_category("Nothing relevant"), (None, None, None))

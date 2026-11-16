@@ -10,7 +10,8 @@ from django.db.models import Count
 from django.urls import reverse
 
 from registration.models import User
-from .models import Ticket
+from .models import InboundEmail, Ticket
+from .worktime import duration_text
 
 OPEN_STATUSES = ('Pending', 'Assigned', 'Scoping', 'In Progress')
 CLOSED_STATUSES = ('Completed', 'Cancelled', 'Rejected')
@@ -71,10 +72,45 @@ def build_dashboard(user):
     resolved_hours = [t.resolution_time_hours for t in scoped if t.resolution_time_hours is not None]
     avg_resolution = round(sum(resolved_hours) / len(resolved_hours), 1) if resolved_hours else None
 
+    everything = list(scoped)
+    turnarounds = [t.turnaround_seconds for t in everything if t.turnaround_seconds is not None]
+
+    # Status distribution, in lifecycle order
+    status_counts = {}
+    for t in everything:
+        status_counts[t.status] = status_counts.get(t.status, 0) + 1
+    statuses = [
+        {'status': name, 'count': status_counts.get(name, 0)}
+        for name in OPEN_STATUSES + CLOSED_STATUSES
+    ]
+
+    # Category, subcategory and detail counts as a tree
+    tree = {}
+    for t in everything:
+        cat = tree.setdefault(str(t.category) if t.category_id else 'No category yet', {'count': 0, 'subs': {}})
+        cat['count'] += 1
+        if t.subcategory_id:
+            sub = cat['subs'].setdefault(str(t.subcategory), {'count': 0, 'details': {}})
+            sub['count'] += 1
+            if t.detail_id:
+                sub['details'][str(t.detail)] = sub['details'].get(str(t.detail), 0) + 1
+    category_tree = [
+        {'name': name, 'count': cat['count'], 'subs': [
+            {'name': sub_name, 'count': sub['count'],
+             'details': sorted(sub['details'].items(), key=lambda kv: -kv[1])}
+            for sub_name, sub in sorted(cat['subs'].items(), key=lambda kv: -kv[1]['count'])
+        ]}
+        for name, cat in sorted(tree.items(), key=lambda kv: -kv[1]['count'])
+    ]
+
     responded_hours = [t.first_response_time_hours for t in scoped if t.first_response_time_hours is not None]
     ratings = [t.csat_rating for t in scoped if t.csat_rating is not None]
 
     context = {
+        'avg_turnaround': duration_text(sum(turnarounds) / len(turnarounds)) if turnarounds else None,
+        'statuses': statuses,
+        'total_count': len(everything),
+        'category_tree': category_tree,
         'avg_first_response': round(sum(responded_hours) / len(responded_hours), 1) if responded_hours else None,
         'avg_csat': round(sum(ratings) / len(ratings), 1) if ratings else None,
         'rated_count': len(ratings),
@@ -111,16 +147,19 @@ def build_dashboard(user):
 
         team = []
         for manager in User.objects.filter(role='Manager', is_active=True).order_by('first_name'):
-            mine = [t for t in open_tickets if t.assigned_to_id == manager.pk]
+            theirs = [t for t in everything if t.assigned_to_id == manager.pk]
+            mine = [t for t in theirs if t.status in OPEN_STATUSES]
+            done = [t.turnaround_seconds for t in theirs if t.turnaround_seconds is not None]
             team.append({
                 'user': manager,
+                'total': len(theirs),
                 'open': len(mine),
+                'resolved': sum(1 for t in theirs if t.status == 'Completed'),
                 'late': sum(1 for t in mine if clocks.get(t.pk) and clocks[t.pk]['tone'] == 'late'),
+                'turnaround': duration_text(sum(done) / len(done)) if done else None,
             })
-        busiest = max((m['open'] for m in team), default=0)
-        for member in team:
-            member['share'] = round(member['open'] / busiest * 100) if busiest else 0
         context['team'] = sorted(team, key=lambda m: -m['open'])
+        context['held_count'] = InboundEmail.objects.filter(status='Held').count()
 
     elif user.role == 'Manager':
         context['headline'] = _headline(len(late), len(soon), 0, len(open_tickets), mine=True)

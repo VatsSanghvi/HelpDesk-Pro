@@ -3,8 +3,10 @@ from django.urls import reverse
 import importlib
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from .models import  Ticket, Category, Subcategory, Worknote, Notification, notify
-from .forms import TicketForm, CategoryForm, TicketUpdateForm, SubcategoryForm, TicketApproveForm, TicketRejectForm
+from .models import  Ticket, Category, Subcategory, Detail, Worknote, Notification, InboundEmail, notify
+from .forms import TicketForm, CategoryForm, TicketUpdateForm, SubcategoryForm, TicketApproveForm, TicketRejectForm, TicketTransferForm, DetailForm
+from .mailer import send_ticket_mail
+from django.utils import timezone
 from registration.models import User
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -61,14 +63,9 @@ def ticket_create(request):
             
             messages.success(request, 'Your ticket has been created successfully.')
             
-            html_message = render_to_string('vats/email_template.html', {'context': ticket})
-            message = EmailMessage('New Ticket Generated', html_message, settings.EMAIL_HOST_USER, [request.user.email])
-            message.content_subtype = 'html'
-            try:
-                message.send()
-            except Exception as e:
-                print("Error",e)
-        
+            send_ticket_mail(ticket, [request.user], 'New Ticket Generated',
+                             'Your ticket has been created. An admin will review it and assign it.')
+
             return redirect('ticket_list')
 
     context['form'] = form
@@ -250,6 +247,7 @@ def ticket_bulk_action(request):
         for ticket in tickets.filter(status='Pending'):
             ticket.status = 'Rejected'
             ticket.save()
+            work_note_update(request, ticket.id, "Status", "Pending", "Rejected")
             notify(
                 ticket.created_by,
                 f"{ticket.number} was rejected by {request.user.get_full_name()}",
@@ -337,6 +335,8 @@ def ticket_approve(request, id):
         if form.is_valid():
             ticket = form.save(commit=False)
             ticket.status = "Assigned"
+            if not ticket.assigned_at:
+                ticket.assigned_at = timezone.now()
             ticket.save()
             
             work_note_update(request, id, "Status", "Pending", "Assigned")
@@ -353,6 +353,10 @@ def ticket_approve(request, id):
                 f"{ticket.number} was approved and assigned to {ticket.assigned_to.get_full_name()}",
                 kind="Status", ticket=ticket, actor=request.user,
             )
+            send_ticket_mail(ticket, [ticket.assigned_to], 'Ticket assigned to you',
+                             f"{request.user.get_full_name()} assigned you this ticket with {ticket.priority} priority.")
+            send_ticket_mail(ticket, [ticket.created_by], 'Your ticket has been assigned',
+                             f"Your ticket is now with {ticket.assigned_to.get_full_name()}, who will work on it.")
             
             return redirect('ticket_list')
     
@@ -382,13 +386,17 @@ def ticket_approve(request, id):
 @admin_required
 def ticket_reject(request,id):
     ticket = Ticket.objects.get(id=id)
+    old_status = ticket.status
     ticket.status = "Rejected"
     ticket.save()
+    work_note_update(request, id, "Status", old_status, "Rejected")
     notify(
         ticket.created_by,
         f"{ticket.number} was rejected by {request.user.get_full_name()}",
         kind="Status", ticket=ticket, actor=request.user,
     )
+    send_ticket_mail(ticket, [ticket.created_by], 'Your ticket was rejected',
+                     'An admin reviewed your ticket and rejected it. Raise a new one with more detail if you still need help.')
     messages.success(request, 'Ticket rejected successfully.')
         
     return redirect("ticket_detail",id)
@@ -408,14 +416,8 @@ def status_change_email_function(request,id):
         kind="Status", ticket=ticket, actor=request.user,
     )
             
-    html_message = render_to_string('vats/status_change_email_template.html', {'context': ticket})
-    message = EmailMessage('Ticket status updated', html_message, settings.EMAIL_HOST_USER, [ticket.created_by])
-    message.content_subtype = 'html'
-   
-    try:
-        message.send()
-    except Exception as e:
-        print("Error",e)
+    send_ticket_mail(ticket, [ticket.created_by], f'Ticket status updated: {ticket.status}',
+                     f"{request.user.get_full_name()} moved your ticket to {ticket.status}.")
     return (redirect('ticket_list'))
 
 
@@ -442,6 +444,9 @@ def ticket_inprogress(request, id):
 def ticket_update(request, id):
 
     ticket = Ticket.objects.get(id=id)
+    if request.user.role == "Manager" and ticket.assigned_to != request.user:
+        messages.warning(request, 'Only the person a ticket is assigned to can edit it.')
+        return redirect('home')
     ticket_old_priority = ticket.priority
     ticket_old_assigned_to = ticket.assigned_to
 
@@ -456,19 +461,8 @@ def ticket_update(request, id):
             
             if ticket_old_priority !=ticket.priority:
                 work_note_update(request, id, "Priority", ticket_old_priority, ticket.priority)
-            if ticket_old_assigned_to.email != ticket.assigned_to.email:
-                work_note_update(request, id, "Assigned to", ticket_old_assigned_to.first_name + " " + ticket_old_assigned_to.last_name, ticket.assigned_to.first_name + " " + ticket.assigned_to.last_name)
-                # Reassignment matters to both sides of the handover
-                notify(
-                    ticket.assigned_to,
-                    f"{request.user.get_full_name()} reassigned {ticket.number} to you",
-                    kind="Assigned", ticket=ticket, actor=request.user,
-                )
-                notify(
-                    ticket_old_assigned_to,
-                    f"{ticket.number} was reassigned to {ticket.assigned_to.get_full_name()}",
-                    kind="Assigned", ticket=ticket, actor=request.user,
-                )
+            if ticket_old_assigned_to != ticket.assigned_to:
+                record_transfer(request, ticket, ticket_old_assigned_to)
 
             return redirect('ticket_list')
     
@@ -476,6 +470,124 @@ def ticket_update(request, id):
     context['form'] = form
     context['update_type'] = 'Update'
     return render(request, "vats/ticket_update.html", context)
+
+def record_transfer(request, ticket, previous, reason=''):
+    """History, notifications and emails for a ticket changing hands."""
+    old_name = previous.get_full_name() if previous else "None"
+    work_note_update(request, ticket.id, "Assigned to", old_name, ticket.assigned_to.get_full_name())
+    if reason:
+        Worknote.objects.create(ticket=ticket, type="Comment", commented_by=request.user,
+                                comment=f"Transfer reason: {reason}")
+    notify(ticket.assigned_to, f"{request.user.get_full_name()} transferred {ticket.number} to you",
+           kind="Assigned", ticket=ticket, actor=request.user)
+    notify(previous, f"{ticket.number} was transferred to {ticket.assigned_to.get_full_name()}",
+           kind="Assigned", ticket=ticket, actor=request.user)
+    why = f" Reason: {reason}" if reason else ""
+    send_ticket_mail(ticket, [ticket.assigned_to], 'Ticket transferred to you',
+                     f"{request.user.get_full_name()} transferred this ticket to you.{why}")
+    send_ticket_mail(ticket, [ticket.created_by], 'Your ticket has a new owner',
+                     f"Your ticket is now with {ticket.assigned_to.get_full_name()}.")
+
+
+@login_required
+def ticket_transfer(request, id):
+    """
+    Hand a ticket to another Manager. Only the person it is assigned to, or
+    an Admin, may do it. Afterwards it leaves the previous person's queue:
+    responsibility moves with the ticket.
+    """
+    ticket = Ticket.objects.get(id=id)
+    allowed = request.user.role == "Admin" or (request.user.role == "Manager" and ticket.assigned_to == request.user)
+    if not allowed or ticket.status not in ("Assigned", "Scoping", "In Progress"):
+        messages.warning(request, 'This ticket cannot be transferred by you right now.')
+        return redirect('home')
+
+    form = TicketTransferForm(request.POST or None, ticket=ticket)
+    if request.method == "POST" and form.is_valid():
+        previous = ticket.assigned_to
+        ticket.assigned_to = form.cleaned_data['assigned_to']
+        ticket.save()
+        record_transfer(request, ticket, previous, form.cleaned_data['reason'].strip())
+        messages.success(request, f'{ticket.number} transferred to {ticket.assigned_to.get_full_name()}.')
+        return redirect('ticket_detail', id) if request.user.role == "Admin" else redirect('ticket_list')
+    return render(request, 'vats/ticket_transfer.html', {'form': form, 'ticket': ticket})
+
+
+@login_required
+@admin_required
+def inbound_list(request):
+    """Emails to the support mailbox that are waiting for an Admin's decision."""
+    return render(request, 'vats/inbound_list.html', {
+        'held': InboundEmail.objects.filter(status='Held'),
+    })
+
+
+@login_required
+@admin_required
+def inbound_decide(request, id):
+    if request.method != 'POST':
+        return redirect('inbound_list')
+    held = InboundEmail.objects.filter(id=id, status='Held').first()
+    if not held:
+        return redirect('inbound_list')
+
+    if request.POST.get('decision') == 'accept':
+        from .inbound import create_ticket_from_email
+        user = User.objects.filter(email__iexact=held.sender).first()
+        if not user:
+            # A new requester: an Employee account they can claim with "Forgot password".
+            name = (held.sender_name or held.sender.split('@')[0]).split()
+            user = User.objects.create_user(name[0][:30], ' '.join(name[1:])[:30], held.sender, None)
+            user.role = 'Viewer'
+            user.save()
+        held.ticket = create_ticket_from_email(user, held.subject, held.body)
+        held.status = 'Accepted'
+        held.save()
+        messages.success(request, f'{held.ticket.number} created for {held.sender}.')
+        return redirect('ticket_detail', held.ticket.id)
+
+    held.status = 'Dismissed'
+    held.save()
+    messages.success(request, f'Email from {held.sender} dismissed.')
+    return redirect('inbound_list')
+
+
+@login_required
+@admin_required
+def detail_list(request, id):
+    subcategory = Subcategory.objects.get(id=id)
+    return render(request, 'vats/detail_list.html', {
+        'subcategory': subcategory, 'details': Detail.objects.filter(subcategory=subcategory),
+        'form': DetailForm(),
+    })
+
+
+@login_required
+@admin_required
+def detail_create(request, id):
+    subcategory = Subcategory.objects.get(id=id)
+    form = DetailForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        detail = form.save(commit=False)
+        detail.subcategory = subcategory
+        detail.save()
+        messages.success(request, f'{detail.name} added under {subcategory.name}.')
+    return redirect('detail_list', id)
+
+
+@login_required
+@admin_required
+def detail_delete(request, id):
+    detail = Detail.objects.get(id=id)
+    subcategory_id = detail.subcategory_id
+    detail.delete()
+    return redirect('detail_list', subcategory_id)
+
+
+def load_details(request):
+    details = Detail.objects.filter(subcategory_id=request.GET.get('subcategory') or None)
+    return render(request, 'vats/detail_dropdown_list_options.html', {'details': details})
+
 
 @login_required
 def ticket_rate(request, id):
@@ -535,6 +647,8 @@ def ticket_cancel(request,id):
         f"{ticket.number} was cancelled by {request.user.get_full_name()}",
         kind="Status", ticket=ticket, actor=request.user,
     )
+    send_ticket_mail(ticket, [p for p in (ticket.created_by, ticket.assigned_to) if p and p != request.user],
+                     'Ticket cancelled', f"{request.user.get_full_name()} cancelled this ticket.")
     return redirect('ticket_detail',id)
 
 

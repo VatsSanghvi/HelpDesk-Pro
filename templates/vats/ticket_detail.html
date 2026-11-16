@@ -23,6 +23,10 @@
       <a class="btn btn-danger" href="{% url 'ticket_reject' ticket.id %}" data-confirm="Reject {{ ticket.number }}? The person who raised it will be told.">{% icon 'x' %}Reject</a>
     {% endif %}
 
+    {% if request.user.role == "Admin" %}{% if ticket.status == "Assigned" or ticket.status == "Scoping" or ticket.status == "In Progress" %}
+      <a class="btn btn-secondary" href="{% url 'ticket_transfer' ticket.id %}">{% icon 'corner-down-right' %}Transfer</a>
+    {% endif %}{% endif %}
+
     {% if request.user.role == "Manager" %}
       {% if ticket.status == "Assigned" %}
         <a class="btn btn-primary" href="{% url 'ticket_scoping' ticket.id %}">{% icon 'arrow-right' %}Scoping</a>
@@ -32,6 +36,7 @@
         <a class="btn btn-primary" href="{% url 'ticket_completed' ticket.id %}">{% icon 'check' %}Complete</a>
       {% endif %}
       {% if ticket.status == "Assigned" or ticket.status == "Scoping" or ticket.status == "In Progress" %}
+        <a class="btn btn-secondary" href="{% url 'ticket_transfer' ticket.id %}">{% icon 'corner-down-right' %}Transfer</a>
         <a class="btn btn-secondary" href="{% url 'ticket_update' ticket.id %}">{% icon 'pencil' %}Edit</a>
         <a class="btn btn-danger" href="{% url 'ticket_cancel' ticket.id %}" data-confirm="Cancel {{ ticket.number }}? This stops the SLA clock and cannot be undone.">Cancel</a>
       {% endif %}
@@ -173,25 +178,25 @@
       <div class="panel-head"><h2 id="details-title">Ticket Details</h2></div>
       <div class="panel-body">
         <dl class="facts">
-          <dt>Category</dt><dd>{{ ticket.category }}</dd>
-          <dt>Subcategory</dt><dd>{{ ticket.subcategory }}</dd>
+          <dt>Category</dt><dd>{% if ticket.category %}{{ ticket.category }}{% else %}<span class="muted">Not set yet</span>{% endif %}</dd>
+          <dt>Subcategory</dt><dd>{% if ticket.subcategory %}{{ ticket.subcategory }}{% else %}<span class="muted">Not set yet</span>{% endif %}</dd>
+          {% if ticket.detail %}<dt>Detail</dt><dd>{{ ticket.detail }}</dd>{% endif %}
           {% if request.user.role != "Viewer" %}
           <dt>Created By</dt>
-          <dd>{{ ticket.created_by|display_name }}<span class="sub">{{ ticket.created_by.email }}</span></dd>
+          <dd>{{ ticket.created_by|display_name }}<span class="sub">{{ ticket.created_by.email }}{% if ticket.source == "Email" %} · raised by email{% endif %}</span></dd>
           {% endif %}
           <dt>Assigned To</dt>
           <dd>{% if ticket.assigned_to %}{{ ticket.assigned_to|display_name }}{% else %}<span class="muted">Unassigned</span>{% endif %}</dd>
-          <dt>Created</dt><dd>{{ ticket.get_created_at|date:"d M Y, H:i" }}</dd>
+          <dt>Ticket Time</dt><dd>{{ ticket.get_created_at|date:"d M Y, H:i" }}<span class="sub">when it was raised</span></dd>
+          {% if ticket.assigned_at %}<dt>Assigned At</dt><dd>{{ ticket.get_assigned_at|date:"d M Y, H:i" }}</dd>{% endif %}
+          {% if ticket.first_response_at %}<dt>Start Time</dt><dd>{{ ticket.get_started_at|date:"d M Y, H:i" }}<span class="sub">when work began</span></dd>{% endif %}
           <dt>Last Updated</dt><dd>{{ ticket.get_updated_at|date:"d M Y, H:i" }}</dd>
           {% if ticket.due_by %}
           <dt>SLA Due By</dt>
           <dd>{{ ticket.get_due_by|date:"d M Y, H:i" }}{% if ticket.is_sla_breached %}<span class="sub" style="color: var(--p1); font-weight: 700;">Breached</span>{% endif %}</dd>
           {% endif %}
-          {% if ticket.first_response_time_hours %}
-          <dt>First Response Time</dt><dd>{{ ticket.first_response_time_hours }}h</dd>
-          {% endif %}
-          {% if ticket.resolution_time_hours %}
-          <dt>Resolution Time</dt><dd>{{ ticket.resolution_time_hours }}h</dd>
+          {% if ticket.turnaround_text %}
+          <dt>Turnaround Time</dt><dd>{{ ticket.turnaround_text }}<span class="sub">working time from assignment to completion</span></dd>
           {% endif %}
           {% if ticket.csat_rating and request.user.role != "Viewer" %}
           <dt>CSAT Rating</dt>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load ui_extras %}
+{% block title %}Emails to review{% endblock %}
+{% block page_class %}page-mid{% endblock %}
+
+{% block body %}
+
+<a class="back" href="{% url 'home' %}">{% icon 'arrow-left' 'i-sm' %}Dashboard</a>
+
+<div class="page-head">
+  <div>
+    <h1>Emails to review</h1>
+    <p class="lede">Emails to the support mailbox from people the system does not recognise. Accept one to create its ticket, or dismiss it.</p>
+  </div>
+</div>
+
+<section class="panel" aria-label="Held emails">
+  {% if held %}
+  <ul class="rows">
+    {% for item in held %}
+    <li class="held-row"{% if forloop.first %} style="border-top: 0;"{% endif %}>
+      <div>
+        <span class="t-title">{{ item.subject|default:"(no subject)" }}</span>
+        <span class="t-meta">{{ item.sender_name|default:item.sender }}{% if item.sender_name %} · {{ item.sender }}{% endif %} · {{ item.get_received_at|date:"d M, H:i" }} · {{ item.reason }}</span>
+        <p class="held-body">{{ item.body|truncatechars:320 }}</p>
+      </div>
+      <form method="POST" action="{% url 'inbound_decide' item.id %}" class="row-actions">
+        {% csrf_token %}
+        <button type="submit" name="decision" value="accept" class="btn btn-primary btn-sm">Create ticket</button>
+        <button type="submit" name="decision" value="dismiss" class="btn btn-secondary btn-sm">Dismiss</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">
+    <h3>No emails waiting</h3>
+    <p>Emails from people with an account become tickets on their own. Anything else appears here for you to decide.</p>
+  </div>
+  {% endif %}
+</section>
+
+{% endblock %}

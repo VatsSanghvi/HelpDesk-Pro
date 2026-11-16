@@ -118,10 +118,24 @@
         .catch(function () { sub.disabled = false; });
     };
 
+    // Third level: details follow the chosen subcategory.
+    var detail = form.querySelector('#id_detail');
+    var detailUrl = form.getAttribute('data-detail-url');
+    var loadDetails = function (keep) {
+      if (!detail || !detailUrl) return;
+      if (!sub.value) { detail.innerHTML = '<option value="">None</option>'; return; }
+      fetch(detailUrl + '?subcategory=' + encodeURIComponent(sub.value), { credentials: 'same-origin' })
+        .then(function (response) { return response.text(); })
+        .then(function (html) { detail.innerHTML = html; if (keep) detail.value = keep; });
+    };
+
     if (category && sub) {
-      category.addEventListener('change', function () { load(null); });
-      // After a failed submit the chosen subcategory must survive the reload.
+      var keepDetail = detail ? detail.value : null;
+      category.addEventListener('change', function () { load(null); if (detail) detail.innerHTML = '<option value="">None</option>'; });
+      sub.addEventListener('change', function () { loadDetails(null); });
+      // After a failed submit the chosen values must survive the reload.
       load(sub.value || null);
+      if (sub.value) loadDetails(keepDetail);
     }
   }
 
