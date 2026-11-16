@@ -169,3 +169,17 @@ def ago(moment):
 def is_unset(value):
     """True for the ways the audit trail records "there was no value before"."""
     return value in (None, "", "None")
+
+
+@register.filter
+def lead_figure(sentence):
+    """
+    Wrap a sentence's leading number so the headline can draw it as a figure.
+    "12 tickets are past..." -> "<span class="head-n">12</span> tickets are past..."
+    A sentence that does not open with a number is returned unchanged.
+    """
+    import re
+    match = re.match(r"^(\d+)(\s.*)$", str(sentence), re.S)
+    if not match:
+        return sentence
+    return format_html('<span class="head-n">{}</span>{}', match.group(1), match.group(2))

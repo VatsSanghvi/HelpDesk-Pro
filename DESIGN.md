@@ -23,7 +23,9 @@ colors:
   ink: "#0f211a"
   ink-2: "#3a4d44"
   ink-3: "#55675e"
-  ground: "#f3f8f5"
+  ground: "#e9f1ec"
+  head: "#f4f8f6"
+  panel-edge: "#94ad9f"
   paper: "#ffffff"
   row-hover: "#f7fbf9"
   rule: "#d3e0d8"
@@ -32,40 +34,40 @@ colors:
 typography:
   display:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "2.375rem"
+    fontSize: "3.75rem"
     fontWeight: 700
-    lineHeight: 1.12
-    letterSpacing: "-0.02em"
+    lineHeight: 1.06
+    letterSpacing: "-0.028em"
   headline:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "1.75rem"
+    fontSize: "2.125rem"
     fontWeight: 700
-    lineHeight: 1.2
-    letterSpacing: "-0.012em"
+    lineHeight: 1.15
+    letterSpacing: "-0.018em"
   figure:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "1.5rem"
+    fontSize: "2rem"
     fontWeight: 700
-    lineHeight: 1.2
+    lineHeight: 1.15
     fontFeature: "'tnum'"
   title:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "1.0625rem"
+    fontSize: "1.1875rem"
     fontWeight: 700
     lineHeight: 1.3
   body:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "0.90625rem"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.5
   body-sm:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "0.84375rem"
+    fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.4
   label:
     fontFamily: "'Atkinson Hyperlegible Next', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "0.78125rem"
+    fontSize: "0.8125rem"
     fontWeight: 600
     lineHeight: 1.4
 rounded:
@@ -75,20 +77,20 @@ rounded:
   lg: "8px"
   pill: "999px"
 spacing:
-  cell: "0.75rem"
-  panel-inset: "1.125rem"
+  cell: "0.875rem"
+  panel-inset: "1.5rem"
   gutter-small: "1.25rem"
   stack: "1.5rem"
-  column-gap: "1.75rem"
-  gutter: "2rem"
-  section: "2.5rem"
+  column-gap: "2rem"
+  gutter: "clamp(1.5rem, 2.5vw, 3rem)"
+  section: "2rem"
 components:
   button-primary:
     backgroundColor: "{colors.green}"
     textColor: "{colors.paper}"
     rounded: "{rounded.md}"
-    height: "2.25rem"
-    padding: "0 0.875rem"
+    height: "2.5rem"
+    padding: "0 1rem"
   button-primary-hover:
     backgroundColor: "{colors.green-deep}"
     textColor: "{colors.paper}"
@@ -96,15 +98,15 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
-    height: "2.25rem"
-    padding: "0 0.875rem"
+    height: "2.5rem"
+    padding: "0 1rem"
   button-secondary-hover:
     backgroundColor: "{colors.green-wash}"
     textColor: "{colors.ink}"
   button-quiet:
     textColor: "{colors.green}"
     rounded: "{rounded.md}"
-    height: "2.25rem"
+    height: "2.5rem"
     padding: "0 0.625rem"
   button-quiet-hover:
     backgroundColor: "{colors.green-wash}"
@@ -113,20 +115,20 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.p1}"
     rounded: "{rounded.md}"
-    height: "2.25rem"
-    padding: "0 0.875rem"
+    height: "2.5rem"
+    padding: "0 1rem"
   button-danger-hover:
     backgroundColor: "{colors.p1-wash}"
     textColor: "{colors.p1}"
   band:
     backgroundColor: "{colors.room}"
     textColor: "{colors.room-ink}"
-    height: "3.5rem"
+    height: "4rem"
   nav-link:
     textColor: "{colors.room-ink}"
     rounded: "{rounded.md}"
-    height: "2.25rem"
-    padding: "0 0.75rem"
+    height: "2.5rem"
+    padding: "0 0.9375rem"
   nav-link-current:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.room-ink}"
@@ -138,43 +140,43 @@ components:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     rounded: "{rounded.md}"
-    height: "2.5rem"
-    padding: "0 0.75rem"
+    height: "2.75rem"
+    padding: "0 0.875rem"
   priority-square-high:
     backgroundColor: "{colors.p1}"
     textColor: "{colors.paper}"
     rounded: "{rounded.sm}"
-    size: "1.625rem"
+    size: "1.75rem"
   priority-square-moderate:
     backgroundColor: "{colors.p2}"
     textColor: "{colors.ink}"
     rounded: "{rounded.sm}"
-    size: "1.625rem"
+    size: "1.75rem"
   priority-square-low:
     backgroundColor: "{colors.p3}"
     textColor: "{colors.paper}"
     rounded: "{rounded.sm}"
-    size: "1.625rem"
+    size: "1.75rem"
   status-pill:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     typography: "{typography.body-sm}"
     rounded: "{rounded.pill}"
-    padding: "0.125rem 0.5625rem 0.125rem 0.4375rem"
+    padding: "0.1875rem 0.6875rem 0.1875rem 0.5rem"
   status-pill-completed:
     backgroundColor: "{colors.green-wash}"
     textColor: "{colors.room-ink}"
   clock-track:
     backgroundColor: "{colors.paper}"
     rounded: "{rounded.track}"
-    height: "0.75rem"
-    width: "7.5rem"
+    height: "0.875rem"
+    width: "10rem"
   tooltip:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.paper}"
     typography: "{typography.label}"
     rounded: "{rounded.sm}"
-    padding: "0.1875rem 0.5rem"
+    padding: "0.3125rem 0.625rem"
 ---
 
 # Design System: HelpDesk Pro
@@ -219,10 +221,12 @@ The triage scale. These three hues carry urgency and are not available for decor
 ### Neutral
 - **Board Ink** (`ink`): body text, the clock marker, the status dot, the tooltip background, the Admin role tag.
 - **Ink 2** (`ink-2`) and **Ink 3** (`ink-3`): secondary text and metadata. Ink 3 is the lightest text colour in the system; it is also the dashed outline of anything Untriaged.
-- **Ground** (`ground`): the page, table header rows, disabled fields, note blocks inside a panel.
+- **Ground** (`ground`): the page, disabled fields, meters, note blocks inside a panel. It is deep enough that a white panel reads as a separate sheet.
+- **Head** (`head`): the strip behind every panel heading and table column head, a half step between paper and ground.
 - **Chart Paper** (`paper`): panels, fields, menus, the current navigation item.
 - **Row Hover** (`row-hover`): the tint a table row or list row takes under the pointer.
-- **Hairline** (`rule`) and **Strong Hairline** (`rule-strong`): panel borders and row dividers; the stronger one borders menus, pills, secondary buttons and the tab rail.
+- **Hairline** (`rule`) and **Strong Hairline** (`rule-strong`): row dividers inside a panel; the stronger one sits under a panel heading and borders menus, pills, secondary buttons and the tab rail.
+- **Panel Edge** (`panel-edge`): the outline of every panel and figures row. It is the darkest line in the system so that, scrolling, where one box ends and the next begins is never in doubt.
 - **Field Edge** (`field-edge`): the border of every form field, darker than any hairline so a field reads as a field.
 
 ### Named Rules
@@ -241,13 +245,13 @@ The triage scale. These three hues carry urgency and are not available for decor
 **Character:** One self-hosted variable face (weights 200 to 800, OFL) does every job. It was drawn for legibility, which suits a screen people read all day, and its open digits make ticket numbers and times easy to tell apart. Hierarchy comes from weight (400, 600, 700) and a tight size ramp, not from a second family.
 
 ### Hierarchy
-- **Display** (700, 2.375rem, 1.12, -0.02em): the sign-in pitch only. 1.625rem below 44rem.
-- **Headline** (700, 1.75rem, 1.2, -0.012em): one per page, written as a sentence. 1.5rem below 44rem. Its supporting line is 0.96875rem in Ink 2, at most 70ch.
-- **Figure** (700, 1.5rem, 1.2, tabular): the number in a figures row.
-- **Title** (700, 1.0625rem, 1.3): panel headings and the brand name.
-- **Body** (400, 0.90625rem, 1.5): everything else. Row titles and names are the same size at 700. Long text (ticket description, notes) is 0.96875rem at 1.6, at most 72ch.
-- **Body small** (0.84375rem): metadata lines, field labels (600), help text, status pills (600), small buttons.
-- **Label** (600, 0.78125rem): table column heads in Ink 3, count chips (700), tooltip, timestamps. Sentence case, no letter-spacing.
+- **Display** (700, 2.5rem to 3.75rem with the window, 1.06, -0.028em): the sign-in pitch only. 2rem below 44rem.
+- **Headline** (700, 2.125rem, 1.15, -0.018em): one per page, written as a sentence. 1.625rem below 44rem. Its supporting line is 1.1875rem in Ink 2, at most 70ch. On a dashboard with late tickets, the count that opens the sentence is Triage Red.
+- **Figure** (700, 2rem, 1.15, tabular): the number in a figures row. 1.625rem in the six-figure row below 96rem.
+- **Title** (700, 1.1875rem, 1.3): panel headings. The brand name is 1.3125rem.
+- **Body** (400, 1rem, 1.5): everything else. Row titles and names are the same size at 700. Long text (ticket description, notes) is 1.0625rem at 1.65, at most 72ch.
+- **Body small** (0.875rem): metadata lines, field labels (600), help text, status pills (600), small buttons.
+- **Label** (600, 0.8125rem): table column heads in Ink 3, count chips (700), tooltip, timestamps. Sentence case, no letter-spacing.
 
 ### Named Rules
 **The Tabular Where It Lines Up Rule.** Fixed-width figures are switched on only where numbers align or change in place: tables, figures, clocks, ticket numbers, counts, pagers, timestamps. Running text keeps proportional figures.
@@ -256,19 +260,19 @@ The triage scale. These three hues carry urgency and are not available for decor
 
 ## Layout
 
-A sticky top band (3.5rem) holds brand, navigation, the role's main action, notifications and the account menu. Below it a single centred page column, at most 86rem wide with 2rem gutters; forms and single-record pages narrow to 46rem or 64rem.
+A sticky top band (4rem) holds brand, navigation, the role's main action, notifications and the account menu. The band and the page run the full width of the window, with a gutter of 1.5rem to 3rem that grows with it; the 120rem cap only matters on very wide monitors. Everything is sized in rem and the root steps up with the window (16px, 17px from 100rem, 18px from 140rem), so type, squares, clocks and spacing grow together. Forms and single-record pages cap their content at 54rem or 88rem but keep the same left edge as every other page, so the heading never moves between screens.
 
-Inside the page: a heading row (sentence headline left, actions right), then panels. Two column patterns recur: a main column beside a fixed 22rem aside, and an uneven pair at 1.55 to 1. Related summaries share one panel divided by hairlines instead of sitting in separate cards. Vertical rhythm is 1.5rem between stacked panels, 1.75rem between columns and 2.5rem before a new section. Panels are inset 1.125rem; table cells 0.75rem, with the first and last cell aligned to the panel inset.
+Inside the page: a heading row (sentence headline left, actions right), then panels. Two column patterns recur: a main column beside an aside of 22rem to 31rem (27vw), and an uneven pair at 1.55 to 1. On the dashboard the board and the triage aside come first, then the figures row across the full width, then the charts panel. Related summaries share one panel divided by hairlines instead of sitting in separate cards. Vertical rhythm is 1.5rem between stacked panels, 2rem between columns and 2rem before a new section. Panels are inset 1.5rem; table cells 0.875rem, with the first and last cell aligned to the panel inset.
 
 Responsive behaviour:
 - Below 72rem the two-column patterns collapse to one column.
 - Below 60rem the gutter drops to 1.25rem and navigation folds behind a menu button into a full-width sheet under the band, with 2.75rem rows.
-- Below 44rem figures go two across, fact lists stack label over value, the lifecycle becomes a vertical list, the clock track shortens to 4.5rem, and buttons, icon buttons and tabs grow to a 2.75rem touch height.
-- Ticket tables respond to their own container, not the viewport. The full list drops its Updated column below 84rem and becomes stacked rows below 70rem; the dashboard table stacks below 36rem. A stacked row puts the subject first, then priority and status, then the clock on its own line.
+- Below 44rem figures go two across, fact lists stack label over value, the lifecycle becomes a vertical list, the clock track shortens to 4.5rem, the brand and band controls step down a size, and buttons, icon buttons and tabs grow to a 2.75rem touch height.
+- Ticket tables respond to their own container, not the viewport. The full list drops its Updated column and narrows its other columns below 84rem and becomes stacked rows below 70rem; the dashboard table stacks below 36rem. A stacked row puts the subject first, then priority and status, then the clock on its own line.
 
 ## Elevation & Depth
 
-Flat. Depth is tonal: ground, then paper, separated by a 1px hairline. Panels have no shadow. A shadow means the thing is floating above the page and will go away.
+Flat. Depth is tonal: ground, then paper, separated by a firm 1px Panel Edge. Panels have no shadow. A shadow means the thing is floating above the page and will go away.
 
 ### Shadow Vocabulary
 - **Floating** (`box-shadow: 0 2px 6px rgb(15 33 26 / 0.08), 0 14px 28px -10px rgb(15 33 26 / 0.28)`): dropdown menus, the notification panel and the tooltip.
@@ -289,7 +293,7 @@ Borders are 1px hairlines. The two exceptions are meaningful: a 3px underline ma
 
 ### Buttons
 Plain and firm; they change tone, not size or position.
-- **Shape:** 6px corners, 2.25rem tall, 0.875rem bold label, optional leading icon. Small is 1.875rem, large 2.75rem.
+- **Shape:** 6px corners, 2.5rem tall, 0.9375rem bold label, optional leading icon. Small is 2.125rem, large 3rem.
 - **Primary:** Deep Action Green with white text. One per view or panel.
 - **Secondary:** paper with a strong hairline; hover washes green.
 - **Quiet:** green text, no border; hover washes green.
@@ -305,32 +309,32 @@ Plain and firm; they change tone, not size or position.
 - **Corner Style:** 8px.
 - **Background:** paper on ground.
 - **Shadow Strategy:** none; see Elevation & Depth.
-- **Border:** 1px hairline. Sections inside a panel are divided by hairlines, not nested cards.
-- **Internal Padding:** 1.125rem at the sides, 0.875rem above and below a panel head. A panel head is a title, an optional muted note or count chip, and an optional link pushed to the right.
+- **Border:** 1px Panel Edge. Sections inside a panel are divided by hairlines, not nested cards.
+- **Internal Padding:** 1.5rem at the sides, 1rem above and below a panel head. A panel head is a title, an optional muted note or count chip, and an optional link pushed to the right; it sits on the Head tint with a strong hairline beneath, so every panel opens with a clear title strip.
 - **Figures row:** one bordered strip of cells divided by hairlines, each a bold number with a plain-words label beside or under it. A missing value is a dash in Ink 3 with a label that says why. A figure that needs attention turns its number red.
 
 ### Tables and rows
-- **Head:** label size, 600, Ink 3, on ground, hairline above and below.
-- **Rows:** 0.5625rem by 0.75rem cells, hairline between rows, row-hover tint under the pointer. The subject is a bold ink link with one small metadata line beneath (ticket number, category, status).
+- **Head:** label size, 600, Ink 3, on the Head tint, hairline beneath.
+- **Rows:** 0.8125rem by 0.875rem cells, hairline between rows, row-hover tint under the pointer. The subject is a bold ink link with one small metadata line beneath (ticket number, category, status).
 - **Narrow:** rows restack by container width as described in Layout. Column heads stay available to screen readers.
 
 ### Inputs / Fields
-- **Style:** paper, 1px field-edge border, 6px corners, 2.5rem tall; label above in small 600; help text below in Ink 3. Selects use an inline chevron.
+- **Style:** paper, 1px field-edge border, 6px corners, 2.75rem tall (3.25rem on sign-in); label above in body 600; help text below in Ink 3. Selects use an inline chevron.
 - **Focus:** border turns Deep Action Green with the field-focus ring.
 - **Error / Disabled:** red border with a small bold red message and icon beneath; disabled is ground-tinted and not editable.
 
 ### Navigation
-- **Band:** room green, 3.5rem, sticky, hairline beneath. Links are 500 weight in room ink; hover lightens with translucent white; the current page is a paper tile in 700.
+- **Band:** room green, 4rem, sticky, hairline beneath. Links are 500 weight in room ink; hover lightens with translucent white; the current page is a paper tile in 700.
 - **Tabs:** text tabs on a strong hairline; the current tab is ink, 700, with a 3px green underline. Each may carry a count chip.
 - **Menus:** paper, 8px corners, strong hairline, floating shadow; they open with a 160ms drop.
 - **Small screens:** a menu button opens the links as a sheet under the band; Escape closes it.
 
 ### Priority square
-A 1.625rem square with 4px corners holding the rank as a bold digit, followed by the priority name in bold: red 1 High (white digit), amber 2 Moderate (ink digit), green 3 Low (white digit). Untriaged is a dashed, unfilled square with a question mark and a lighter label. The same colours and the same dashed treatment are used for priority bars.
+A 1.75rem square with 4px corners holding the rank as a bold digit, followed by the priority name in bold: red 1 High (white digit), amber 2 Moderate (ink digit), green 3 Low (white digit). Untriaged is a dashed, unfilled square with a question mark and a lighter label. The same colours and the same dashed treatment are used for priority bars.
 
 ### Waiting clock (signature)
-Shown for every open, triaged ticket. A 0.75rem-high track with a strong hairline and 2px corners, in three bands: paper for the first 56.25%, Clock Amber to 75%, Clock Red to the end. The track spans the SLA window plus a third of overtime, so the deadline sits at the 75% line and amber is the last quarter of the window. A 3px ink marker, overhanging the track by 4px top and bottom, stands where the ticket is now. Beside it, a 600-weight label in words ("2h 11m remaining"); it turns Amber Ink and bold when soon, Triage Red and bold when late ("Breached (+24m)").
-- **Width:** 7.5rem by default, 6rem in the ticket list, 12rem on a ticket page, 4.5rem below 44rem.
+Shown for every open, triaged ticket. A 0.875rem-high track with a strong hairline and 2px corners, in three bands: paper for the first 56.25%, Clock Amber to 75%, Clock Red to the end. The track spans the SLA window plus a third of overtime, so the deadline sits at the 75% line and amber is the last quarter of the window. A 3px ink marker, overhanging the track by 4px top and bottom, stands where the ticket is now. Beside it, a 600-weight label in words ("2h 11m remaining"); it turns Amber Ink and bold when soon, Triage Red and bold when late ("Breached (+24m)").
+- **Width:** 10rem by default, 8.5rem in the ticket list (6rem once the list narrows), 15rem on a ticket page, 4.5rem below 44rem.
 - **Motion:** on load the marker travels from the start of the track to its position over 900ms on an ease-out curve (`cubic-bezier(0.16, 1, 0.3, 1)`), staggered 45ms per row. Meters grow in over 700ms on the same curve. With reduced motion, both are at rest immediately.
 - **Tooltip:** on hover and keyboard focus, one line directly under the clock: due time, window length, percentage used. Ink background, white label-size text, floating shadow.
 - **No clock:** a closed ticket gets a verdict (icon and words: met or missed); an untriaged one says "Starts at triage".
@@ -339,7 +343,7 @@ Shown for every open, triaged ticket. A 0.75rem-high track with a strong hairlin
 The lifecycle is five steps on a 2px rail: done steps are solid green, the current one is a green dot ringed in paper, a stopped ticket ends in red. The activity feed is a vertical rail of small ground-tinted icon dots, each with who, when and what changed; notes sit in a ground-tinted block.
 
 ### Alerts and empty states
-Alerts are one bordered row: icon, message in 600, dismiss button. Success is green-washed, warning amber-washed, error red-washed. Empty states are centred text in the panel: a bold line, one sentence in Ink 2, and the action if there is one.
+Alerts are one bordered row: icon, message in 600, dismiss button. Success is green-washed, warning amber-washed, error red-washed. Empty states are centred text in the panel: a bold line, one sentence in Ink 2, and the action if there is one. A chart with nothing to draw says so in a dashed box instead of showing empty axes. The category tree opens and closes on a drawn chevron that turns.
 
 ## Do's and Don'ts
 

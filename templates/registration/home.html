@@ -6,9 +6,10 @@
 
 <div class="page-head">
   <div>
-    <h1>{{ headline }}</h1>
+    <h1{% if late_count and request.user.role != "Viewer" %} class="is-late"{% endif %}>{{ headline|lead_figure }}</h1>
     <p class="lede">{% for part in lede_parts %}{% if part.url %}<a href="{{ part.url }}">{{ part.text }}</a>{% else %}{{ part.text }}{% endif %} {% endfor %}</p>
   </div>
+  <p class="page-stamp">{% icon 'clock' 'i-sm' %}<span>As of <time datetime="{% now 'c' %}">{% now "l j F, H:i" %}</time></span></p>
 </div>
 
 {% if request.user.role == "Viewer" %}
@@ -134,53 +135,6 @@
       </div>
       {% endif %}
     </section>
-
-    <div class="figures figures-6" aria-label="Service figures">
-      <div class="figure"><b>{{ open_count }}</b><span>open</span></div>
-      <div class="figure{% if late_count %} is-alert{% endif %}"><b>{{ late_count }}</b><span>past SLA deadline</span></div>
-      {% if request.user.role == "Admin" %}
-      <div class="figure"><b>{{ untriaged_count }}</b><span>waiting for triage</span></div>
-      {% else %}
-      <div class="figure"><b>{{ resolved_count }}</b><span>resolved</span></div>
-      {% endif %}
-      <div class="figure{% if avg_turnaround is None %} is-empty{% endif %}">
-        <b>{% if avg_turnaround is None %}–{% else %}{{ avg_turnaround }}{% endif %}</b><span>average turnaround{% if avg_turnaround is None %}, none completed yet{% endif %}</span>
-      </div>
-      <div class="figure{% if avg_first_response is None %} is-empty{% endif %}">
-        <b>{% if avg_first_response is None %}–{% else %}{{ avg_first_response }} h{% endif %}</b>
-        <span>average first response{% if avg_first_response is None %}, none yet{% endif %}</span>
-      </div>
-      <div class="figure{% if avg_csat is None %} is-empty{% endif %}">
-        <b>{% if avg_csat is None %}–{% else %}{{ avg_csat }} / 5{% endif %}</b>
-        <span>CSAT rating{% if avg_csat is None %}, none rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
-      </div>
-    </div>
-
-    {% if request.user.role == "Admin" %}
-    <section class="panel" aria-labelledby="team-title">
-      <div class="panel-head"><h2 id="team-title">Team workload</h2><span class="panel-note">Tickets per person. Avg TAT is working time from assignment to completion.</span></div>
-      {% if team %}
-      <div class="table-wrap">
-        <table class="table team-table">
-          <thead><tr><th>Person</th><th class="col-end">Open</th><th class="col-end">Resolved</th><th class="col-end">Total</th><th class="col-end">Avg TAT</th></tr></thead>
-          <tbody>
-            {% for member in team %}
-            <tr>
-              <td><span class="load-name">{{ member.user|display_name }}</span>{% if member.late %}<span class="load-late">{{ member.late }} late</span>{% endif %}</td>
-              <td class="col-end">{{ member.open }}</td>
-              <td class="col-end">{{ member.resolved }}</td>
-              <td class="col-end">{{ member.total }}</td>
-              <td class="col-end nowrap">{{ member.turnaround|default:"–" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <p class="empty-inline">No managers yet. <a href="{% url 'user_create' %}">Add a user</a> with the Manager role to assign tickets.</p>
-      {% endif %}
-    </section>
-    {% endif %}
   </div>
 
   <aside class="stack">
@@ -213,6 +167,29 @@
       {% endif %}
     </section>
 
+    <section class="panel" aria-labelledby="team-title">
+      <div class="panel-head"><h2 id="team-title">Team workload</h2><span class="panel-note">Tickets per person. Avg TAT is working time from assignment to completion.</span></div>
+      {% if team %}
+      <div class="table-wrap">
+        <table class="table team-table">
+          <thead><tr><th>Person</th><th class="col-end">Open</th><th class="col-end">Resolved</th><th class="col-end">Total</th><th class="col-end">Avg TAT</th></tr></thead>
+          <tbody>
+            {% for member in team %}
+            <tr>
+              <td><span class="load-name">{{ member.user|display_name }}</span>{% if member.late %}<span class="load-late">{{ member.late }} late</span>{% endif %}</td>
+              <td class="col-end">{{ member.open }}</td>
+              <td class="col-end">{{ member.resolved }}</td>
+              <td class="col-end">{{ member.total }}</td>
+              <td class="col-end nowrap">{{ member.turnaround|default:"–" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="empty-inline">No managers yet. <a href="{% url 'user_create' %}">Add a user</a> with the Manager role to assign tickets.</p>
+      {% endif %}
+    </section>
     {% else %}
     <section class="panel" aria-labelledby="stages-title">
       <div class="panel-head"><h2 id="stages-title">Your queue by stage</h2></div>
@@ -234,7 +211,28 @@
   </aside>
 </div>
 
-<section class="panel split section-gap" aria-label="Volume and breakdown">
+<div class="figures figures-6 section-gap" aria-label="Service figures">
+  <div class="figure"><b>{{ open_count }}</b><span>open</span></div>
+  <div class="figure{% if late_count %} is-alert{% endif %}"><b>{{ late_count }}</b><span>past SLA deadline</span></div>
+  {% if request.user.role == "Admin" %}
+  <div class="figure"><b>{{ untriaged_count }}</b><span>waiting for triage</span></div>
+  {% else %}
+  <div class="figure"><b>{{ resolved_count }}</b><span>resolved</span></div>
+  {% endif %}
+  <div class="figure{% if avg_turnaround is None %} is-empty{% endif %}">
+    <b>{% if avg_turnaround is None %}–{% else %}{{ avg_turnaround }}{% endif %}</b><span>average turnaround{% if avg_turnaround is None %}, none completed yet{% endif %}</span>
+  </div>
+  <div class="figure{% if avg_first_response is None %} is-empty{% endif %}">
+    <b>{% if avg_first_response is None %}–{% else %}{{ avg_first_response }} h{% endif %}</b>
+    <span>average first response{% if avg_first_response is None %}, none yet{% endif %}</span>
+  </div>
+  <div class="figure{% if avg_csat is None %} is-empty{% endif %}">
+    <b>{% if avg_csat is None %}–{% else %}{{ avg_csat }} / 5{% endif %}</b>
+    <span>CSAT rating{% if avg_csat is None %}, none rated yet{% else %} from {{ rated_count }} rated{% endif %}</span>
+  </div>
+</div>
+
+<section class="panel split stack-gap" aria-label="Volume and breakdown">
   <div class="split-col">
     <div class="panel-head"><h2 id="volume-title">Ticket volume, last 7 days</h2><span class="panel-note">By current status</span></div>
     <div class="panel-body">
@@ -336,11 +334,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
       Chart.defaults.font.family = token('--font');
-      Chart.defaults.font.size = 12.5;
+      Chart.defaults.font.size = 14;
       Chart.defaults.color = token('--ink-2');
       var days = charts.daily_volume;
+      // A week with nothing raised is said in words, not drawn as empty axes.
+      var raised = days.reduce(function (sum, day) { return sum + (day.open || 0) + (day.resolved || 0) + (day.pending || 0); }, 0);
+      if (!raised) {
+        document.querySelector('.chart-legend').hidden = true;
+        document.querySelector('.chart-box').outerHTML = '<div class="chart-empty"><b>No tickets were raised in the last 7 days</b><span>New tickets appear here by the day they were raised.</span></div>';
+        return;
+      }
       var series = function (key, label, color) {
-        return { label: label, data: days.map(function (day) { return day[key]; }), backgroundColor: color, borderRadius: 2, maxBarThickness: 40 };
+        return { label: label, data: days.map(function (day) { return day[key]; }), backgroundColor: color, borderRadius: 2, maxBarThickness: 64 };
       };
       new Chart(document.getElementById('volumeChart'), {
         type: 'bar',
